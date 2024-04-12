@@ -1,0 +1,139 @@
+{
+    "combos": [
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T14:08:45.880",
+            "description": "",
+            "enabled": true,
+            "keyword": ":feat:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:29:16.202",
+            "name": "",
+            "snippet": "git commit -m \"✨ (Feat) ",
+            "uuid": "{7af12033-d462-4653-96e7-08e9ceb88d44}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:28:42.320",
+            "description": "",
+            "enabled": true,
+            "keyword": ":fix:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:29:11.707",
+            "name": "",
+            "snippet": "git commit -m \"🐛 (Fix) ",
+            "uuid": "{785920bc-f400-4126-b3d4-0e833a6bb817}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:29:27.752",
+            "description": "",
+            "enabled": true,
+            "keyword": ":docs:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:30:14.840",
+            "name": "",
+            "snippet": "git commit -m \"📝 (Docs) ",
+            "uuid": "{ff47712b-0853-406f-b0de-55227454e4ad}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:30:31.171",
+            "description": "",
+            "enabled": true,
+            "keyword": ":style:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:30:49.342",
+            "name": "",
+            "snippet": "git commit -m \"🗃️ (Style) ",
+            "uuid": "{9e7e64da-4ad9-4e42-983d-b8a5f0d65c5e}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:31:05.519",
+            "description": "",
+            "enabled": true,
+            "keyword": ":test:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:31:21.503",
+            "name": "",
+            "snippet": "git commit -m \"✅ (Test) ",
+            "uuid": "{c3e08674-184b-4759-a951-069084f2980d}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:31:38.666",
+            "description": "",
+            "enabled": true,
+            "keyword": ":refactor:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:31:52.273",
+            "name": "",
+            "snippet": "git commit -m \"♻️ (Refactor) ",
+            "uuid": "{f85a6e08-ba35-4b7c-8940-bd1c7c854e5a}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:32:03.541",
+            "description": "",
+            "enabled": true,
+            "keyword": ":comment:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:32:16.277",
+            "name": "",
+            "snippet": "git commit -m \"💡 (Comment) ",
+            "uuid": "{ce178a2d-07fb-40f9-82c9-844f68497f94}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:32:18.250",
+            "description": "",
+            "enabled": true,
+            "keyword": ":design:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:32:35.055",
+            "name": "",
+            "snippet": "git commit -m \"🎨 (Design) ",
+            "uuid": "{4a5b8eb5-29ff-4dfe-8991-c3a2800247b7}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:32:37.224",
+            "description": "",
+            "enabled": true,
+            "keyword": ":hotfix:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:32:54.226",
+            "name": "",
+            "snippet": "git commit -m \"🚑 (Hotfix) ",
+            "uuid": "{b6a0da85-f4bb-411a-90a4-7cee94eae27c}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:33:03.450",
+            "description": "",
+            "enabled": true,
+            "keyword": ":build:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:33:29.771",
+            "name": "",
+            "snippet": "git commit -m \"👷 (Build) ",
+            "uuid": "{33697ca5-caeb-4632-8685-aac4af4b03fa}"
+        },
+        {
+            "caseSensitivity": 0,
+            "creationDateTime": "2024-04-12T15:33:39.858",
+            "description": "",
+            "enabled": true,
+            "keyword": ":merge:",
+            "matchingMode": 0,
+            "modificationDateTime": "2024-04-12T15:34:02.364",
+            "name": "",
+            "snippet": "git commit -m \"🤝🏻 (Merge) ",
+            "uuid": "{5612b261-2726-47ae-820e-40a2b5eea290}"
+        }
+    ],
+    "fileFormatVersion": 10,
+    "groups": [
+    ]
+}
