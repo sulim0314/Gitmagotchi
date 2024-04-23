@@ -4,6 +4,12 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Navbar from "@/components/common/Navber";
 import CreateCharacter from "@/pages/CreateCharacter";
+import Collection from "@/pages/Collection";
+import Award from "@/pages/Award";
+import Ranking from "@/pages/Ranking";
+import ChangeBg from "@/pages/ChangeBg";
+import Search from "@/pages/Search";
+import MyPage from "@/pages/MyPage";
 
 export default function App() {
   return (
@@ -13,6 +19,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/award" element={<Award />} />
+          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/changebg" element={<ChangeBg />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="/character/create" element={<CreateCharacter />} />
         </Routes>
       </Content>

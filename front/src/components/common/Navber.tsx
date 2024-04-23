@@ -2,6 +2,7 @@ import tw from "tailwind-styled-components";
 import { useState } from "react";
 import { HiOutlineMenu, HiOutlineChevronRight, HiOutlineChevronLeft, HiX } from "react-icons/hi";
 import SampleProfileImage from "@/assets/images/sampleProfile.png";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
   pageTitle?: string;
@@ -10,48 +11,58 @@ interface IProps {
 }
 
 export default function Navbar({ pageTitle, canGoBack, main }: IProps) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
 
   const toggleOpen = () => setOpen(!open);
 
+  const onClickLink = (url: string) => {
+    return () => {
+      setOpen(false);
+      navigate(url);
+    };
+  };
+
   const navItems = [
-    { id: 1, text: "캐릭터 도감" },
-    { id: 2, text: "명예의 전당" },
-    { id: 3, text: "사용자 랭킹" },
-    { id: 4, text: "배경화면" },
-    { id: 5, text: "통합검색" },
+    { id: 1, text: "캐릭터 도감", url: "/collection" },
+    { id: 2, text: "명예의 전당", url: "/award" },
+    { id: 3, text: "사용자 랭킹", url: "/ranking" },
+    { id: 4, text: "배경화면", url: "/changebg" },
+    { id: 5, text: "통합검색", url: "/search" },
   ];
 
   return (
     <Wrapper>
       <TitleContainer>
         {canGoBack && <BackIcon />}
-        <Title>{!main && "GITMAGOTCHI"}</Title>
+        {!main && <Title onClick={onClickLink("/")}>GITMAGOTCHI</Title>}
       </TitleContainer>
       <DesktopMenu>
         {navItems.map((item) => (
-          <DesktopMenuItem key={item.id}>{item.text}</DesktopMenuItem>
+          <DesktopMenuItem key={item.id} onClick={onClickLink(item.url)}>
+            {item.text}
+          </DesktopMenuItem>
         ))}
-        <div className="flex space-x-4 items-center px-10">
+        <DesktopUserContainer onClick={onClickLink("/mypage")}>
           <UserImg src={SampleProfileImage} />
           <UserNickname>코드몽키</UserNickname>
-        </div>
+        </DesktopUserContainer>
       </DesktopMenu>
       <MobileMenuButton onClick={toggleOpen}>
         {open ? <CloseIcon /> : <MenuIcon />}
       </MobileMenuButton>
       <MobileMenu $open={open}>
         <MobileMenuTitle>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
-        <UserContainer>
+        <MobileUserContainer onClick={onClickLink("/mypage")}>
           <UserImg src={SampleProfileImage} />
           <UserInfo>
             <GithubUsername>Tamma1001</GithubUsername>
             <UserNickname>코드몽키</UserNickname>
           </UserInfo>
-        </UserContainer>
+        </MobileUserContainer>
         <MobileMenuList>
           {navItems.map((item) => (
-            <MobileMenuItem key={item.id}>
+            <MobileMenuItem key={item.id} onClick={onClickLink(item.url)}>
               {item.text}
               <LinkIcon />
             </MobileMenuItem>
@@ -82,6 +93,7 @@ const Title = tw.h1`
 text-2xl
 font-medium
 text-slate-800
+cursor-pointer
 `;
 
 const DesktopMenu = tw.ul`
@@ -95,6 +107,13 @@ p-4
 m-2
 cursor-pointer
 hover:font-semibold
+`;
+
+const DesktopUserContainer = tw.div`
+flex
+space-x-4
+items-center
+px-10
 `;
 
 const MobileMenuButton = tw.div`
@@ -151,7 +170,7 @@ text-slate-800
 p-6
 `;
 
-const UserContainer = tw.div`
+const MobileUserContainer = tw.div`
 w-auto
 h-24
 border-y

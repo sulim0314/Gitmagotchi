@@ -1,6 +1,7 @@
 import tw from "tailwind-styled-components";
 import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import { FaGithub } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   return (
@@ -10,10 +11,12 @@ export default function Login() {
         <Title>깃마고치</Title>
         <Description>생성형 AI를 통해</Description>
         <Description>나만의 다마고치를 키워보세요.</Description>
-        <LoginButton>
-          <GitHubIcon />
-          <LoginText>GitHub로 로그인하기</LoginText>
-        </LoginButton>
+        <Link to="/character/create">
+          <LoginButton>
+            <GitHubIcon />
+            <LoginText>GitHub로 로그인하기</LoginText>
+          </LoginButton>
+        </Link>
       </Content>
     </Wrapper>
   );

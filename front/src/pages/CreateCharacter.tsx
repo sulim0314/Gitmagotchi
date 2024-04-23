@@ -1,6 +1,7 @@
 import tw from "tailwind-styled-components";
 import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
+import { Link } from "react-router-dom";
 
 export default function CreateCharacter() {
   return (
@@ -13,8 +14,12 @@ export default function CreateCharacter() {
           <Description>나만의 다마고치를 키워보세요.</Description>
         </DesktopTitle>
         <ButtonContainer>
-          <CommonButton title={"기본 캐릭터 선택"} />
-          <CommonButton title={"AI로 캐릭터 생성"} />
+          <Link to={"/character/create/default"}>
+            <CommonButton title={"기본 캐릭터 선택"} />
+          </Link>
+          <Link to={"/character/create/ai"}>
+            <CommonButton title={"AI로 캐릭터 생성"} />
+          </Link>
         </ButtonContainer>
       </Content>
     </Wrapper>
