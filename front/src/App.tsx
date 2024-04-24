@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import tw from "tailwind-styled-components";
+import { Route, Routes } from "react-router-dom";
+import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import Navbar from "@/components/common/Navber";
+import CreateCharacter from "@/pages/CreateCharacter";
+import Collection from "@/pages/Collection";
+import Award from "@/pages/Award";
+import Ranking from "@/pages/Ranking";
+import ChangeBg from "@/pages/ChangeBg";
+import Search from "@/pages/Search";
+import MyPage from "@/pages/MyPage";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Wrapper className="linear">
+      <Navbar />
+      <Content>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/award" element={<Award />} />
+          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/changebg" element={<ChangeBg />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/character/create" element={<CreateCharacter />} />
+        </Routes>
+      </Content>
+    </Wrapper>
+  );
 }
 
-export default App
+const Wrapper = tw.div`
+w-screen
+h-screen
+flex
+flex-col
+bg-blue-100
+`;
+
+const Content = tw.div`
+flex-grow
+w-full
+h-full
+`;
