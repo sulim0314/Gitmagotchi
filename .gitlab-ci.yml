@@ -14,7 +14,7 @@ build:
     - npm install
     - npm run build
 
-deploy-to-s3:
+.post:
 # aws cli를 설치하기 위해서 python image를 사용합니다.
   image: python:latest
   stage: deploy
