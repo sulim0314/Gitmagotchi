@@ -9,15 +9,15 @@ export default function CreateCharacter() {
       <img src={SampleCharacterImage} className="w-60" />
       <Content>
         <DesktopTitle>
-          <Title>깃마고치</Title>
-          <Description>생성형 AI를 통해</Description>
-          <Description>나만의 다마고치를 키워보세요.</Description>
+          <Title>캐릭터 생성</Title>
+          <Description>기본 캐릭터를 선택하거나 생성형 AI를 통해</Description>
+          <Description>나만의 다마고치를 만들어보세요.</Description>
         </DesktopTitle>
         <ButtonContainer>
           <Link to={"/character/create/default"}>
             <CommonButton title={"기본 캐릭터 선택"} />
           </Link>
-          <Link to={"/character/create/ai"}>
+          <Link to={"/character/ai"}>
             <CommonButton title={"AI로 캐릭터 생성"} />
           </Link>
         </ButtonContainer>

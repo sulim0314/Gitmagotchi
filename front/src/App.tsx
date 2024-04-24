@@ -10,6 +10,7 @@ import Ranking from "@/pages/Ranking";
 import ChangeBg from "@/pages/ChangeBg";
 import Search from "@/pages/Search";
 import MyPage from "@/pages/MyPage";
+import CreateCharacterByAi from "@/pages/CreateCharacterByAi";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/character/create" element={<CreateCharacter />} />
+          <Route path="/character/ai" element={<CreateCharacterByAi />} />
         </Routes>
       </Content>
     </Wrapper>

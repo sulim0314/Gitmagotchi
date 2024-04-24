@@ -123,28 +123,16 @@ cursor-pointer
 `;
 
 const MobileMenu = tw.ul<{ $open: boolean }>`
-${(p) =>
-  p.$open
-    ? `
-    fixed
-    lg:hidden
-    left-0
-    top-0
-    w-[60%]
-    h-full
-    bg-blue-50
-    ease-in-out
-    duration-500
-    `
-    : `
-    ease-in-out
-    w-[60%]
-    duration-500
-    fixed
-    top-0
-    bottom-0
-    left-[-100%]
-    `}
+${(p) => (p.$open ? "left-0" : "-left-full")}
+w-3/5
+lg:hidden
+h-full
+bg-blue-50
+top-0
+fixed
+ease-in-out
+duration-500
+shadow-xl
 `;
 
 const MobileMenuList = tw.div`
