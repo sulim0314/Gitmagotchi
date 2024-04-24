@@ -9,7 +9,7 @@ export default function CommonInput({ props }: IProps) {
 }
 
 const Input = tw.input`
-w-80
+w-full
 h-10
 rounded-lg
 shadow-lg

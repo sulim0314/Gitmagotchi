@@ -1,24 +1,24 @@
 import tw from "tailwind-styled-components";
-import AiImage from "@/assets/images/ai.png";
+import PictureImage from "@/assets/images/picture.png";
 import CommonButton from "@/components/common/CommonButton";
-import { Link } from "react-router-dom";
-import CommonInput from "@/components/common/CommonInput";
 
-export default function CreateCharacterByAi() {
+interface IProps {
+  setProcess: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export default function CreateMethod({ setProcess }: IProps) {
   return (
     <Wrapper>
-      <img src={AiImage} className="w-60" />
+      <img src={PictureImage} className="w-60" />
       <Content>
         <DesktopTitle>
-          <Title>생성할 캐릭터를 적어주세요.</Title>
-          <Description>AI가 생성할 캐릭터에 대해 구체적으로 작성해주세요.</Description>
-          <Description>구체적일수록 정확하게 생성되요.</Description>
+          <Title>배경화면 생성</Title>
+          <Description>배경화면을 생성할 방법을 선택해주세요.</Description>
+          <Description>생성형 AI로 만들거나 업로드할 수 있어요.</Description>
         </DesktopTitle>
         <ButtonContainer>
-          <CommonInput props={{ placeholder: "EX) 귀여운 오리" }} />
-          <Link to={"/character/create/ai"}>
-            <CommonButton title={"확인"} />
-          </Link>
+          <CommonButton onClick={() => setProcess(2)} title={"사용자 이미지 업로드"} />
+          <CommonButton onClick={() => setProcess(1)} title={"AI로 배경 이미지 생성"} />
         </ButtonContainer>
       </Content>
     </Wrapper>
@@ -42,7 +42,7 @@ flex-col
 justify-center
 items-center
 space-y-4
-h-60
+h-80
 `;
 
 const DesktopTitle = tw.div`
@@ -69,6 +69,9 @@ h-60
 flex
 flex-col
 space-y-4
+lg:flex-row
+lg:space-y-0
+lg:space-x-4
 justify-center
 items-center
 `;

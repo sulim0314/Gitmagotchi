@@ -3,14 +3,14 @@ import { Route, Routes } from "react-router-dom";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Navbar from "@/components/common/Navber";
-import CreateCharacter from "@/pages/CreateCharacter";
 import Collection from "@/pages/Collection";
 import Award from "@/pages/Award";
 import Ranking from "@/pages/Ranking";
 import ChangeBg from "@/pages/ChangeBg";
 import Search from "@/pages/Search";
 import MyPage from "@/pages/MyPage";
-import CreateCharacterByAi from "@/pages/CreateCharacterByAi";
+import CreateCharacter from "@/pages/CreateCharacter";
+import CreateBg from "@/pages/CreateBg";
 
 export default function App() {
   return (
@@ -27,7 +27,7 @@ export default function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/character/create" element={<CreateCharacter />} />
-          <Route path="/character/ai" element={<CreateCharacterByAi />} />
+          <Route path="/background/create" element={<CreateBg />} />
         </Routes>
       </Content>
     </Wrapper>
