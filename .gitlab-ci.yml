@@ -6,10 +6,11 @@ stages:
 # 이 전 작업과 동일한 내용인지를 확인해서 재사용 해주는 캐싱 메커니즘의 옵션입니다.
 cache:
   paths:
-    - node_modules/
+    - frontend/node_modules/
 build:
   stage: build
   script:
+    - cd frontend
     - npm install
     - npm run build
 
@@ -20,7 +21,7 @@ deploy-to-s3:
   script:
     - pip install awscli
 # aws s3 sync 명령어를 활용하여 빌드된 파일을 나의 버킷에 올려주고 public-read가 가능하도록 설정해 줍니다.
-    - aws s3 sync build s3://gitmagotchi-frontend --acl public-read
+    - aws s3 sync frontend/build s3://gitmagotchi-frontend --acl public-read
 # 해당 stage는 master branch에서만 실행 가능하도록 설정해 줍니다.
   only:
     - dev-frontend
