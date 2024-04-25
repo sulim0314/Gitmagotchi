@@ -5,8 +5,7 @@ deploy_to_s3:
   stage: deploy
   image: node:latest
   script:
-    - ls -la
-    - cd frontend
+    - cd front
     - npm install
     - npm run build
     - apt-get update && apt-get install -y python3-pip
