@@ -11,6 +11,7 @@ import Search from "@/pages/Search";
 import MyPage from "@/pages/MyPage";
 import CreateCharacter from "@/pages/CreateCharacter";
 import CreateBg from "@/pages/CreateBg";
+import CharacterMenu from "./pages/CharacterMenu";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/changebg" element={<ChangeBg />} />
           <Route path="/search" element={<Search />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/character" element={<CharacterMenu />} />
           <Route path="/character/create" element={<CreateCharacter />} />
           <Route path="/background/create" element={<CreateBg />} />
         </Routes>

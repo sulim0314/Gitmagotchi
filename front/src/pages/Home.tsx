@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import tw from "tailwind-styled-components";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
 import { FaRegCommentDots } from "react-icons/fa";
@@ -30,11 +30,17 @@ export default function Home() {
       <Header>
         <LeftHeader>
           <InfoContianer>
-            <img src={SampleFaceImage} className="w-16" />
+            <Link to={"/character"}>
+              <img src={SampleFaceImage} className="w-16" />
+            </Link>
             <CharacterInfo>
-              <CharacterLevel>LV.9</CharacterLevel>
+              <Link to={"/character"}>
+                <CharacterLevel>LV.9</CharacterLevel>
+              </Link>
               <NameContainer>
-                <CharacterName>도날드덕</CharacterName>
+                <Link to={"/character"}>
+                  <CharacterName>도날드덕</CharacterName>
+                </Link>
                 <ChatIcon />
               </NameContainer>
             </CharacterInfo>
