@@ -5,6 +5,7 @@ deploy_to_s3:
   stage: deploy
   image: node:latest
   script:
+    - ls -la
     - cd frontend
     - npm install
     - npm run build
