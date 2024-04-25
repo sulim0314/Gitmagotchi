@@ -3,7 +3,7 @@ stages:
 
 deploy_to_s3:
   stage: deploy
-  image: node:latest
+  image: node:20.11.1
   script:
     - cd front
     - npm install
