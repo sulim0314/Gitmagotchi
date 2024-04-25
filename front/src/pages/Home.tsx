@@ -100,8 +100,10 @@ export default function Home() {
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsg>밥을 먹어 포만감이 상승했습니다. (EXP +3)</ServerMsg>
-        <PlusIcon />
+        <ServerMsgBox>
+          <ServerMsg>밥을 먹어 포만감이 상승했습니다. (EXP +3)</ServerMsg>
+          <PlusIcon />
+        </ServerMsgBox>
       </ServerMsgContainer>
     </Wrapper>
   );
@@ -127,6 +129,7 @@ flex
 justify-between
 items-end
 lg:items-start
+z-10
 `;
 
 const LeftHeader = tw.div`
@@ -247,6 +250,7 @@ const InteractionContainer = tw.div`
 w-full
 h-14
 absolute
+lg:fixed
 bottom-6
 flex
 justify-end
@@ -268,6 +272,16 @@ p-1
 
 const ServerMsgContainer = tw.div`
 w-full
+lg:w-1/3
+lg:px-8
+lg:py-4
+lg:rounded-2xl
+z-10
+`;
+
+const ServerMsgBox = tw.div`
+w-full
+lg:rounded-2xl
 h-8
 flex
 justify-between
