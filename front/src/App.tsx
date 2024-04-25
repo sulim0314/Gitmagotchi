@@ -11,7 +11,8 @@ import Search from "@/pages/Search";
 import MyPage from "@/pages/MyPage";
 import CreateCharacter from "@/pages/CreateCharacter";
 import CreateBg from "@/pages/CreateBg";
-import CharacterMenu from "./pages/CharacterMenu";
+import CharacterMenu from "@/pages/CharacterMenu";
+import Chat from "@/pages/Chat";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/character" element={<CharacterMenu />} />
           <Route path="/character/create" element={<CreateCharacter />} />
+          <Route path="/character/chat" element={<Chat />} />
           <Route path="/background/create" element={<CreateBg />} />
         </Routes>
       </Content>

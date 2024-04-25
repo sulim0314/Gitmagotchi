@@ -17,3 +17,13 @@
 .linear {
   background: linear-gradient(#e4eded 0%, #e1eced 80%, #dde0bc 100%);
 }
+
+div::-webkit-scrollbar {
+  width: 0.2rem;
+}
+div::-webkit-scrollbar-thumb {
+  background-color: rgb(184, 184, 184);
+}
+div::-webkit-scrollbar-track {
+  background-color: #fdfdfd;
+}

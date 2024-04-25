@@ -41,7 +41,9 @@ export default function Home() {
                 <Link to={"/character"}>
                   <CharacterName>도날드덕</CharacterName>
                 </Link>
-                <ChatIcon />
+                <Link to={"/character/chat"}>
+                  <ChatIcon />
+                </Link>
               </NameContainer>
             </CharacterInfo>
           </InfoContianer>
