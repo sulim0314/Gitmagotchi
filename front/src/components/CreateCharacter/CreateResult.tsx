@@ -1,12 +1,12 @@
 import tw from "tailwind-styled-components";
-import sampleFaceImage from "@/assets/images/sampleFace.png";
+import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
 import { Link } from "react-router-dom";
 
 export default function CreateResult() {
   return (
     <Wrapper>
-      <img src={sampleFaceImage} className="w-60" />
+      <img src={SampleCharacterImage} className="w-60" />
       <Content>
         <DesktopTitle>
           <Title>도날드덕 캐릭터가</Title>

@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
+import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
 
 interface IProps {
@@ -9,7 +9,7 @@ interface IProps {
 export default function CreateMethod({ setProcess }: IProps) {
   return (
     <Wrapper>
-      <img src={SampleCharacterImage} className="w-60" />
+      <img src={SampleStartCharacterImage} className="w-60" />
       <Content>
         <DesktopTitle>
           <Title>캐릭터 생성</Title>

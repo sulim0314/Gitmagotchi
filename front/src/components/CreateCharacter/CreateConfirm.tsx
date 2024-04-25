@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import sampleFaceImage from "@/assets/images/sampleFace.png";
+import sampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
 
@@ -10,7 +10,7 @@ interface IProps {
 export default function CreateConfirm({ setProcess }: IProps) {
   return (
     <Wrapper>
-      <img src={sampleFaceImage} className="w-60" />
+      <img src={sampleCharacterImage} className="w-60" />
       <Content>
         <DesktopTitle>
           <Title>캐릭터가 생성되었어요.</Title>
