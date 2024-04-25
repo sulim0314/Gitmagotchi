@@ -123,6 +123,7 @@ const MobileMenuButton = tw.div`
 block
 lg:hidden
 cursor-pointer
+z-50
 `;
 
 const MobileMenu = tw.ul<{ $open: boolean }>`

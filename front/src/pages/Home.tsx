@@ -12,7 +12,9 @@ import interactionRunImage from "@/assets/images/interactionRun.png";
 import interactionShowerImage from "@/assets/images/interactionShower.png";
 import interactionGameImage from "@/assets/images/interactionGame.png";
 import { VscRefresh } from "react-icons/vsc";
-import { HiPlusCircle } from "react-icons/hi";
+import { HiPlusCircle, HiHeart } from "react-icons/hi";
+import { LuBatteryFull } from "react-icons/lu";
+import { BsStars } from "react-icons/bs";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -26,39 +28,62 @@ export default function Home() {
   return (
     <Wrapper>
       <Header>
-        <InfoContianer>
-          <img src={SampleFaceImage} className="w-16" />
-          <CharacterInfo>
-            <CharacterLevel>LV.9</CharacterLevel>
-            <NameContainer>
-              <CharacterName>도날드덕</CharacterName>
-              <ChatIcon />
-            </NameContainer>
-          </CharacterInfo>
-        </InfoContianer>
-        <ExpContainer>
-          <ExpBarContainer>
-            <ExpBar />
-            <ExpText>60 / 100</ExpText>
-          </ExpBarContainer>
-        </ExpContainer>
+        <LeftHeader>
+          <InfoContianer>
+            <img src={SampleFaceImage} className="w-16" />
+            <CharacterInfo>
+              <CharacterLevel>LV.9</CharacterLevel>
+              <NameContainer>
+                <CharacterName>도날드덕</CharacterName>
+                <ChatIcon />
+              </NameContainer>
+            </CharacterInfo>
+          </InfoContianer>
+          <ExpContainer>
+            <ExpBarContainer>
+              <ExpBar />
+              <ExpText>60 / 100</ExpText>
+            </ExpBarContainer>
+          </ExpContainer>
+          <StatContainer>
+            <StatRow>
+              <BatteryIcon />
+              <StatBarContainer className="bg-red-400/50">
+                <StatBar className="bg-red-500" />
+              </StatBarContainer>
+            </StatRow>
+            <StatRow>
+              <HeartIcon />
+              <StatBarContainer className="bg-amber-400/50">
+                <StatBar className="bg-amber-500" />
+              </StatBarContainer>
+            </StatRow>
+            <StatRow>
+              <ShineIcon />
+              <StatBarContainer className="bg-blue-400/50">
+                <StatBar className="bg-blue-500" />
+              </StatBarContainer>
+            </StatRow>
+          </StatContainer>
+          <img src={PlayImage} className="w-16 cursor-pointer" />
+        </LeftHeader>
+        <RightHeader>
+          <PropertyList>
+            <PropertyContainer>
+              <img src={CoinImage} className="w-8" />
+              <PropertyNumber>200</PropertyNumber>
+            </PropertyContainer>
+            <PropertyContainer>
+              <img src={MeatImage} className="w-8" />
+              <PropertyNumber>7</PropertyNumber>
+              <RefreshIcon />
+            </PropertyContainer>
+          </PropertyList>
+        </RightHeader>
       </Header>
-      <TopContainer>
-        <img src={PlayImage} className="w-16 cursor-pointer" />
-        <PropertyList>
-          <PropertyContainer>
-            <img src={CoinImage} className="w-8" />
-            <PropertyNumber>200</PropertyNumber>
-          </PropertyContainer>
-          <PropertyContainer>
-            <img src={MeatImage} className="w-8" />
-            <PropertyNumber>7</PropertyNumber>
-            <RefreshIcon />
-          </PropertyContainer>
-        </PropertyList>
-      </TopContainer>
+
       <MainContainer>
-        <img src={sampleCharacter2Image} className="w-3/5" />
+        <img src={sampleCharacter2Image} className="w-3/5 lg:w-auto lg:h-2/3" />
         <InteractionContainer>
           <InteractionButton>
             <img src={interactionEatImage} />
@@ -92,11 +117,20 @@ flex-col
 
 const Header = tw.div`
 absolute
--top-20
-w-3/4
-h-28
+-top-24
+lg:top-0
+w-full
+h-48
 py-2
 px-6
+flex
+justify-between
+items-end
+lg:items-start
+`;
+
+const LeftHeader = tw.div`
+flex-grow
 `;
 
 const InfoContianer = tw.div`
@@ -168,11 +202,10 @@ z-10
 text-slate-100
 `;
 
-const TopContainer = tw.div`
-w-full
+const RightHeader = tw.div`
+w-20
 h-34
-pt-10
-px-8
+pt-4
 flex
 justify-between
 items-end
@@ -253,4 +286,56 @@ w-4
 h-4
 text-slate-200
 cursor-pointer
+`;
+
+const StatContainer = tw.div`
+hidden
+w-full
+h-20
+lg:flex
+flex-col
+space-y-1
+pl-2
+py-2
+`;
+
+const StatRow = tw.div`
+flex
+items-center
+space-x-2
+`;
+
+const StatBarContainer = tw.div`
+w-36
+h-2
+rounded-lg
+shadow-md
+flex
+justify-center
+items-center
+relative
+`;
+
+const StatBar = tw.div`
+absolute
+top-0
+left-0
+w-3/5
+h-full
+rounded-lg
+`;
+
+const BatteryIcon = tw(LuBatteryFull)`
+w-4
+h-4
+`;
+
+const HeartIcon = tw(HiHeart)`
+w-4
+h-4
+`;
+
+const ShineIcon = tw(BsStars)`
+w-4
+h-4
 `;
