@@ -1,19 +1,49 @@
 import tw from "tailwind-styled-components";
 import { IoSend } from "react-icons/io5";
+import CharacterChat from "@/components/Chat/CharacterChat";
+import UserChat from "@/components/Chat/UserChat";
+import SampleFaceImage from "@/assets/images/sampleFace.png";
+import SampleProfileImage from "@/assets/images/sampleProfile.png";
 
 export default function Chat() {
   return (
     <Wrapper>
       <ChatContainer>
         <ChatList>
-          <ChatRow></ChatRow>
-          <ChatRow></ChatRow>
-          <ChatRow></ChatRow>
-          <ChatRow></ChatRow>
+          <CharacterChat
+            imgSrc={SampleFaceImage}
+            level={9}
+            name={"도날드덕"}
+            text={"안녕 나는 도날드덕이야."}
+          />
+          <UserChat
+            imgSrc={SampleProfileImage}
+            username={"Tama1001"}
+            nickname={"코드몽키"}
+            text={"김치 먹어본 적 있어?"}
+          />
+          <CharacterChat
+            imgSrc={SampleFaceImage}
+            level={9}
+            name={"도날드덕"}
+            text={"최근에 먹어봤는데 아주 맛있게 먹었어요 ^_^"}
+          />
+          <UserChat
+            imgSrc={SampleProfileImage}
+            username={"Tama1001"}
+            nickname={"코드몽키"}
+            text={"엄청 덥다."}
+          />
+          <CharacterChat
+            imgSrc={SampleFaceImage}
+            level={9}
+            name={"도날드덕"}
+            text={"그러게요. 쪄 죽을 것 같아요."}
+          />
         </ChatList>
       </ChatContainer>
       <ChatInputContainer>
-        <ChatInput />
+        <ChatInput placeholder="메시지를 입력하세요." />
         <SendIcon />
       </ChatInputContainer>
     </Wrapper>
@@ -32,7 +62,6 @@ const ChatContainer = tw.div`
 w-full
 h-20
 flex-grow
-bg-blue-200
 `;
 
 const ChatList = tw.div`
@@ -40,11 +69,6 @@ w-full
 h-full
 grow-0
 overflow-y-scroll
-`;
-
-const ChatRow = tw.div`
-w-full
-h-80
 `;
 
 const ChatInputContainer = tw.div`
