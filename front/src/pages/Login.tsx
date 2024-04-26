@@ -1,12 +1,12 @@
 import tw from "tailwind-styled-components";
-import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
+import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import { FaGithub } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 export default function Login() {
   return (
     <Wrapper>
-      <img src={SampleCharacterImage} className="w-60" />
+      <img src={SampleStartCharacterImage} className="w-60" />
       <Content>
         <Title>깃마고치</Title>
         <Description>생성형 AI를 통해</Description>

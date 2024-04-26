@@ -54,5 +54,4 @@ bg-blue-100
 const Content = tw.div`
 flex-grow
 w-full
-h-full
 `;

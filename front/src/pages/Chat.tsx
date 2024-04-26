@@ -40,6 +40,18 @@ export default function Chat() {
             name={"도날드덕"}
             text={"그러게요. 쪄 죽을 것 같아요."}
           />
+          <UserChat
+            imgSrc={SampleProfileImage}
+            username={"Tama1001"}
+            nickname={"코드몽키"}
+            text={"엄청 덥다."}
+          />
+          <CharacterChat
+            imgSrc={SampleFaceImage}
+            level={9}
+            name={"도날드덕"}
+            text={"그러게요. 쪄 죽을 것 같아요."}
+          />
         </ChatList>
       </ChatContainer>
       <ChatInputContainer>

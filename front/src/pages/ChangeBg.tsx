@@ -1,3 +1,10 @@
+import tw from "tailwind-styled-components";
+
 export default function ChangeBg() {
-  return <div></div>;
+  return <Wrapper></Wrapper>;
 }
+
+const Wrapper = tw.div`
+w-full
+h-full
+`;
