@@ -1,21 +1,21 @@
 import tw from "tailwind-styled-components";
-import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
+import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import CommonButton from "@/components/common/CommonButton";
-import { Link } from "react-router-dom";
+import CommonInput from "@/components/common/CommonInput";
 
-export default function CreateResult() {
+export default function CharacterRename() {
   return (
     <Wrapper>
-      <img src={SampleCharacterImage} className="w-60" />
+      <img src={sampleCharacter2Image} className="w-60" />
       <Content>
         <DesktopTitle>
-          <Title>도날드덕 캐릭터가</Title>
-          <Title>생성되었어요.</Title>
+          <Title>새 이름을 입력해주세요.</Title>
         </DesktopTitle>
         <ButtonContainer>
-          <Link to={"/"}>
-            <CommonButton title={"확인"} />
-          </Link>
+          <PromptContainer>
+            <CommonInput props={{ placeholder: "캐릭터 이름" }} />
+          </PromptContainer>
+          <CommonButton title={"확인 (💰100)"} onClick={() => {}} />
         </ButtonContainer>
       </Content>
     </Wrapper>
@@ -63,4 +63,9 @@ flex-col
 space-y-4
 justify-center
 items-center
+`;
+
+const PromptContainer = tw.div`
+py-0
+w-72
 `;

@@ -1,17 +1,18 @@
 import tw from "tailwind-styled-components";
 import { useState } from "react";
-import { HiOutlineMenu, HiOutlineChevronRight, HiOutlineChevronLeft, HiX } from "react-icons/hi";
+import { HiOutlineMenu, HiOutlineChevronLeft, HiX } from "react-icons/hi";
 import SampleProfileImage from "@/assets/images/sampleProfile.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import CommonMenuItem from "./CommonMenuItem";
 
 interface IProps {
   pageTitle?: string;
   canGoBack?: boolean;
-  main?: boolean;
 }
 
-export default function Navbar({ pageTitle, canGoBack, main }: IProps) {
+export default function Navbar({ pageTitle, canGoBack }: IProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState<boolean>(false);
 
   const toggleOpen = () => setOpen(!open);
@@ -35,7 +36,9 @@ export default function Navbar({ pageTitle, canGoBack, main }: IProps) {
     <Wrapper>
       <TitleContainer>
         {canGoBack && <BackIcon />}
-        {!main && <Title onClick={onClickLink("/")}>GITMAGOTCHI</Title>}
+        <Title $main={location.pathname === "/"} onClick={onClickLink("/")}>
+          GITMAGOTCHI
+        </Title>
       </TitleContainer>
       <DesktopMenu>
         {navItems.map((item) => (
@@ -52,7 +55,7 @@ export default function Navbar({ pageTitle, canGoBack, main }: IProps) {
         {open ? <CloseIcon /> : <MenuIcon />}
       </MobileMenuButton>
       <MobileMenu $open={open}>
-        <MobileMenuTitle>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
+        <MobileMenuTitle onClick={onClickLink("/")}>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
         <MobileUserContainer onClick={onClickLink("/mypage")}>
           <UserImg src={SampleProfileImage} />
           <UserInfo>
@@ -62,10 +65,7 @@ export default function Navbar({ pageTitle, canGoBack, main }: IProps) {
         </MobileUserContainer>
         <MobileMenuList>
           {navItems.map((item) => (
-            <MobileMenuItem key={item.id} onClick={onClickLink(item.url)}>
-              {item.text}
-              <LinkIcon />
-            </MobileMenuItem>
+            <CommonMenuItem key={item.id} text={item.text} onClick={onClickLink(item.url)} />
           ))}
         </MobileMenuList>
       </MobileMenu>
@@ -89,7 +89,8 @@ flex
 space-x-2
 `;
 
-const Title = tw.h1`
+const Title = tw.h1<{ $main: boolean }>`
+${(p) => (p.$main ? "hidden lg:block" : "block")}
 text-2xl
 font-medium
 text-slate-800
@@ -114,12 +115,14 @@ flex
 space-x-4
 items-center
 px-10
+cursor-pointer
 `;
 
 const MobileMenuButton = tw.div`
 block
 lg:hidden
 cursor-pointer
+z-50
 `;
 
 const MobileMenu = tw.ul<{ $open: boolean }>`
@@ -133,22 +136,11 @@ fixed
 ease-in-out
 duration-500
 shadow-xl
+z-50
 `;
 
 const MobileMenuList = tw.div`
 p-4
-`;
-
-const MobileMenuItem = tw.li`
-p-6
-flex
-justify-between
-border-b
-border-slate-300
-hover:bg-purple-200
-duration-300
-cursor-pointer
-font-semibold
 `;
 
 const MobileMenuTitle = tw.h1`
@@ -156,6 +148,7 @@ text-2xl
 font-medium
 text-slate-800
 p-6
+cursor-pointer
 `;
 
 const MobileUserContainer = tw.div`
@@ -168,6 +161,7 @@ items-center
 p-4
 border-slate-300
 space-x-4
+cursor-pointer
 `;
 
 const MenuIcon = tw(HiOutlineMenu)`
@@ -186,12 +180,6 @@ const BackIcon = tw(HiOutlineChevronLeft)`
 w-8
 h-8
 text-slate-700
-`;
-
-const LinkIcon = tw(HiOutlineChevronRight)`
-w-4
-h-4
-text-slate-500
 `;
 
 const UserImg = tw.img`
