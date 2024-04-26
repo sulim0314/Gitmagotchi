@@ -126,10 +126,12 @@ lg:px-40
 
 const Title = tw.h1`
 text-xl
+lg:text-3xl
 `;
 
 const NewBgLink = tw.h4`
 text-sm
+lg:text-lg
 text-slate-400
 `;
 
