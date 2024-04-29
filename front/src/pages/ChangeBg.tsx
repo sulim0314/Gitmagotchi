@@ -3,13 +3,16 @@ import tw from "tailwind-styled-components";
 import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 export default function ChangeBg() {
   return (
     <Wrapper>
       <Header>
         <Title>현재 배경화면</Title>
-        <NewBgLink>+ 새 배경화면</NewBgLink>
+        <Link to={"/background/create"}>
+          <NewBgLink>+ 새 배경화면</NewBgLink>
+        </Link>
       </Header>
       <Content>
         <CurrentBgContainer>
@@ -18,7 +21,7 @@ export default function ChangeBg() {
               backgroundImage: `url(${sampleBgImage})`,
             }}
           >
-            <img src={sampleCharacter2Image} className="w-1/2" />
+            <img src={sampleCharacter2Image} className="w-40 lg:w-60" />
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>
@@ -149,12 +152,16 @@ lg:justify-center
 
 const CurrentBgContainer = tw.div`
 px-8
-lg:w-[30rem]
+w-full
+flex
+justify-center
 `;
 
 const CurrentBg = tw.div`
-w-full
-aspect-square
+w-80
+h-80
+lg:w-[27rem]
+lg:h-[27rem]
 flex
 justify-center
 items-center
@@ -169,7 +176,7 @@ const BgList = tw.div`
 h-40
 px-4
 lg:py-4
-lg:w-[40rem]
+lg:w-full
 flex
 lg:grid
 lg:grid-cols-4
@@ -190,6 +197,7 @@ lg:rounded-lg
 
 const BgItem = tw.div`
 h-36
+lg:h-auto
 aspect-square
 rounded-xl
 shadow-lg

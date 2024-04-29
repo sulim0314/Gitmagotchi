@@ -18,7 +18,7 @@ export default function CollectionItem({ award, deathType, collection }: IProps)
           backgroundImage: `url(${sampleBgImage})`,
         }}
       />
-      <img src={sampleCharacter2Image} className={`w-2/3 z-10 ${!award && "grayscale"}`} />
+      <img src={sampleCharacter2Image} className={`w-24 lg:w-32 z-10 ${!award && "grayscale"}`} />
       {!award && <img src={deathFrameImage} className="absolute w-full h-full" />}
       <NameContainer>도날드덕</NameContainer>
       {!collection && <Username>Tama1001</Username>}
