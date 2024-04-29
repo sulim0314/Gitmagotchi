@@ -114,8 +114,10 @@ flex-col
 space-y-6
 items-center
 bg-[#e4eded]
-pb-6
-lg:p-14
+pb-4
+lg:px-14
+lg:py-6
+
 `;
 
 const Header = tw.div`
@@ -123,7 +125,7 @@ w-full
 flex
 justify-between
 items-end
-p-8
+px-8
 lg:px-40
 `;
 
@@ -182,7 +184,7 @@ lg:grid
 lg:grid-cols-4
 lg:overflow-y-scroll
 lg:gap-2
-lg:h-[26rem]
+lg:h-[27rem]
 lg:items-start
 items-center
 space-x-2
@@ -193,6 +195,7 @@ scrollbar-hide
 lg:scrollbar-default
 lg:overflow-x-auto
 lg:rounded-lg
+shadow-lg
 `;
 
 const BgItem = tw.div`
