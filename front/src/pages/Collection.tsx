@@ -3,6 +3,7 @@ import TotalImg from "@/assets/images/collectionTotal.png";
 import LaurelImg from "@/assets/images/collectionLaurel.png";
 import DeathImg from "@/assets/images/collectionDeath.png";
 import { useState } from "react";
+import CollectionItem from "@/components/common/CollectionItem";
 
 type CollectionMenu = "TOTAL" | "AWARD" | "DEATH";
 
@@ -34,6 +35,30 @@ export default function Collection() {
           <MenuDescription>사망</MenuDescription>
         </MenuItem>
       </MenuContainer>
+      <CollectionContainer>
+        <CharacterGrid>
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={false} deathType="아사" />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={false} deathType="병사" />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={false} deathType="가출" />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+          <CollectionItem collection award={true} />
+        </CharacterGrid>
+      </CollectionContainer>
     </Wrapper>
   );
 }
@@ -41,19 +66,22 @@ export default function Collection() {
 const Wrapper = tw.div`
 w-full
 h-full
+flex
+flex-col
 `;
 
 const MenuContainer = tw.div`
 w-full
 py-6
+px-4
 flex
 space-x-2
 justify-center
 `;
 
 const MenuItem = tw.div<{ $selected: boolean }>`
-w-32
-h-40
+w-28
+h-36
 rounded-3xl
 shadow-xl
 flex
@@ -77,4 +105,25 @@ font-bold
 const MenuDescription = tw.h4`
 text-sm
 font-semibold
+`;
+
+const CollectionContainer = tw.div`
+w-full
+h-20
+flex-grow
+flex
+flex-col
+items-center
+space-y-4
+overflow-y-scroll
+lg:px-32
+`;
+
+const CharacterGrid = tw.div`
+w-full
+p-4
+grid
+grid-cols-3
+lg:grid-cols-6
+gap-2
 `;

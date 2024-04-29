@@ -91,7 +91,7 @@ export default function Home() {
       </Header>
 
       <MainContainer>
-        <img src={sampleCharacter2Image} className="w-3/5 lg:w-auto lg:h-2/3" />
+        <img src={sampleCharacter2Image} className="w-80 lg:w-[30rem]" />
         <InteractionContainer>
           <InteractionButton>
             <img src={interactionEatImage} />

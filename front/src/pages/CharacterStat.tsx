@@ -18,7 +18,7 @@ export default function CharacterStat() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={sampleCharacter2Image} className="w-1/3 lg:w-1/3" />
+          <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
           <Name>도날드덕</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>
@@ -101,10 +101,13 @@ lg:flex-col-reverse
 
 const LevelText = tw.h1`
 p-2
+w-full
 `;
 
 const ExpContainer = tw.div`
 w-full
+max-w-[30rem]
+lg:max-w-[35rem]
 py-4
 px-16
 flex
@@ -165,6 +168,7 @@ h-full
 flex
 flex-col
 justify-center
+items-center
 lg:space-y-10
 `;
 
@@ -201,6 +205,8 @@ font-bold
 
 const StatList = tw.div`
 w-full
+max-w-[30rem]
+lg:max-w-[35rem]
 p-8
 flex
 flex-col
