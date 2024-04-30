@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import tw from "tailwind-styled-components";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
@@ -6,18 +6,20 @@ import { FaRegCommentDots } from "react-icons/fa";
 import MeatImage from "@/assets/images/meat.png";
 import CoinImage from "@/assets/images/coin.png";
 import PlayImage from "@/assets/images/play.png";
-import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import interactionEatImage from "@/assets/images/interactionEat.png";
 import interactionRunImage from "@/assets/images/interactionRun.png";
 import interactionShowerImage from "@/assets/images/interactionShower.png";
 import interactionGameImage from "@/assets/images/interactionGame.png";
+import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
+import Spritesheet from "react-responsive-spritesheet";
 
 export default function Home() {
   const navigate = useNavigate();
+  const spritesheet = useRef<Spritesheet | null>(null);
 
   useEffect(() => {
     if (false) {
@@ -73,7 +75,15 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <img src={PlayImage} className="w-16 cursor-pointer" />
+          <img
+            src={PlayImage}
+            className="w-16 cursor-pointer"
+            onClick={() => {
+              if (spritesheet.current) {
+                spritesheet.current.play();
+              }
+            }}
+          />
         </LeftHeader>
         <RightHeader>
           <PropertyList>
@@ -91,7 +101,34 @@ export default function Home() {
       </Header>
 
       <MainContainer>
-        <img src={sampleCharacter2Image} className="w-80 lg:w-[30rem]" />
+        <CharacterCanvasContainer>
+          <CharacterCanvas
+            image={sampleSpritesheetImage}
+            widthFrame={500}
+            heightFrame={500}
+            steps={339}
+            fps={30}
+            autoplay={true}
+            loop={false}
+            direction="forward"
+            backgroundSize={`cover`}
+            backgroundRepeat={`no-repeat`}
+            backgroundPosition={`center center`}
+            getInstance={(s) => {
+              spritesheet.current = s;
+            }}
+            onEnterFrame={[
+              {
+                frame: 338,
+                callback: () => {
+                  if (spritesheet.current) {
+                    spritesheet.current.goToAndPause(1);
+                  }
+                },
+              },
+            ]}
+          />
+        </CharacterCanvasContainer>
         <InteractionContainer>
           <InteractionButton>
             <img src={interactionEatImage} />
@@ -360,4 +397,24 @@ h-4
 const ShineIcon = tw(BsStars)`
 w-4
 h-4
+`;
+
+const CharacterCanvasContainer = tw.div`
+w-80
+lg:w-[30rem]
+aspect-square
+relative
+overflow-hidden
+`;
+
+const CharacterCanvas = tw(Spritesheet)`
+w-full
+h-full
+absolute
+top-1/2
+left-1/2
+-translate-x-1/2
+-translate-y-1/3
+scale-110
+lg:scale-125
 `;
