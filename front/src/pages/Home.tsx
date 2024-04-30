@@ -119,6 +119,7 @@ export default function Home() {
             backgroundSize={`cover`}
             backgroundRepeat={`no-repeat`}
             backgroundPosition={`center center`}
+            isResponsive={true}
             getInstance={(s) => {
               spritesheet.current = s;
             }}
@@ -405,21 +406,13 @@ h-4
 `;
 
 const CharacterCanvasContainer = tw.div`
-w-80
-lg:w-[30rem]
+max-w-full
+max-h-full
+absolute
 aspect-square
-relative
-overflow-hidden
 `;
 
 const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
-absolute
-top-1/2
-left-1/2
--translate-x-1/2
--translate-y-1/3
-scale-110
-lg:scale-125
 `;
