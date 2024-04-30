@@ -1,25 +1,22 @@
+import { IUser } from "@/models";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 
 const { persistAtom } = recoilPersist();
 
-interface IUser {
-  name: string;
-  email: string;
-  id: string;
-}
-
-interface IAuth {
+interface IAuthData {
   isLogin: boolean;
   user: IUser | null;
+  characterId: string | null;
 }
 
-const defaultAuth: IAuth = {
+const defaultAuth: IAuthData = {
   isLogin: false,
   user: null,
+  characterId: null,
 };
 
-export const memberDataAtom = atom<IAuth>({
+export const authDataAtom = atom<IAuthData>({
   key: "authData",
   default: defaultAuth,
   effects_UNSTABLE: [persistAtom],

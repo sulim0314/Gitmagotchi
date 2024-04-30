@@ -4,11 +4,18 @@ import LaurelImg from "@/assets/images/collectionLaurel.png";
 import DeathImg from "@/assets/images/collectionDeath.png";
 import { useState } from "react";
 import CollectionItem from "@/components/common/CollectionItem";
+import { getCollectionList } from "@/api/collection";
+import { useQuery } from "@tanstack/react-query";
+import { ICollection } from "@/models";
 
 type CollectionMenu = "TOTAL" | "AWARD" | "DEATH";
 
 export default function Collection() {
   const [menu, setMenu] = useState<CollectionMenu>("TOTAL");
+  const { data } = useQuery({
+    queryKey: ["collection", menu],
+    queryFn: () => getCollectionList({ menu }),
+  });
 
   const changeMenu = (type: CollectionMenu) => {
     return () => {
@@ -37,26 +44,9 @@ export default function Collection() {
       </MenuContainer>
       <CollectionContainer>
         <CharacterGrid>
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={false} deathType="아사" />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={false} deathType="병사" />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={false} deathType="가출" />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
-          <CollectionItem collection award={true} />
+          {data?.map((collection: ICollection) => (
+            <CollectionItem key={collection.id} collection={collection} award={false} />
+          ))}
         </CharacterGrid>
       </CollectionContainer>
     </Wrapper>

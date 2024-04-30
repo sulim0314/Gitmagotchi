@@ -1,9 +1,9 @@
 import tw from "tailwind-styled-components";
 import { useState } from "react";
-import CreateMethod from "@/components/CreateCharacter/CreateMethod";
-import CreateByAi from "@/components/CreateCharacter/CreateByAi";
-import CreateConfirm from "@/components/CreateCharacter/CreateConfirm";
-import CreateResult from "@/components/CreateCharacter/CreateResult";
+import CreateMethod from "@/components/createCharacter/CreateMethod";
+import CreateByAi from "@/components/createCharacter/CreateByAi";
+import CreateConfirm from "@/components/createCharacter/CreateConfirm";
+import CreateResult from "@/components/createCharacter/CreateResult";
 
 export default function CreateCharacter() {
   const [process, setProcess] = useState<number>(0);

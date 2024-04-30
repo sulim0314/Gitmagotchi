@@ -2,12 +2,20 @@ import tw from "tailwind-styled-components";
 import LaurelImg from "@/assets/images/collectionLaurel.png";
 import { HiChevronDown } from "react-icons/hi";
 import CollectionItem from "@/components/common/CollectionItem";
+import { useQuery } from "@tanstack/react-query";
+import { getAwardList } from "@/api/collection";
+import { ICollection } from "@/models";
 
 export default function Award() {
+  const { data } = useQuery({
+    queryKey: ["award"],
+    queryFn: getAwardList,
+  });
+
   return (
     <Wrapper>
       <Container>
-        <img src={LaurelImg} className="w-2/5 lg:w-auto lg:h-1/5" />
+        <img src={LaurelImg} className="w-40" />
         <Title>명예의 전당</Title>
         <Description>최고 레벨을 달성한 캐릭터들을 만나보세요.</Description>
         <SortOptionContainer>
@@ -17,26 +25,9 @@ export default function Award() {
           </SortOption>
         </SortOptionContainer>
         <CharacterGrid>
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
-          <CollectionItem award />
+          {data?.map((collection: ICollection) => (
+            <CollectionItem key={collection.id} collection={collection} award />
+          ))}
         </CharacterGrid>
       </Container>
     </Wrapper>

@@ -1,11 +1,21 @@
 import CommonButton from "@/components/common/CommonButton";
 import tw from "tailwind-styled-components";
-import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getBackgroundList } from "@/api/background";
+import { IBackground } from "@/models";
+import { useState } from "react";
 
 export default function ChangeBg() {
+  const [selected, setSelected] = useState<IBackground | null>(null);
+
+  const { data } = useQuery({
+    queryKey: ["background"],
+    queryFn: getBackgroundList,
+  });
+
   return (
     <Wrapper>
       <Header>
@@ -18,87 +28,30 @@ export default function ChangeBg() {
         <CurrentBgContainer>
           <CurrentBg
             style={{
-              backgroundImage: `url(${sampleBgImage})`,
+              backgroundImage: `url(${selected?.imageUrl})`,
             }}
           >
             <img src={sampleCharacter2Image} className="w-40 lg:w-60" />
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <SelectedContainer>
-              <CheckIcon />
-              <CheckText>선택됨</CheckText>
-            </SelectedContainer>
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
-          <BgItem
-            style={{
-              backgroundImage: `url(${sampleBgImage})`,
-            }}
-          >
-            <TrashIcon />
-          </BgItem>
+          {data?.map((bg: IBackground) => (
+            <BgItem
+              key={bg.id}
+              style={{
+                backgroundImage: `url(${bg.imageUrl})`,
+              }}
+              onClick={() => setSelected(bg)}
+            >
+              <TrashIcon />
+              {selected && selected.id === bg.id && (
+                <SelectedContainer>
+                  <CheckIcon />
+                  <CheckText>선택됨</CheckText>
+                </SelectedContainer>
+              )}
+            </BgItem>
+          ))}
         </BgList>
       </Content>
       <CommonButton title="변경" />

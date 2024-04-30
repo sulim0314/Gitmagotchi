@@ -16,16 +16,21 @@ import { HiPlusCircle, HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
+import { useRecoilValue } from "recoil";
+import { authDataAtom } from "@/store/auth";
 
 export default function Home() {
   const navigate = useNavigate();
+  const authData = useRecoilValue(authDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
 
   useEffect(() => {
-    if (false) {
-      navigate("/login", { replace: true });
-    }
-  }, []);
+    // if (!authData.isLogin) {
+    //   navigate("/login", { replace: true });
+    // } else if (!authData.characterId) {
+    //   navigate("/character/create", { replace: true });
+    // }
+  }, [authData, navigate]);
 
   return (
     <Wrapper>
@@ -114,6 +119,7 @@ export default function Home() {
             backgroundSize={`cover`}
             backgroundRepeat={`no-repeat`}
             backgroundPosition={`center center`}
+            isResponsive={true}
             getInstance={(s) => {
               spritesheet.current = s;
             }}
@@ -400,21 +406,13 @@ h-4
 `;
 
 const CharacterCanvasContainer = tw.div`
-w-80
-lg:w-[30rem]
+max-w-full
+max-h-full
+absolute
 aspect-square
-relative
-overflow-hidden
 `;
 
 const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
-absolute
-top-1/2
-left-1/2
--translate-x-1/2
--translate-y-1/3
-scale-110
-lg:scale-125
 `;
