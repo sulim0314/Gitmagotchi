@@ -17,7 +17,7 @@ import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import { useRecoilValue } from "recoil";
-import { authDataAtom } from "@/store/atom";
+import { authDataAtom } from "@/store/auth";
 
 export default function Home() {
   const navigate = useNavigate();
