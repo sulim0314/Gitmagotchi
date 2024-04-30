@@ -9,7 +9,7 @@ export default function Ranking() {
   const [menu, setMenu] = useState<"BEST" | "WORST">("BEST");
   const { data } = useQuery({
     queryKey: ["ranking", menu],
-    queryFn: () => getRankingList({ menu }),
+    queryFn: () => getRankingList(),
   });
 
   const changeMenu = () => {
@@ -41,7 +41,7 @@ export default function Ranking() {
         <MyRank>내 등수: 50등</MyRank>
         <RankListContainer>
           <RankList>
-            {data?.map((r) => (
+            {data?.map((r: any) => (
               <RankingItem ranking={r} best={menu === "BEST"} />
             ))}
           </RankList>

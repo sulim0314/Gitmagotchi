@@ -160,7 +160,7 @@ export const sampleAward = [
 export const sampleCollection: ICollection[] = [
   {
     id: 1,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -170,7 +170,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 2,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "가출",
     fullnessStat: 4,
@@ -180,7 +180,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 3,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -190,7 +190,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 4,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "아사",
     fullnessStat: 4,
@@ -200,7 +200,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 5,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -210,7 +210,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 6,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "병사",
     fullnessStat: 4,
@@ -220,7 +220,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 7,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -230,7 +230,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 8,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -240,7 +240,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 9,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -250,7 +250,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 10,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -260,7 +260,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 11,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -270,7 +270,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 12,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -280,7 +280,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 13,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -290,7 +290,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 14,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,
@@ -300,7 +300,7 @@ export const sampleCollection: ICollection[] = [
   },
   {
     id: 15,
-    userId: "tama1001",
+    userId: 1,
     characterName: "도날드덕",
     ending: "졸업",
     fullnessStat: 4,

@@ -2,10 +2,10 @@
 
 import { sampleAward, sampleCollection } from "./sample";
 
-export const getAwardList = async (params: any): Promise<any> => {
+export const getAwardList = async (): Promise<any> => {
   //   const response = await axiosInstance.post("/collection", params);
   //   return response.data;
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(sampleAward);
     }, 2000);
@@ -15,7 +15,7 @@ export const getAwardList = async (params: any): Promise<any> => {
 export const getCollectionList = async (params: any): Promise<any> => {
   //   const response = await axiosInstance.post("/collection", params);
   //   return response.data;
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       if (params.menu === "TOTAL") {
         resolve(sampleCollection);

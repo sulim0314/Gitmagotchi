@@ -29,6 +29,10 @@ export default function Search() {
     setHistoryOpen((prev) => !prev);
   };
 
+  const onChangeKeyword: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setKeyword(e.target.value);
+  };
+
   return (
     <Wrapper>
       <DesktopMenu>
@@ -52,6 +56,7 @@ export default function Search() {
         <InputContainer>
           <SearchInput
             placeholder={`${type === "CHARACTER" ? "캐릭터" : "사용자"}를 찾아보세요.`}
+            onChange={onChangeKeyword}
           />
           <SearchIcon />
         </InputContainer>
