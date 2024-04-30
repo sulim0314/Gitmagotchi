@@ -1,9 +1,9 @@
 import tw from "tailwind-styled-components";
 import { useState } from "react";
-import CreateMethod from "@/components/CreateBg/CreateMethod";
-import CreateByAi from "@/components/CreateBg/CreateByAi";
-import CreateResult from "@/components/CreateBg/CreateResult";
-import CreateByUpload from "@/components/CreateBg/CreateByUpload";
+import CreateMethod from "@/components/createBg/CreateMethod";
+import CreateByAi from "@/components/createBg/CreateByAi";
+import CreateResult from "@/components/createBg/CreateResult";
+import CreateByUpload from "@/components/createBg/CreateByUpload";
 
 export default function CreateBg() {
   const [process, setProcess] = useState<number>(0);

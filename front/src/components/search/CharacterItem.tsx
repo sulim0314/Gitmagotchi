@@ -1,30 +1,23 @@
 import tw from "tailwind-styled-components";
-import deathFrameImage from "@/assets/images/deathFrame.png";
-import { ICollection } from "@/models";
+import { ICharacter } from "@/models";
 
 interface IProps {
-  collection: ICollection;
-  award: boolean;
+  character: ICharacter;
 }
 
-export default function CollectionItem({ collection, award }: IProps) {
+export default function CharacterItem({ character }: IProps) {
   return (
     <Wrapper>
       <Container>
         <BackgroundImage
-          $grayscale={collection.ending !== "졸업"}
           style={{
-            backgroundImage: `url(${collection.characterUrl})`,
+            backgroundImage: `url(${character.characterUrl})`,
           }}
         />
-        {collection.ending !== "졸업" && (
-          <img src={deathFrameImage} className="absolute w-full h-full" />
-        )}
         <NameContainer>
-          <CharacterName>{collection.characterName}</CharacterName>
+          <CharacterName>{character.name}</CharacterName>
         </NameContainer>
-        {award && <Username>{collection.userId}</Username>}
-        {collection.ending !== "졸업" && <DeathType>{collection.ending}</DeathType>}
+        <Username>{character.userId}</Username>
       </Container>
     </Wrapper>
   );
@@ -49,11 +42,10 @@ shadow-lg
 overflow-hidden
 `;
 
-const BackgroundImage = tw.div<{ $grayscale: boolean }>`
+const BackgroundImage = tw.div`
 absolute
 w-full
 h-full
-${(p) => (p.$grayscale ? "grayscale" : "")}
 bg-cover
 bg-no-repeat
 bg-center

@@ -16,16 +16,21 @@ import { HiPlusCircle, HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
+import { useRecoilValue } from "recoil";
+import { authDataAtom } from "@/store/atom";
 
 export default function Home() {
   const navigate = useNavigate();
+  const authData = useRecoilValue(authDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
 
   useEffect(() => {
-    if (false) {
-      navigate("/login", { replace: true });
-    }
-  }, []);
+    // if (!authData.isLogin) {
+    //   navigate("/login", { replace: true });
+    // } else if (!authData.characterId) {
+    //   navigate("/character/create", { replace: true });
+    // }
+  }, [authData, navigate]);
 
   return (
     <Wrapper>

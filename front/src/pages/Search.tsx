@@ -1,25 +1,58 @@
 import tw from "tailwind-styled-components";
-import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import RankingItem from "@/components/Ranking/RankingItem";
+import { HiChevronLeft, HiChevronRight, HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { HiOutlineSearch } from "react-icons/hi";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getSearchList } from "@/api/search";
+import CharacterItem from "@/components/search/CharacterItem";
+import { ICharacter, IUser } from "@/models";
+import UserItem from "@/components/search/UserItem";
 
 export default function Search() {
+  const [type, setType] = useState<"CHARACTER" | "USER">("CHARACTER");
+  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [keyword, setKeyword] = useState<string>("");
+  const { data } = useQuery({
+    queryKey: ["search", type, keyword],
+    queryFn: () => getSearchList({ type, keyword }),
+  });
+
+  const changeType = () => {
+    if (type === "CHARACTER") {
+      setType("USER");
+    } else {
+      setType("CHARACTER");
+    }
+  };
+
+  const toggleHistoryOpen = () => {
+    setHistoryOpen((prev) => !prev);
+  };
+
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem $selected={true}>캐릭터 검색</DesktopMenuItem>
-        <DesktopMenuItem $selected={false}>사용자 검색</DesktopMenuItem>
+        <DesktopMenuItem $selected={type === "CHARACTER"} onClick={() => setType("CHARACTER")}>
+          <DesktopMenuText>캐릭터 검색</DesktopMenuText>
+        </DesktopMenuItem>
+        <DesktopMenuItem $selected={type === "USER"} onClick={() => setType("USER")}>
+          <DesktopMenuText>사용자 검색</DesktopMenuText>
+        </DesktopMenuItem>
       </DesktopMenu>
       <Container>
         <MobileHeader>
           <MobileRankingMenu>
-            <LeftIcon />
-            <RankingMenuText>캐릭터 검색</RankingMenuText>
-            <RightIcon />
+            <LeftIcon onClick={changeType} />
+            <RankingMenuText>{`${
+              type === "CHARACTER" ? "캐릭터" : "사용자"
+            } 검색`}</RankingMenuText>
+            <RightIcon onClick={changeType} />
           </MobileRankingMenu>
         </MobileHeader>
         <InputContainer>
-          <SearchInput placeholder="캐릭터를 찾아보세요." />
+          <SearchInput
+            placeholder={`${type === "CHARACTER" ? "캐릭터" : "사용자"}를 찾아보세요.`}
+          />
           <SearchIcon />
         </InputContainer>
         <Content>
@@ -27,24 +60,32 @@ export default function Search() {
             <RecentKeywordContainer>
               <TitleContainer>
                 <Title>최근검색어</Title>
+                {historyOpen ? (
+                  <UpIcon onClick={toggleHistoryOpen} />
+                ) : (
+                  <DownIcon onClick={toggleHistoryOpen} />
+                )}
               </TitleContainer>
-              <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>
+              {historyOpen && <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>}
             </RecentKeywordContainer>
-            <Divider />
+            {historyOpen && <Divider />}
             <ResultContainer>
               <TitleContainer>
                 <Title>검색 결과</Title>
               </TitleContainer>
-              <SearchResultList>
-                <RankingItem rank={1} best={true} />
-                <RankingItem rank={2} best={true} />
-                <RankingItem rank={3} best={true} />
-                <RankingItem rank={4} best={true} />
-                <RankingItem rank={5} best={true} />
-                <RankingItem rank={6} best={true} />
-                <RankingItem rank={7} best={true} />
-                <RankingItem rank={8} best={true} />
-              </SearchResultList>
+              {data && type === "CHARACTER" ? (
+                <CharacterResultList>
+                  {data?.map((c: ICharacter) => (
+                    <CharacterItem key={c.id} character={c} />
+                  ))}
+                </CharacterResultList>
+              ) : (
+                <UserResultList>
+                  {data?.map((u: IUser) => (
+                    <UserItem key={u.id} user={u} />
+                  ))}
+                </UserResultList>
+              )}
             </ResultContainer>
           </ScrollContent>
         </Content>
@@ -66,6 +107,7 @@ bg-[#e4eded]
 const DesktopMenu = tw.div`
 hidden
 w-1/4
+min-w-60
 h-full
 lg:flex
 flex-col
@@ -79,9 +121,19 @@ h-14
 w-full
 flex
 items-center
-px-14
 hover:bg-purple-200
 rounded-2xl
+focus:outline-none
+`;
+
+const DesktopMenuText = tw.h1`
+px-10
+w-full
+text-left
+text-base
+overflow-clip
+break-works
+flex-grow
 `;
 
 const Container = tw.div`
@@ -118,12 +170,28 @@ const LeftIcon = tw(HiChevronLeft)`
 w-6
 h-6
 text-slate-400
+cursor-pointer
 `;
 
 const RightIcon = tw(HiChevronRight)`
 w-6
 h-6
 text-slate-400
+cursor-pointer
+`;
+
+const UpIcon = tw(HiChevronUp)`
+w-6
+h-6
+text-slate-400
+cursor-pointer
+`;
+
+const DownIcon = tw(HiChevronDown)`
+w-6
+h-6
+text-slate-400
+cursor-pointer
 `;
 
 const InputContainer = tw.div`
@@ -167,9 +235,18 @@ h-full
 overflow-y-scroll
 `;
 
-const SearchResultList = tw.div`
+const UserResultList = tw.div`
 w-full
 h-full
+`;
+
+const CharacterResultList = tw.div`
+w-full
+h-full
+p-4
+grid
+grid-cols-3
+gap-2
 `;
 
 const RecentKeywordContainer = tw.div`

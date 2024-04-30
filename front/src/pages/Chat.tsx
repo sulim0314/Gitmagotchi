@@ -1,7 +1,7 @@
 import tw from "tailwind-styled-components";
 import { IoSend } from "react-icons/io5";
-import CharacterChat from "@/components/Chat/CharacterChat";
-import UserChat from "@/components/Chat/UserChat";
+import CharacterChat from "@/components/chat/CharacterChat";
+import UserChat from "@/components/chat/UserChat";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
 import SampleProfileImage from "@/assets/images/sampleProfile.png";
 

@@ -1,33 +1,49 @@
 import tw from "tailwind-styled-components";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import RankingItem from "@/components/Ranking/RankingItem";
+import RankingItem from "@/components/ranking/RankingItem";
+import { useQuery } from "@tanstack/react-query";
+import { getRankingList } from "@/api/ranking";
+import { useState } from "react";
 
 export default function Ranking() {
+  const [menu, setMenu] = useState<"BEST" | "WORST">("BEST");
+  const { data } = useQuery({
+    queryKey: ["ranking", menu],
+    queryFn: () => getRankingList({ menu }),
+  });
+
+  const changeMenu = () => {
+    if (menu === "BEST") {
+      setMenu("WORST");
+    } else {
+      setMenu("BEST");
+    }
+  };
+
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem $selected={true}>BEST 랭킹</DesktopMenuItem>
-        <DesktopMenuItem $selected={false}>WORST 랭킹</DesktopMenuItem>
+        <DesktopMenuItem $selected={menu === "BEST"} onClick={() => setMenu("BEST")}>
+          <DesktopMenuText>BEST 랭킹</DesktopMenuText>
+        </DesktopMenuItem>
+        <DesktopMenuItem $selected={menu === "WORST"} onClick={() => setMenu("WORST")}>
+          <DesktopMenuText>WORST 랭킹</DesktopMenuText>
+        </DesktopMenuItem>
       </DesktopMenu>
       <Container>
         <MobileHeader>
           <MobileRankingMenu>
-            <LeftIcon />
-            <RankingMenuText>BEST 랭킹</RankingMenuText>
-            <RightIcon />
+            <LeftIcon onClick={changeMenu} />
+            <RankingMenuText>{`${menu} 랭킹`}</RankingMenuText>
+            <RightIcon onClick={changeMenu} />
           </MobileRankingMenu>
         </MobileHeader>
         <MyRank>내 등수: 50등</MyRank>
         <RankListContainer>
           <RankList>
-            <RankingItem rank={1} best={true} />
-            <RankingItem rank={2} best={true} />
-            <RankingItem rank={3} best={true} />
-            <RankingItem rank={4} best={true} />
-            <RankingItem rank={5} best={true} />
-            <RankingItem rank={6} best={true} />
-            <RankingItem rank={7} best={true} />
-            <RankingItem rank={8} best={true} />
+            {data?.map((r) => (
+              <RankingItem ranking={r} best={menu === "BEST"} />
+            ))}
           </RankList>
         </RankListContainer>
       </Container>
@@ -48,6 +64,7 @@ bg-[#e4eded]
 const DesktopMenu = tw.div`
 hidden
 w-1/4
+min-w-60
 h-full
 lg:flex
 flex-col
@@ -61,9 +78,19 @@ h-14
 w-full
 flex
 items-center
-px-14
 hover:bg-purple-200
 rounded-2xl
+focus:outline-none
+`;
+
+const DesktopMenuText = tw.h1`
+px-10
+w-full
+text-left
+text-base
+overflow-clip
+break-works
+flex-grow
 `;
 
 const Container = tw.div`
@@ -100,12 +127,14 @@ const LeftIcon = tw(HiChevronLeft)`
 w-6
 h-6
 text-slate-400
+cursor-pointer
 `;
 
 const RightIcon = tw(HiChevronRight)`
 w-6
 h-6
 text-slate-400
+cursor-pointer
 `;
 
 const MyRank = tw.div`
