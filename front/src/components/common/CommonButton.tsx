@@ -9,7 +9,7 @@ export default function CommonButton({ title, onClick }: IProps) {
   return <Container onClick={onClick}>{title}</Container>;
 }
 
-const Container = tw.div`
+const Container = tw.button`
 w-72
 lg:w-52
 h-10
