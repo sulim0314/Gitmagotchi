@@ -10,12 +10,16 @@ import { useState } from "react";
 
 export default function Chat() {
   const mutation = useMutation({
-    mutationFn: (params: string) => getChatResponse(params),
+    mutationFn: getChatResponse,
     onSuccess: (data) => console.log(data),
     onError: (err) => console.log(err),
   });
 
   const [chatMsg, setChatMsg] = useState<string>("");
+
+  const onChangeMsg: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setChatMsg(e.target.value);
+  };
 
   const sendMessage = () => {
     mutation.mutate({ userInput: chatMsg });
@@ -70,8 +74,8 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer>
-        <ChatInput placeholder="메시지를 입력하세요." />
-        <SendIcon />
+        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} />
+        <SendIcon onClick={sendMessage} />
       </ChatInputContainer>
     </Wrapper>
   );
