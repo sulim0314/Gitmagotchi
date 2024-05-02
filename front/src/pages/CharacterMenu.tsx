@@ -95,6 +95,7 @@ lg:flex-col-reverse
 const LevelText = tw.h1`
 p-2
 w-full
+font-bold
 `;
 
 const ExpContainer = tw.div`
@@ -119,6 +120,8 @@ flex
 justify-center
 items-center
 relative
+border-2
+border-slate-500
 `;
 
 const ExpBar = tw.div`
@@ -136,6 +139,7 @@ text-sm
 lg:text-base
 z-10
 text-slate-100
+font-bold
 `;
 
 const NameContainer = tw.div`
@@ -201,6 +205,8 @@ flex
 justify-center
 items-center
 relative
+border-2
+border-slate-500
 `;
 
 const StatBar = tw.div`

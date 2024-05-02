@@ -125,6 +125,8 @@ bg-cover
 bg-no-repeat
 bg-center
 shadow-lg
+border-2
+border-slate-800
 `;
 
 const BgList = tw.div`
@@ -149,6 +151,8 @@ lg:scrollbar-default
 lg:overflow-x-auto
 lg:rounded-lg
 shadow-lg
+border-2
+border-slate-800
 `;
 
 const BgItem = tw.div`
@@ -164,6 +168,8 @@ cursor-pointer
 hover:scale-105
 group
 relative
+border-2
+border-slate-800
 `;
 
 const SelectedContainer = tw.div`

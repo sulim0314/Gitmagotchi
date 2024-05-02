@@ -20,4 +20,7 @@ justify-center
 bg-purple-300
 hover:bg-purple-200
 cursor-pointer
+border-2
+border-slate-800
+font-bold
 `;

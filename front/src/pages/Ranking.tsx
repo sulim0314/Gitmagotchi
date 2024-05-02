@@ -73,12 +73,14 @@ space-y-2
 `;
 
 const DesktopMenuItem = tw.button<{ $selected: boolean }>`
-${(p) => (p.$selected ? "bg-purple-200" : "")}
+${(p) => (p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent")}
+border-2
 h-14
 w-full
 flex
 items-center
 hover:bg-purple-200
+hover:border-slate-800
 rounded-2xl
 focus:outline-none
 `;
@@ -91,6 +93,7 @@ text-base
 overflow-clip
 break-works
 flex-grow
+font-bold
 `;
 
 const Container = tw.div`
