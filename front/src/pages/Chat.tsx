@@ -93,9 +93,9 @@ const ChatInput = tw.input`
 h-12
 w-full
 rounded-3xl
-border
-border-slate-400
-bg-slate-300/30
+border-2
+border-slate-800
+bg-slate-50
 text-slate-500
 placeholder:text-slate-400
 shadow-lg
