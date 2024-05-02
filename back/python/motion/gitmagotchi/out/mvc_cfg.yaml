@@ -1,8 +1,0 @@
-controller:
-  MODE: video_render
-  OUTPUT_VIDEO_PATH: /Users/songahh/project/S10P31S205/back/python/motion/gitmagotchi/out/video.gif
-scene:
-  ANIMATED_CHARACTERS:
-  - character_cfg: /Users/songahh/project/S10P31S205/back/python/motion/gitmagotchi/out/char_cfg.yaml
-    motion_cfg: /Users/songahh/project/S10P31S205/back/python/motion/gitmagotchi/config/motion/dab.yaml
-    retarget_cfg: /Users/songahh/project/S10P31S205/back/python/motion/gitmagotchi/config/retarget/fair1_ppf.yaml

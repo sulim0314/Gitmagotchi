@@ -5,7 +5,6 @@
 import OpenGL.GL as GL
 import logging
 
-
 class Shader:
     """Class to create shader programs"""
 

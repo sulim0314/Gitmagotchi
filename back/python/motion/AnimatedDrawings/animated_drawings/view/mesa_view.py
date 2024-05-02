@@ -109,6 +109,7 @@ class MesaView(View):
     def _initialize_mesa(self) -> None:
 
         width, height = self.cfg.window_dimensions
+
         self.ctx = osmesa.OSMesaCreateContext(osmesa.OSMESA_RGBA, None)
         self.buffer: npt.NDArray[np.uint8] = GL.arrays.GLubyteArray.zeros((height, width, 4))  # type: ignore
         osmesa.OSMesaMakeCurrent(self.ctx, self.buffer, GL.GL_UNSIGNED_BYTE, width, height)
