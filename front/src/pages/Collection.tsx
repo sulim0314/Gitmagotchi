@@ -81,6 +81,8 @@ justify-center
 space-y-2
 cursor-pointer
 ${(p) => (p.$selected ? "bg-[#D1C6D7]" : "bg-[#EDE3F4]")}
+border-2
+border-slate-800
 `;
 
 const MenuImg = tw.img`

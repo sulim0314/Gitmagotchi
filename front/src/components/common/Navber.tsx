@@ -42,7 +42,11 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
       </TitleContainer>
       <DesktopMenu>
         {navItems.map((item) => (
-          <DesktopMenuItem key={item.id} onClick={onClickLink(item.url)}>
+          <DesktopMenuItem
+            $selected={location.pathname === item.url}
+            key={item.id}
+            onClick={onClickLink(item.url)}
+          >
             {item.text}
           </DesktopMenuItem>
         ))}
@@ -103,11 +107,14 @@ lg:flex
 lg:space-x-2
 `;
 
-const DesktopMenuItem = tw.li`
+const DesktopMenuItem = tw.li<{ $selected: boolean }>`
 p-4
 m-2
 cursor-pointer
-hover:font-semibold
+hover:underline
+${(p) => (p.$selected ? "underline" : "")}
+underline-offset-8
+font-bold
 `;
 
 const DesktopUserContainer = tw.div`

@@ -47,6 +47,8 @@ lg:h-52
 rounded-xl
 shadow-lg
 overflow-hidden
+border-2
+border-slate-800
 `;
 
 const BackgroundImage = tw.div<{ $grayscale: boolean }>`
@@ -69,6 +71,8 @@ shadow-lg
 bg-slate-50/90
 rounded-lg
 z-10
+border-2
+border-slate-800
 `;
 
 const CharacterName = tw.h1`
@@ -78,6 +82,7 @@ overflow-clip
 overflow-ellipsis
 break-words
 line-clamp-1
+font-bold
 `;
 
 const Username = tw.h4`
@@ -85,6 +90,11 @@ z-10
 text-slate-100/90
 text-xs
 cursor-pointer
+absolute
+top-2
+left-4
+underline
+font-bold
 `;
 
 const DeathType = tw.h1`

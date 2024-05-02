@@ -38,7 +38,7 @@ export default function Home() {
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img src={SampleFaceImage} className="w-16" />
+              <img src={SampleFaceImage} className="w-16 h-16" />
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
@@ -265,6 +265,7 @@ const ExpText = tw.p`
 text-xs
 z-10
 text-slate-100
+font-semibold
 `;
 
 const RightHeader = tw.div`
@@ -289,6 +290,9 @@ space-x-2
 `;
 
 const PropertyNumber = tw.h2`
+font-semibold
+text-base
+lg:text-xl
 `;
 
 const RefreshIcon = tw(VscRefresh)`
