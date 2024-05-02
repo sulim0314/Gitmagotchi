@@ -13,7 +13,7 @@ def start(char_anno_dir: str, motion_cfg_fn: str):
     retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
     
     # 이미지 생성
-    image_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
+    #image_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
     
     # sprite sheet 생성
     gif_to_sheet(char_anno_dir)
