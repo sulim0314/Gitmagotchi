@@ -62,7 +62,7 @@ export default function Test() {
           heightFrame={1000}
           steps={339}
           fps={30}
-          autoplay={true}
+          autoplay={false}
           loop={false}
           direction="forward"
           backgroundSize={`cover`}
