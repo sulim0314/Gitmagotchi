@@ -8,15 +8,17 @@ import { generateBackground } from "@/api/background";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
+  setCreatedUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function CreateByAi({ setProcess }: IProps) {
+export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
   const [prompt, setPrompt] = useState<string>("");
   const mutation = useMutation({
     mutationFn: generateBackground,
     onSuccess: (data) => {
-      console.log(data);
-      // setProcess(3);
+      const body = JSON.parse(data.body);
+      setCreatedUrl(body.imageUrl);
+      setProcess(3);
     },
     onError: (err) => console.log(err),
   });

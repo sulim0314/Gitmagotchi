@@ -1,13 +1,16 @@
 import tw from "tailwind-styled-components";
-import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import CommonButton from "@/components/common/CommonButton";
 import { Link } from "react-router-dom";
 
-export default function CreateResult() {
+interface IProps {
+  bgUrl: string;
+}
+
+export default function CreateResult({ bgUrl }: IProps) {
   return (
     <Wrapper>
       <img
-        src={sampleBgImage}
+        src={bgUrl}
         className="w-60 h-60 shadow-md rounded-xl border border-slate-800 cursor-pointer"
       />
       <Content>
