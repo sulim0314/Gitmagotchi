@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import tw from "tailwind-styled-components";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
 import { FaRegCommentDots } from "react-icons/fa";
-import MeatImage from "@/assets/images/meat.png";
-import CoinImage from "@/assets/images/coin.png";
-import PlayImage from "@/assets/images/play.png";
-import interactionEatImage from "@/assets/images/interactionEat.png";
-import interactionRunImage from "@/assets/images/interactionRun.png";
-import interactionShowerImage from "@/assets/images/interactionShower.png";
-import interactionGameImage from "@/assets/images/interactionGame.png";
+import MeatImage from "@/assets/images/meat.svg";
+import CoinImage from "@/assets/images/coin.svg";
+import PlayImage from "@/assets/images/play.svg";
+import interactionEatImage from "@/assets/images/eat.svg";
+import interactionRunImage from "@/assets/images/walk.svg";
+import interactionShowerImage from "@/assets/images/shower.svg";
+import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
@@ -80,9 +80,8 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <img
+          <PlayIcon
             src={PlayImage}
-            className="w-16 cursor-pointer"
             onClick={() => {
               if (spritesheet.current) {
                 spritesheet.current.play();
@@ -93,11 +92,11 @@ export default function Home() {
         <RightHeader>
           <PropertyList>
             <PropertyContainer>
-              <img src={CoinImage} className="w-8" />
+              <img src={CoinImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>200</PropertyNumber>
             </PropertyContainer>
             <PropertyContainer>
-              <img src={MeatImage} className="w-8" />
+              <img src={MeatImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>7</PropertyNumber>
               <RefreshIcon />
             </PropertyContainer>
@@ -109,8 +108,8 @@ export default function Home() {
         <CharacterCanvasContainer>
           <CharacterCanvas
             image={sampleSpritesheetImage}
-            widthFrame={500}
-            heightFrame={500}
+            widthFrame={1000}
+            heightFrame={1000}
             steps={339}
             fps={30}
             autoplay={true}
@@ -137,16 +136,16 @@ export default function Home() {
         </CharacterCanvasContainer>
         <InteractionContainer>
           <InteractionButton>
-            <img src={interactionEatImage} />
+            <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton>
-            <img src={interactionRunImage} />
+            <img src={interactionRunImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton>
-            <img src={interactionShowerImage} />
+            <img src={interactionShowerImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton>
-            <img src={interactionGameImage} />
+            <img src={interactionGameImage} className="w-10 bg-cover" />
           </InteractionButton>
         </InteractionContainer>
       </MainContainer>
@@ -213,6 +212,16 @@ items-center
 space-x-4
 `;
 
+const PlayIcon = tw.img`
+w-16
+rounded-full
+shadow-lg
+border-2
+border-slate-800
+cursor-pointer
+hover:saturate-200
+`;
+
 const CharacterName = tw.h1`
 text-xl
 `;
@@ -237,6 +246,8 @@ shadow-md
 flex
 justify-center
 items-center
+border-2
+border-slate-500
 relative
 `;
 
@@ -277,7 +288,8 @@ items-center
 space-x-2
 `;
 
-const PropertyNumber = tw.h2``;
+const PropertyNumber = tw.h2`
+`;
 
 const RefreshIcon = tw(VscRefresh)`
 w-6
@@ -312,13 +324,17 @@ space-x-4
 const InteractionButton = tw.div`
 w-14
 h-14
-bg-slate-300
+bg-purple-50
+hover:bg-purple-100
 border-2
-border-slate-200/70
+border-slate-800
 shadow-xl
 rounded-lg
 cursor-pointer
-p-1
+p-2
+flex
+justify-center
+items-center
 `;
 
 const ServerMsgContainer = tw.div`
@@ -333,6 +349,8 @@ z-10
 const ServerMsgBox = tw.div`
 w-full
 lg:rounded-2xl
+lg:border-2
+border-slate-800
 h-8
 flex
 justify-between
@@ -379,6 +397,8 @@ flex
 justify-center
 items-center
 relative
+border-2
+border-slate-500
 `;
 
 const StatBar = tw.div`

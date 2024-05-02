@@ -15,6 +15,7 @@ import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharactetRename";
+import Test from "@/pages/Test";
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/character/rename" element={<CharacterRename />} />
           <Route path="/character/change" element={null} />
           <Route path="/background/create" element={<CreateBg />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </Content>
     </Wrapper>

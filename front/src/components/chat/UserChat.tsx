@@ -42,6 +42,7 @@ w-full
 flex
 flex-row-reverse
 space-x-2
+items-center
 `;
 
 const ImgContainer = tw.div`
@@ -81,6 +82,8 @@ w-full
 min-h-10
 rounded-lg
 shadow-lg
+border-2
+border-slate-800
 bg-slate-100
 py-2
 px-4
