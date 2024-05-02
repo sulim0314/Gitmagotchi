@@ -2,14 +2,31 @@ import tw from "tailwind-styled-components";
 import AiImage from "@/assets/images/ai.png";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { generateBackground } from "@/api/background";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function CreateByAi({ setProcess }: IProps) {
-  const generateFace = () => {
-    setProcess(3);
+  const [prompt, setPrompt] = useState<string>("");
+  const mutation = useMutation({
+    mutationFn: generateBackground,
+    onSuccess: (data) => {
+      console.log(data);
+      setProcess(3);
+    },
+    onError: (err) => console.log(err),
+  });
+  const generate = () => {
+    console.log(prompt);
+    mutation.mutate({ body: { useInput: prompt } });
+  };
+
+  const onChangePrompt: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setPrompt(e.target.value);
   };
 
   return (
@@ -23,9 +40,11 @@ export default function CreateByAi({ setProcess }: IProps) {
         </DesktopTitle>
         <ButtonContainer>
           <PromptContainer>
-            <CommonInput props={{ placeholder: "EX) 푸른 초원" }} />
+            <CommonInput
+              props={{ placeholder: "EX) 푸른 초원", value: prompt, onChange: onChangePrompt }}
+            />
           </PromptContainer>
-          <CommonButton title={"생성 (💰100)"} onClick={generateFace} />
+          <CommonButton title={"생성 (💰100)"} onClick={generate} />
         </ButtonContainer>
       </Content>
     </Wrapper>

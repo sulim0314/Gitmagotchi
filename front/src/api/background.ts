@@ -1,4 +1,4 @@
-// import { axiosInstance } from ".";
+import { axiosInstance } from ".";
 
 import { sampleBackground } from "./sample";
 
@@ -10,4 +10,9 @@ export const getBackgroundList = async (): Promise<any> => {
       resolve(sampleBackground);
     }, 2000);
   });
+};
+
+export const generateBackground = async (params: any): Promise<any> => {
+  const response = await axiosInstance.post("/background/ai", params);
+  return response.data;
 };

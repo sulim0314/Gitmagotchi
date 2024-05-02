@@ -4,8 +4,23 @@ import CharacterChat from "@/components/chat/CharacterChat";
 import UserChat from "@/components/chat/UserChat";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
 import SampleProfileImage from "@/assets/images/sampleProfile.png";
+import { useMutation } from "@tanstack/react-query";
+import { getChatResponse } from "@/api/character";
+import { useState } from "react";
 
 export default function Chat() {
+  const mutation = useMutation({
+    mutationFn: (params: string) => getChatResponse(params),
+    onSuccess: (data) => console.log(data),
+    onError: (err) => console.log(err),
+  });
+
+  const [chatMsg, setChatMsg] = useState<string>("");
+
+  const sendMessage = () => {
+    mutation.mutate({ userInput: chatMsg });
+  };
+
   return (
     <Wrapper>
       <ChatContainer>
