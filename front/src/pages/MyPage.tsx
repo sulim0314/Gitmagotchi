@@ -44,7 +44,7 @@ h-full
 flex
 flex-col
 justify-start
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const UserInfoContainer = tw.div`

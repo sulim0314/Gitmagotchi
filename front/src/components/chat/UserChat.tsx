@@ -30,6 +30,7 @@ export default function UserChat({ imgSrc, username, nickname, text }: IProps) {
 
 const Wrapper = tw.div`
 w-full
+lg:max-w-1/2
 p-2
 flex
 flex-col
@@ -79,6 +80,7 @@ px-2
 
 const ChatBox = tw.div`
 w-full
+lg:max-w-md
 min-h-10
 rounded-lg
 shadow-lg

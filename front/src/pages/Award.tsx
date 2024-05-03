@@ -39,7 +39,7 @@ w-full
 h-full
 flex
 flex-col
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const Container = tw.div`

@@ -78,6 +78,8 @@ px-2
 
 const ChatBox = tw.div`
 w-full
+max-w-md
+lg:max-w-xl
 min-h-10
 rounded-lg
 shadow-lg
