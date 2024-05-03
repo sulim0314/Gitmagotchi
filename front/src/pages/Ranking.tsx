@@ -58,7 +58,7 @@ flex
 flex-col
 lg:flex-row
 lg:space-x-20
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const DesktopMenu = tw.div`

@@ -35,7 +35,15 @@ export default function Chat() {
   });
 
   const [chatMsg, setChatMsg] = useState<string>("");
-  const [chatList, setChatList] = useState<IChat[]>([]);
+  const [chatList, setChatList] = useState<IChat[]>([
+    {
+      isUser: false,
+      imgSrc: SampleFaceImage,
+      level: 9,
+      name: "도날드덕",
+      text: "안녕! 난 도날드덕이야.",
+    },
+  ]);
 
   useEffect(() => {
     ChatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,7 +96,7 @@ export default function Chat() {
   };
 
   const unicodeToChar = (text: string) => {
-    return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
+    return text.slice(1, -1).replace(/\\u[\dA-F]{4}/gi, function (match) {
       return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
     });
   };
