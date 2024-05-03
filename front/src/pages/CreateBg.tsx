@@ -27,4 +27,5 @@ export default function CreateBg() {
 const Wrapper = tw.div`
 w-full
 h-full
+bg-[#f2f2f2]
 `;

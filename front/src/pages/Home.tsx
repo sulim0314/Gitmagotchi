@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import tw from "tailwind-styled-components";
 import SampleFaceImage from "@/assets/images/sampleFace.png";
@@ -13,16 +13,31 @@ import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
+import { IoMdClose } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import { useRecoilValue } from "recoil";
 import { authDataAtom } from "@/store/auth";
+import Modal from "react-modal";
+
+interface IServerMsg {
+  timestamp: Date;
+  text: string;
+}
 
 export default function Home() {
   const navigate = useNavigate();
   const authData = useRecoilValue(authDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
+  const modalBottomRef = useRef<HTMLDivElement>(null);
+  const [modal, setModal] = useState<boolean>(false);
+  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
+    {
+      timestamp: new Date(),
+      text: "-- 깃마고치에 오신 것을 환영합니다. --",
+    },
+  ]);
 
   useEffect(() => {
     // if (!authData.isLogin) {
@@ -31,6 +46,20 @@ export default function Home() {
     //   navigate("/character/create", { replace: true });
     // }
   }, [authData, navigate]);
+
+  useEffect(() => {
+    modalBottomRef.current?.scrollIntoView();
+  }, [modal, serverMsgList, modalBottomRef]);
+
+  const toggleModal = () => {
+    setModal(!modal);
+  };
+
+  const formatTimestamp = (date: Date) => {
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+  };
 
   return (
     <Wrapper>
@@ -144,17 +173,40 @@ export default function Home() {
           <InteractionButton>
             <img src={interactionShowerImage} className="h-10 bg-cover" />
           </InteractionButton>
-          <InteractionButton>
+          <InteractionButton onClick={() => navigate("/character/game")}>
             <img src={interactionGameImage} className="w-10 bg-cover" />
           </InteractionButton>
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox>
-          <ServerMsg>밥을 먹어 포만감이 상승했습니다. (EXP +3)</ServerMsg>
+        <ServerMsgBox onClick={toggleModal}>
+          <ServerMsg>{serverMsgList[serverMsgList.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
+      <CustomModal
+        style={customModalStyles}
+        isOpen={modal}
+        onRequestClose={() => setModal(false)}
+        ariaHideApp={false}
+        contentLabel="서버 메시지"
+        shouldCloseOnOverlayClick={true}
+        onAfterOpen={() => modalBottomRef.current?.scrollIntoView()}
+      >
+        <ModalTitleContainer>
+          <ModalTitle>서버 메시지</ModalTitle>
+          <ModalCloseButton onClick={toggleModal} />
+        </ModalTitleContainer>
+        <ModalMsgList>
+          {serverMsgList.map((msg) => (
+            <ModalMsg>
+              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
+              {msg.text}
+            </ModalMsg>
+          ))}
+          <div ref={modalBottomRef} />
+        </ModalMsgList>
+      </CustomModal>
     </Wrapper>
   );
 }
@@ -440,3 +492,70 @@ const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
 `;
+
+const CustomModal = tw(Modal)`
+w-80
+h-80
+lg:w-[30rem]
+lg:h-[30rem]
+bg-slate-50
+rounded-xl
+border-2
+border-slate-800
+absolute
+z-50
+top-1/2
+left-1/2
+-translate-x-1/2
+-translate-y-1/2
+flex
+flex-col
+`;
+
+const ModalTitleContainer = tw.div`
+w-full
+flex
+justify-between
+p-4
+`;
+
+const ModalTitle = tw.div`
+font-bold
+text-xl
+`;
+
+const ModalMsgList = tw.div`
+w-full
+h-20
+flex-grow
+overflow-y-scroll
+p-4
+`;
+
+const ModalMsg = tw.p`
+p-2
+`;
+
+const ModalMsgTimestamp = tw.span`
+font-bold
+text-slate-500
+mr-4
+`;
+
+const ModalCloseButton = tw(IoMdClose)`
+w-6
+h-6
+cursor-pointer
+`;
+
+const customModalStyles: ReactModal.Styles = {
+  overlay: {
+    backgroundColor: " rgba(0, 0, 0, 0.4)",
+    width: "100%",
+    height: "100vh",
+    zIndex: "10",
+    position: "fixed",
+    top: "0",
+    left: "0",
+  },
+};

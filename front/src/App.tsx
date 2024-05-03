@@ -18,6 +18,7 @@ import CharacterRename from "@/pages/CharactetRename";
 import Test from "@/pages/Test";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
+import Minigame from "@/pages/Minigame";
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/character/chat" element={<Chat />} />
             <Route path="/character/stat" element={<CharacterStat />} />
             <Route path="/character/rename" element={<CharacterRename />} />
+            <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/change" element={null} />
             <Route path="/background/create" element={<CreateBg />} />
             <Route path="/test" element={<Test />} />

@@ -27,7 +27,7 @@ interface ICharacterChat {
 type IChat = IUserChat | ICharacterChat;
 
 export default function Chat() {
-  const ChatBottomRef = useRef<HTMLDivElement>(null);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
   const mutation = useMutation({
     mutationFn: getChatResponse,
     onSuccess: (data) => getMessage(unicodeToChar(data.body)),
@@ -46,7 +46,7 @@ export default function Chat() {
   ]);
 
   useEffect(() => {
-    ChatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatList]);
 
   const onChangeMsg: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -128,7 +128,7 @@ export default function Chat() {
               );
             }
           })}
-          <div ref={ChatBottomRef} />
+          <div ref={chatBottomRef} />
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
@@ -146,7 +146,7 @@ w-full
 h-full
 flex
 flex-col
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const ChatContainer = tw.div`

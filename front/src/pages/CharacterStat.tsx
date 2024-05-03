@@ -88,7 +88,7 @@ flex
 flex-col
 lg:flex-row
 items-center
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const CharacterContainer = tw.div`
