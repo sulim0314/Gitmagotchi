@@ -8,21 +8,26 @@ import { generateBackground } from "@/api/background";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
+  setCreatedUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function CreateByAi({ setProcess }: IProps) {
+export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
   const [prompt, setPrompt] = useState<string>("");
   const mutation = useMutation({
     mutationFn: generateBackground,
     onSuccess: (data) => {
-      console.log(data);
+      const body = JSON.parse(data.body);
+      setCreatedUrl(body.imageUrl);
       setProcess(3);
     },
     onError: (err) => console.log(err),
   });
-  const generate = () => {
-    console.log(prompt);
-    mutation.mutate({ body: { useInput: prompt } });
+
+  const generate: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    setPrompt("");
+
+    mutation.mutate({ body: JSON.stringify({ useInput: prompt }) });
   };
 
   const onChangePrompt: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -38,13 +43,13 @@ export default function CreateByAi({ setProcess }: IProps) {
           <Description>AI가 생성할 배경에 대해 구체적으로 작성해주세요.</Description>
           <Description>구체적일수록 정확하게 생성되요.</Description>
         </DesktopTitle>
-        <ButtonContainer>
+        <ButtonContainer onSubmit={generate}>
           <PromptContainer>
             <CommonInput
               props={{ placeholder: "EX) 푸른 초원", value: prompt, onChange: onChangePrompt }}
             />
           </PromptContainer>
-          <CommonButton title={"생성 (💰100)"} onClick={generate} />
+          <CommonButton title={"생성 (💰100)"} />
         </ButtonContainer>
       </Content>
     </Wrapper>
@@ -90,7 +95,7 @@ text-base
 text-slate-500
 `;
 
-const ButtonContainer = tw.div`
+const ButtonContainer = tw.form`
 h-72
 flex
 flex-col

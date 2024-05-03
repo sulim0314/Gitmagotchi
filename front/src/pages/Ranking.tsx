@@ -4,6 +4,7 @@ import RankingItem from "@/components/ranking/RankingItem";
 import { useQuery } from "@tanstack/react-query";
 import { getRankingList } from "@/api/ranking";
 import { useState } from "react";
+import { IRanking } from "@/models";
 
 export default function Ranking() {
   const [menu, setMenu] = useState<"BEST" | "WORST">("BEST");
@@ -41,7 +42,7 @@ export default function Ranking() {
         <MyRank>내 등수: 50등</MyRank>
         <RankListContainer>
           <RankList>
-            {data?.map((r: any) => (
+            {data?.map((r: IRanking) => (
               <RankingItem ranking={r} best={menu === "BEST"} />
             ))}
           </RankList>
@@ -58,7 +59,7 @@ flex
 flex-col
 lg:flex-row
 lg:space-x-20
-bg-[#e4eded]
+bg-[#f2f2f2]
 `;
 
 const DesktopMenu = tw.div`
