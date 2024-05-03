@@ -1,4 +1,4 @@
-package chat.sentiment.service;
+package character.chat.sentiment.service;
 
 import org.json.JSONObject;
 import software.amazon.awssdk.regions.Region;

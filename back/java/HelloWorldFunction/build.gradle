@@ -25,7 +25,18 @@ dependencies {
     // JSON library for Java
     implementation 'org.json:json:20231013'
 
+    //캐릭터 이미지 생성
+    implementation 'software.amazon.awssdk:bedrock:2.25.40'
+    implementation 'commons-codec:commons-codec:1.15'
+
     implementation 'software.amazon.awssdk:comprehend:2.13.51'
+
+    // AWS SDK for S3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.118'
+
+    // AWS Lambda Java libraries
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.10.0'
 }
 
 sourceCompatibility = 17

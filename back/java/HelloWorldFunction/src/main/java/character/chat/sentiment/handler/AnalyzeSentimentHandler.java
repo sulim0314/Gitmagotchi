@@ -1,6 +1,6 @@
-package chat.sentiment.handler;
+package character.chat.sentiment.handler;
 
-import chat.sentiment.service.DetectSentimentService;
+import character.chat.sentiment.service.DetectSentimentService;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import org.json.JSONObject;
