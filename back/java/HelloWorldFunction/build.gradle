@@ -10,6 +10,22 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
     testImplementation 'junit:junit:4.13.2'
+
+    // AWS SDK BOM (Bill of Materials)를 사용하여 일관된 라이브러리 버전 관리
+    implementation platform('software.amazon.awssdk:bom:2.24.0')
+
+    // AWS SDK STS (Security Token Service) module
+    implementation 'software.amazon.awssdk:sts'
+
+    // Example dependency on a custom module that doesn't actually exist
+    // in the AWS SDK. This is just for illustrative purposes.
+    implementation 'software.amazon.awssdk:bedrock'
+    implementation 'software.amazon.awssdk:bedrockruntime:2.20.162'
+
+    // JSON library for Java
+    implementation 'org.json:json:20231013'
+
+    implementation 'software.amazon.awssdk:comprehend:2.13.51'
 }
 
 sourceCompatibility = 17
