@@ -160,6 +160,11 @@ export default function Minigame() {
       intervalId.current = setInterval(game, 50);
     }
     addEventListener("keydown", handleKeydown);
+
+    return () => {
+      clearInterval(intervalId.current!);
+      removeEventListener("keydown", handleKeydown);
+    };
   }, []);
 
   const game = () => {
@@ -184,7 +189,7 @@ export default function Minigame() {
   };
 
   const gameOver = () => {
-    alert("game over");
+    // alert("game over");
     clearInterval(intervalId.current!);
   };
 
@@ -194,6 +199,9 @@ export default function Minigame() {
         <GameArea ref={canvasRef} width={400} height={400} />
       </GameContainer>
       <DetailContainer>
+        <ScoreContainer>
+          <ScoreText>{`현재 점수: ${score}`}</ScoreText>
+        </ScoreContainer>
         <GameKeyContainer>
           <ArrowButton
             onClick={() => {
@@ -270,6 +278,8 @@ lg:h-[30rem]
 border-2
 border-slate-800
 flex
+flex-col
+space-y-6
 justify-center
 items-center
 `;
@@ -325,3 +335,7 @@ w-6
 h-6
 text-slate-100
 `;
+
+const ScoreContainer = tw.div``;
+
+const ScoreText = tw.h1``;
