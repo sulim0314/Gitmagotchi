@@ -45,7 +45,11 @@ export default function Collection() {
       <CollectionContainer>
         <CharacterGrid>
           {data?.map((collection: ICollection) => (
-            <CollectionItem key={collection.id} collection={collection} award={false} />
+            <CollectionItem
+              key={collection.id}
+              collection={collection}
+              award={false}
+            />
           ))}
         </CharacterGrid>
       </CollectionContainer>
@@ -58,7 +62,6 @@ w-full
 h-full
 flex
 flex-col
-bg-[#f2f2f2]
 `;
 
 const MenuContainer = tw.div`

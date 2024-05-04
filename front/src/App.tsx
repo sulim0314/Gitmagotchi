@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Navbar from "@/components/common/Navber";
@@ -21,19 +21,26 @@ import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
 
 export default function App() {
+  const location = useLocation();
   return (
     <>
-      <Background
-        style={{
-          backgroundImage: `url(${SampleBg})`,
-        }}
-      />
-      <BackgroundFrame
-        style={{
-          backgroundImage: `url(${BackgroundImage})`,
-        }}
-      />
-      <White />
+      {location.pathname === "/" && (
+        <>
+          {" "}
+          <Background
+            style={{
+              backgroundImage: `url(${SampleBg})`,
+            }}
+          />
+          <BackgroundFrame
+            style={{
+              backgroundImage: `url(${BackgroundImage})`,
+            }}
+          />
+          <White />
+        </>
+      )}
+
       <Wrapper>
         <Navbar />
         <Content>

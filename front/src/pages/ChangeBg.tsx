@@ -66,7 +66,6 @@ flex
 flex-col
 space-y-6
 items-center
-bg-[#f2f2f2]
 pb-4
 lg:px-14
 lg:py-6

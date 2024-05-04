@@ -126,7 +126,6 @@ left-0
 w-full
 h-full
 flex
-bg-white
 overflow-hidden
 `;
 

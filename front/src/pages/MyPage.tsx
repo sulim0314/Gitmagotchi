@@ -7,7 +7,10 @@ export default function MyPage() {
     <Wrapper>
       <UserInfoContainer>
         <UserContainer>
-          <img src={sampleProfileImage} className="w-16 lg:w-24 rounded-md shadow-md" />
+          <img
+            src={sampleProfileImage}
+            className="w-16 lg:w-24 rounded-md shadow-md"
+          />
           <UserDetailContainer>
             <GitHubUsername>Tama1001</GitHubUsername>
             <NicknameContainer>
@@ -44,7 +47,6 @@ h-full
 flex
 flex-col
 justify-start
-bg-[#f2f2f2]
 `;
 
 const UserInfoContainer = tw.div`

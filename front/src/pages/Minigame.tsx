@@ -1,5 +1,10 @@
 import tw from "tailwind-styled-components";
-import { FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import {
+  FaArrowDown,
+  FaArrowUp,
+  FaArrowLeft,
+  FaArrowRight,
+} from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 
 export default function Minigame() {
@@ -24,7 +29,14 @@ export default function Minigame() {
       ctx.current!.fillStyle = color;
 
       ctx.current!.beginPath();
-      ctx.current!.arc(centerX, centerY, blockSize.current / 2, 0, Math.PI * 2, false);
+      ctx.current!.arc(
+        centerX,
+        centerY,
+        blockSize.current / 2,
+        0,
+        Math.PI * 2,
+        false
+      );
       ctx.current!.fill();
     }
 
@@ -86,7 +98,8 @@ export default function Minigame() {
       const rightCollision = head.col === widthInBlocks.current - 1;
       const bottomCollision = head.row === heightInBlocks.current - 1;
 
-      const wallCollision = leftCollision || topCollision || rightCollision || bottomCollision;
+      const wallCollision =
+        leftCollision || topCollision || rightCollision || bottomCollision;
       let selfCollision = false;
 
       for (let i = 0; i < this.segments.length; i++) {
@@ -123,8 +136,10 @@ export default function Minigame() {
     }
 
     move() {
-      const randomCol = Math.floor(Math.random() * (widthInBlocks.current - 2)) + 1;
-      const randomRow = Math.floor(Math.random() * (heightInBlocks.current - 2)) + 1;
+      const randomCol =
+        Math.floor(Math.random() * (widthInBlocks.current - 2)) + 1;
+      const randomRow =
+        Math.floor(Math.random() * (heightInBlocks.current - 2)) + 1;
       this.position = new Block(randomCol, randomRow);
     }
   }
@@ -242,7 +257,6 @@ export default function Minigame() {
 const Wrapper = tw.div`
 w-full
 h-full
-bg-[#f2f2f2]
 flex
 flex-col
 lg:flex-row

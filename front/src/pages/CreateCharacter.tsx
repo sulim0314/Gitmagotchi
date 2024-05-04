@@ -25,5 +25,4 @@ export default function CreateCharacter() {
 const Wrapper = tw.div`
 w-full
 h-full
-bg-[#f2f2f2]
 `;

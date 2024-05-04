@@ -132,7 +132,11 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
-        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} value={chatMsg} />
+        <ChatInput
+          placeholder="메시지를 입력하세요."
+          onChange={onChangeMsg}
+          value={chatMsg}
+        />
         <button>
           <SendIcon />
         </button>
@@ -146,7 +150,6 @@ w-full
 h-full
 flex
 flex-col
-bg-[#f2f2f2]
 `;
 
 const ChatContainer = tw.div`

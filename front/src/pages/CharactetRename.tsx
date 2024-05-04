@@ -31,7 +31,6 @@ lg:flex-row
 lg:space-x-32
 justify-center
 items-center
-bg-[#f2f2f2]
 `;
 
 const Content = tw.div`

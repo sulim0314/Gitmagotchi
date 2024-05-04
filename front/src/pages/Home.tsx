@@ -32,7 +32,12 @@ export default function Home() {
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
   const [modal, setModal] = useState<boolean>(false);
-  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([]);
+  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
+    {
+      timestamp: new Date(),
+      text: "-- 깃마고치에 오신 것을 환영합니다. --",
+    },
+  ]);
 
   useEffect(() => {
     // if (!authData.isLogin) {
@@ -59,7 +64,10 @@ export default function Home() {
   const formatTimestamp = (date: Date) => {
     const hour = date.getHours();
     const minute = date.getMinutes();
-    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0"
+    )}] `;
   };
 
   return (
@@ -200,8 +208,10 @@ export default function Home() {
         </ModalTitleContainer>
         <ModalMsgList>
           {serverMsgList.map((msg) => (
-            <ModalMsg>
-              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
+            <ModalMsg key={formatTimestamp(msg.timestamp)}>
+              <ModalMsgTimestamp>
+                {formatTimestamp(msg.timestamp)}
+              </ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}

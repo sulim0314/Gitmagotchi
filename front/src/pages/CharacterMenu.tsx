@@ -62,9 +62,18 @@ export default function CharacterMenu() {
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
-          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
-          <CommonMenuItem text={"캐릭터 성형"} onClick={onClickLink("/character/change")} />
+          <CommonMenuItem
+            text={"캐릭터 능력치"}
+            onClick={onClickLink("/character/stat")}
+          />
+          <CommonMenuItem
+            text={"캐릭터 이름 변경"}
+            onClick={onClickLink("/character/rename")}
+          />
+          <CommonMenuItem
+            text={"캐릭터 성형"}
+            onClick={onClickLink("/character/change")}
+          />
           <DeleteText>
             캐릭터를 방출하시려면 <DeleteLink>여기</DeleteLink>를 눌러주세요.
           </DeleteText>
@@ -81,7 +90,6 @@ flex
 flex-col
 lg:flex-row
 items-center
-bg-[#f2f2f2]
 `;
 
 const CharacterContainer = tw.div`

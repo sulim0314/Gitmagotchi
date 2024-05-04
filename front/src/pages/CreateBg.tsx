@@ -14,7 +14,9 @@ export default function CreateBg() {
     if (process === 0) {
       return <CreateMethod setProcess={setProcess} />;
     } else if (process === 1) {
-      return <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} />;
+      return (
+        <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} />
+      );
     } else if (process === 2) {
       return <CreateByUpload setProcess={setProcess} />;
     } else if (process === 3) {
@@ -27,5 +29,4 @@ export default function CreateBg() {
 const Wrapper = tw.div`
 w-full
 h-full
-bg-[#f2f2f2]
 `;

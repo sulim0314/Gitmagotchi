@@ -24,10 +24,16 @@ export default function Ranking() {
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem $selected={menu === "BEST"} onClick={() => setMenu("BEST")}>
+        <DesktopMenuItem
+          $selected={menu === "BEST"}
+          onClick={() => setMenu("BEST")}
+        >
           <DesktopMenuText>BEST 랭킹</DesktopMenuText>
         </DesktopMenuItem>
-        <DesktopMenuItem $selected={menu === "WORST"} onClick={() => setMenu("WORST")}>
+        <DesktopMenuItem
+          $selected={menu === "WORST"}
+          onClick={() => setMenu("WORST")}
+        >
           <DesktopMenuText>WORST 랭킹</DesktopMenuText>
         </DesktopMenuItem>
       </DesktopMenu>
@@ -59,7 +65,6 @@ flex
 flex-col
 lg:flex-row
 lg:space-x-20
-bg-[#f2f2f2]
 `;
 
 const DesktopMenu = tw.div`
@@ -74,7 +79,8 @@ space-y-2
 `;
 
 const DesktopMenuItem = tw.button<{ $selected: boolean }>`
-${(p) => (p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent")}
+${(p) =>
+  p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent"}
 border-2
 h-14
 w-full
