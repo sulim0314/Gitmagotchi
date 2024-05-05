@@ -147,10 +147,53 @@ class VideoWriter():
             return GIFWriter(controller)
         elif output_p.suffix == '.mp4':
             return MP4Writer(controller)
+        elif output_p.suffix == '.png':
+            return PNGWriter(controller)
         else:
             msg = f'Unsupported output video file extension ({output_p.suffix}). Only .gif and .mp4 are supported.'
             logging.critical(msg)
             assert False, msg
+
+
+class PNGWriter(VideoWriter):
+    """ Video writer for creating transparent, animated GIFs with Pillow """
+
+    def __init__(self, controller: VideoRenderController) -> None:
+        assert isinstance(controller.cfg.output_video_path, str)  # for static analysis
+        self.output_p = Path(controller.cfg.output_video_path)
+
+        self.duration = int(controller.delta_t*1000)
+        if self.duration < 20:
+            msg = f'Specified duration of .gif is too low, replacing with 20: {self.duration}'
+            logging.warn(msg)
+            self.duration = 20
+
+        self.frames: List[npt.NDArray[np.uint8]] = []
+
+    def process_frame(self, frame: npt.NDArray[np.uint8]) -> None:
+        """ Reorder channels and save frames as they arrive"""
+        self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGRA2RGBA).astype(np.uint8))
+
+    def cleanup(self) -> None:
+        """ Write all frames to output path specified."""
+        from PIL import Image
+        self.output_p.parent.mkdir(exist_ok=True, parents=True)
+
+        logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
+        frame = np.array(self.frames[1])
+        OUTPUT_SIZE = (frame.shape[0],frame.shape[1])
+        logging.info(f"Size: {OUTPUT_SIZE}")
+        logging.info(f"Frames: {len(self.frames)}")
+
+        output = Image.new("RGBA", (OUTPUT_SIZE[0] * len(self.frames), OUTPUT_SIZE[1]))
+        print(f"Writing a sprite sheet to {self.output_p}")
+        for i, a_frame in tqdm(enumerate(self.frames)):
+            frame = Image.fromarray(a_frame)
+            extracted_frame = frame.resize(OUTPUT_SIZE).convert("RGBA")
+            position = (OUTPUT_SIZE[0]*i, 0)
+            output.paste(extracted_frame, position)
+
+        output.save(self.output_p)
 
 
 class GIFWriter(VideoWriter):
@@ -179,6 +222,7 @@ class GIFWriter(VideoWriter):
         logging.info(f'VideoWriter will write to {self.output_p.resolve()}')
         ims = [Image.fromarray(a_frame) for a_frame in self.frames]
         ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
+
 
 
 class MP4Writer(VideoWriter):

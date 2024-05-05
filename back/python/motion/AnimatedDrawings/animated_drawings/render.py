@@ -4,9 +4,9 @@
 
 import logging
 import sys
+import yaml
 
-
-def start(user_mvc_cfg_fn: str):
+def start(user_mvc_cfg_fn: dict):
 
     # build cfg
     from animated_drawings.config import Config

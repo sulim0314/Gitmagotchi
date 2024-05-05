@@ -14,16 +14,17 @@ from animated_drawings.utils import resolve_ad_filepath
 
 class Config():
 
-    def __init__(self, user_mvc_cfg_fn: str) -> None:
+    def __init__(self, user_mvc_cfg_fn: dict) -> None:
         # get the base mvc config
         with open(resource_filename(__name__, "mvc_base_cfg.yaml"), 'r') as f:
             base_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})  # pyright: ignore[reportUnknownMemberType])
 
         # search for the user-specified mvc config
-        user_mvc_cfg_p: Path = resolve_ad_filepath(user_mvc_cfg_fn, 'user mvc config')
-        logging.info(f'Using user-specified mvc config file located at {user_mvc_cfg_p.resolve()}')
-        with open(str(user_mvc_cfg_p), 'r') as f:
-            user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})  # pyright: ignore[reportUnknownMemberType]
+        # user_mvc_cfg_p: Path = resolve_ad_filepath(user_mvc_cfg_fn, 'user mvc config')
+        # logging.info(f'Using user-specified mvc config file located at {user_mvc_cfg_p.resolve()}')
+        user_cfg = defaultdict(dict, user_mvc_cfg_fn)
+        # with open(str(user_mvc_cfg_p), 'r') as f:
+            # user_cfg = defaultdict(dict, yaml.load(f, Loader=yaml.FullLoader) or {})  # pyright: ignore[reportUnknownMemberType]
 
         # overlay user specified mvc options onto base mvc, use to generate subconfig classes
         self.view: ViewConfig = ViewConfig({**base_cfg['view'], **user_cfg['view']})
@@ -230,7 +231,7 @@ class ControllerConfig():
             self.output_video_path: Union[None, str] = controller_cfg['OUTPUT_VIDEO_PATH']
             assert isinstance(self.output_video_path, (NoneType, str)), 'type is not None or str'
             if isinstance(self.output_video_path, str):
-                assert Path(self.output_video_path).suffix in ('.gif', '.mp4'), 'output video extension not .gif or .mp4 '
+                assert Path(self.output_video_path).suffix in ('.gif', '.mp4', '.png'), 'output video extension not .gif or .mp4 '
         except (AssertionError, ValueError) as e:
             msg = f'Error in OUTPUT_VIDEO_PATH config parameter: {e}'
             logging.critical(msg)
