@@ -5,18 +5,25 @@ import os
 
 def start(char_anno_dir: str, motion_cfg_fn: str):
     if char_anno_dir is None:
-        char_anno_dir = "out"
+        #char_anno_dir = "out"
+        char_anno_dir = "/function/gitmagotchi/out"
     
     if motion_cfg_fn is None:
-        motion_cfg_fn = "AnimatedDrawings/gitmagotchi/config/motion/dab.yaml"
+        #motion_cfg_fn = "AnimatedDrawings/gitmagotchi/config/motion/dab.yaml"
+        motion_cfg_fn = "/function/gitmagotchi/config/motion/dab.yaml"
     
-    retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
+    #retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
+    retarget_cfg_fn = "/function/gitmagotchi/config/retarget/fair1_ppf.yaml"
     
     # 이미지 생성
-    #image_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
-    
+    image_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
+
     # sprite sheet 생성
-    gif_to_sheet(char_anno_dir)
+    # gif_to_sheet(char_anno_dir)
+
+def handler(event, context):
+    start(None, None)
+    return "OK"
 
 if __name__ == "__main__":
-    start(None, None)
+    handler(None, None)
