@@ -1,26 +1,31 @@
-FROM public.ecr.aws/lambda/python:3.8
+FROM ubuntu:20.04
 
-# Copy requirements.txt & other dependencies 
-COPY requirements.txt ${LAMBDA_TASK_ROOT}
-COPY AnimatedDrawings ${LAMBDA_TASK_ROOT}
-COPY out /tmp/out
+ARG FUNCTION_DIR="/function"
+ENV FUNCTION_DIR=${FUNCTION_DIR}
+ENV PYOPENGL_PLATFORM=osmesa
 
-# Install the specified packages
-RUN yum install -y mesa-libGL mesa-libGL-devel mesa-libGLU mesa-libGLU-devel
-RUN yum install -y libX11 libX11-devel libXext libXext-devel libXtst libXtst-devel
-RUN yum install -y libXrender libXrender-devel libXcomposite libXcomposite-devel libXcursor libXcursor-devel
-RUN yum install -y libXi libXi-devel libXrandr libXrandr-devel libXinerama libXinerama-devel
-RUN yum install -y gcc freeglut3-dev freeglut-devel mesa-dri-drivers PyOpenGL mesa-libOSMesa-devel
+RUN mkdir -p ${FUNCTION_DIR}
+RUN mkdir -p /tmp/out
+COPY requirements.txt ${FUNCTION_DIR}/
+COPY AnimatedDrawings ${FUNCTION_DIR}/
+COPY make_templates.py ${FUNCTION_DIR}/
 
-# RUN yum -y install mesa-libGL-devel mesa-libOSMesa-devel
-RUN pip install --upgrade pip
-RUN pip install wheel
-RUN pip install -r requirements.txt -t ${LAMBDA_TASK_ROOT}
+RUN apt-get clean
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+    python3.8 python3-pip python3-setuptools \
+    python3-opencv python3-numpy \
+    libosmesa6-dev freeglut3-dev  \
+    libglfw3-dev libgles2-mesa-dev \
+    libosmesa6 \
+    libglib2.0-0 libsm6 libxrender1 libxext6 \
+    ffmpeg libavcodec-extra \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV DISPLAY=:0
+WORKDIR ${FUNCTION_DIR}
+RUN python3.8 -m pip install -U pip && \
+    python3.8 -m pip install -r requirements.txt -t ${FUNCTION_DIR}
 
-# Copy function code
-COPY lambda_function.py ${LAMBDA_TASK_ROOT}
 
-# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
-CMD [ "lambda_function.handler" ]
+ENTRYPOINT [ "/usr/bin/python3.8", "-m", "awslambdaric" ]
+CMD ["make_templates.handler" ]
