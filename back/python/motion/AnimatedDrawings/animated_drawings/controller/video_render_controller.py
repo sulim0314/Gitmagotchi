@@ -224,7 +224,6 @@ class GIFWriter(VideoWriter):
         ims[0].save(self.output_p, save_all=True, append_images=ims[1:], duration=self.duration, disposal=2, loop=0)
 
 
-
 class MP4Writer(VideoWriter):
     """ Video writer for creating mp4 videos with cv2.VideoWriter """
     def __init__(self, controller: VideoRenderController) -> None:
