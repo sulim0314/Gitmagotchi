@@ -5,9 +5,7 @@ Resources:
       Timeout: 300
       MemorySize: 128
       Handler: character.image.create.handler.CharacterImageHandler
-      CodeUri: s3://gitmagotchi-java/1be32d3ecb70823bff57bc92d29cfd4e
+      CodeUri: C:\KHY\부트캠프\SSAFY\2학기\gitmagotchi\S10P31S205\back\java\HelloWorldFunction
       Runtime: java17
       Architectures:
-      - x86_64
-    Metadata:
-      SamResourceId: Function
+        - x86_64

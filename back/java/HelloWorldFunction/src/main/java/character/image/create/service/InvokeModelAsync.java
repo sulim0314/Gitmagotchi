@@ -1,4 +1,4 @@
-package character.image.create;
+package character.image.create.service;
 
 import common.s3.util.S3Util;
 import org.apache.commons.codec.binary.Base64;
@@ -23,57 +23,58 @@ public class InvokeModelAsync {
         String titanImageModelId = "amazon.titan-image-generator-v1";
 
         BedrockRuntimeAsyncClient client = BedrockRuntimeAsyncClient.builder()
-                .region(Region.US_EAST_1)
-                .credentialsProvider(ProfileCredentialsProvider.create())
-                .build();
+            .region(Region.US_EAST_1)
+            //                .credentialsProvider(ProfileCredentialsProvider.create("heeyeon"))
+            .build();
 
-        String base64Image = S3Util.imageToBase64("face.png");
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("Current dir using System:" + currentDir);
 
         //수정할 이미지
-//        String base64Image = imageToBase64("https://gitmagotchi-generated.s3.amazonaws.com", "face.png");
+        String base64Image = S3Util.imageToBase64("face.png");
+        //        String base64Image = imageToBase64("https://gitmagotchi-generated.s3.amazonaws.com/face.png", "");
 
-//        System.out.println("Base64: " + base64Image);
-//
-//        JSONArray imagesArray = new JSONArray();
-//        imagesArray.put(base64Image);
+        //System.out.println("Base64: " + base64Image);
+        //        JSONArray imagesArray = new JSONArray();
+        //        imagesArray.put(base64Image);
 
         var inPaintingParams = new JSONObject()
-                .put("text", prompt)
-                .put("image", base64Image)
-                .put("maskImage", MaskImageBase64.getImageBase64());
+            .put("text", prompt)
+            .put("image", base64Image)
+            .put("maskImage", MaskImageBase64.getImageBase64());
 
         var imageGenerationConfig = new JSONObject()
-                .put("numberOfImages", 1)
-                .put("cfgScale", 10.0)
-                .put("height", 512)
-                .put("width", 512);
+            .put("numberOfImages", 1)
+            .put("cfgScale", 10.0)
+            .put("height", 512)
+            .put("width", 512);
 
         JSONObject payload = new JSONObject()
-                .put("taskType", "INPAINTING")
-                .put("inPaintingParams", inPaintingParams)
-                .put("imageGenerationConfig", imageGenerationConfig);
+            .put("taskType", "INPAINTING")
+            .put("inPaintingParams", inPaintingParams)
+            .put("imageGenerationConfig", imageGenerationConfig);
 
         InvokeModelRequest request = InvokeModelRequest.builder()
-                .body(SdkBytes.fromUtf8String(payload.toString()))
-                .modelId(titanImageModelId)
-                .contentType("application/json")
-                .accept("application/json")
-                .build();
+            .body(SdkBytes.fromUtf8String(payload.toString()))
+            .modelId(titanImageModelId)
+            .contentType("application/json")
+            .accept("application/json")
+            .build();
 
         CompletableFuture<InvokeModelResponse> completableFuture = client.invokeModel(request)
-                .whenComplete((response, exception) -> {
-                    if (exception != null) {
-                        System.out.println("Model invocation failed: " + exception);
-                    }
-                });
+            .whenComplete((response, exception) -> {
+                if (exception != null) {
+                    System.out.println("Model invocation failed: " + exception);
+                }
+            });
 
         String base64ImageData = "";
         try {
             InvokeModelResponse response = completableFuture.get();
             JSONObject responseBody = new JSONObject(response.body().asUtf8String());
             base64ImageData = responseBody
-                    .getJSONArray("images")
-                    .getString(0);
+                .getJSONArray("images")
+                .getString(0);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

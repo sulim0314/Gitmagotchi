@@ -1,6 +1,7 @@
-package character.image.create;
+package character.image.create.service;
 
 
+import common.s3.upload.S3ImageUploader;
 import software.amazon.awssdk.services.bedrockruntime.model.BedrockRuntimeException;
 
 import java.io.FileOutputStream;
@@ -12,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Random;
 
-import static character.image.create.InvokeModelAsync.invokeTitanImage;
+import static character.image.create.service.InvokeModelAsync.invokeTitanImage;
 
 public class BedrockRuntimeUsageDemo {
 
@@ -20,9 +21,9 @@ public class BedrockRuntimeUsageDemo {
 
     private static final String TITAN_IMAGE = "amazon.titan-image-generator-v1";
 
-    public static void main(String[] args) throws IOException {
-        BedrockRuntimeUsageDemo.textToImage();
-    }
+    //    public static void main(String[] args) throws IOException {
+    //        BedrockRuntimeUsageDemo.textToImage();
+    //    }
 
     private static void invoke(String modelId, String prompt) throws IOException {
         invoke(modelId, prompt, null);
@@ -57,12 +58,16 @@ public class BedrockRuntimeUsageDemo {
         System.out.printf("Success: The generated image has been saved to %s%n", imagePath);
     }
 
-    private static void textToImage() throws IOException {
+    public static void textToImage() throws IOException {
         String imagePrompt = "Inside the circle, draw a cute rabbit image of eyes, nose, and mouth. Make the background transparent";
         BedrockRuntimeUsageDemo.invoke(TITAN_IMAGE, imagePrompt);
     }
 
     private static String saveImage(String modelId, String base64ImageData) {
+        S3ImageUploader uploader = new S3ImageUploader();
+
+        uploader.uploadImageToS3("gitmagotchi-character-image", base64ImageData);
+
         try {
             String directory = "output";
             URI uri = InvokeModelAsync.class.getProtectionDomain().getCodeSource().getLocation().toURI();
