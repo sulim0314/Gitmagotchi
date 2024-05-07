@@ -1,4 +1,4 @@
-import { axiosInstance } from ".";
+import { usInstance } from ".";
 import { sampleCharacter } from "./sample";
 
 export const getCharacter = async (): Promise<any> => {
@@ -10,6 +10,11 @@ export const getCharacter = async (): Promise<any> => {
 };
 
 export const getChatResponse = async (params: any): Promise<any> => {
-  const response = await axiosInstance.post("/character/chat", params);
+  const response = await usInstance.post("/character/chat", params);
+  return response.data;
+};
+
+export const generateFace = async (params: any): Promise<any> => {
+  const response = await usInstance.post("/character/face/ai", params);
   return response.data;
 };

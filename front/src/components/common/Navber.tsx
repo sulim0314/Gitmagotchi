@@ -84,6 +84,7 @@ flex
 justify-between
 items-center
 h-24
+min-h-24
 w-full
 mx-auto
 px-4

@@ -1,9 +1,9 @@
-// import { axiosInstance } from ".";
+// import { usInstance } from ".";
 
 import { sampleCharacterList, sampleUserList } from "./sample";
 
 export const getSearchList = async (params: any): Promise<any> => {
-  //   const response = await axiosInstance.post("/collection", params);
+  //   const response = await usInstance.post("/collection", params);
   //   return response.data;
   return new Promise((resolve) => {
     setTimeout(() => {

@@ -1,16 +1,16 @@
 import tw from "tailwind-styled-components";
-import sampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
+  faceUrl: string;
 }
 
-export default function CreateConfirm({ setProcess }: IProps) {
+export default function CreateConfirm({ setProcess, faceUrl }: IProps) {
   return (
     <Wrapper>
-      <img src={sampleCharacterImage} className="w-60" />
+      <img src={faceUrl} className="w-60" />
       <Content>
         <DesktopTitle>
           <Title>캐릭터가 생성되었어요.</Title>

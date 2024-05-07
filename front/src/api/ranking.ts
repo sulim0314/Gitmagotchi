@@ -1,9 +1,9 @@
-// import { axiosInstance } from ".";
+// import { usInstance } from ".";
 
 import { sampleRanking } from "./sample";
 
 export const getRankingList = async (): Promise<any> => {
-  //   const response = await axiosInstance.post("/collection", params);
+  //   const response = await usInstance.post("/collection", params);
   //   return response.data;
   return new Promise((resolve) => {
     setTimeout(() => {
