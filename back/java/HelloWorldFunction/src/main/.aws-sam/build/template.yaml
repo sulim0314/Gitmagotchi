@@ -4,7 +4,7 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: character.image.create.handler.CharacterImageHandler
+      Handler: user.handler.UserHandler
       CodeUri: Function
       Runtime: java17
       Architectures:

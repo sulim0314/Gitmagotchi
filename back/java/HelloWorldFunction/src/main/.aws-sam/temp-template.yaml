@@ -4,8 +4,8 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: character.image.create.handler.CharacterImageHandler
-      CodeUri: C:\KHY\부트캠프\SSAFY\2학기\gitmagotchi\S10P31S205\back\java\HelloWorldFunction
+      Handler: user.handler.UserHandler
+      CodeUri: C:\KHY\S205\S10P31S205\back\java\HelloWorldFunction
       Runtime: java17
       Architectures:
         - x86_64
