@@ -5,6 +5,6 @@
 from gitmagotchi.motion.annotations_to_animation import annotations_to_animation
 import sys
 
-def image_to_animation(char_anno_dir: str, motion_cfg_fn: str, retarget_cfg_fn: str):
+def image_to_animation(char_anno_dir: str, usr_assets_dir:str, motion_cfg_fn: str, retarget_cfg_fn: str):
     # create the animation
-    annotations_to_animation(char_anno_dir, motion_cfg_fn, retarget_cfg_fn)
+    annotations_to_animation(char_anno_dir, usr_assets_dir, motion_cfg_fn, retarget_cfg_fn)
