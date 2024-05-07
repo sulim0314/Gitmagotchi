@@ -1,4 +1,4 @@
-package character.image.create.service;
+package character.image.service;
 
 
 import common.s3.upload.S3ImageUploader;
@@ -12,8 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Random;
-
-import static character.image.create.service.InvokeModelAsync.invokeTitanImage;
 
 public class BedrockRuntimeUsageDemo {
 
@@ -53,7 +51,7 @@ public class BedrockRuntimeUsageDemo {
     }
 
     private static void createImage(String modelId, String prompt, long seed, String stylePreset) throws IOException {
-        String base64ImageData = invokeTitanImage(prompt, seed);
+        String base64ImageData = InvokeModelAsync.invokeTitanImage(prompt, seed);
         String imagePath = saveImage(modelId, base64ImageData);
         System.out.printf("Success: The generated image has been saved to %s%n", imagePath);
     }

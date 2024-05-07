@@ -5,7 +5,7 @@ Resources:
       Timeout: 300
       MemorySize: 128
       Handler: chat.handler.AnalyzeSentimentHandler
-      CodeUri: Function
+      CodeUri: s3://gitmagotchi-java/f6f699a4425fc54dceb7cab2bccf90d5
       Runtime: java17
       Architectures:
       - x86_64
