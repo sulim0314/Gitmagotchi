@@ -4,16 +4,8 @@ import { recoilPersist } from "recoil-persist";
 
 const { persistAtom } = recoilPersist();
 
-interface ICharacterData {
-  character: ICharacter | null;
-}
-
-const defaultCharacter: ICharacterData = {
-  character: null,
-};
-
-export const authDataAtom = atom<ICharacterData>({
+export const characterDataAtom = atom<ICharacter | null>({
   key: "characterData",
-  default: defaultCharacter,
+  default: null,
   effects_UNSTABLE: [persistAtom],
 });

@@ -1,9 +1,37 @@
 import tw from "tailwind-styled-components";
 import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import { FaGithub } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Auth } from "aws-amplify";
+import { useSetRecoilState } from "recoil";
+import { authDataAtom } from "@/store/auth";
 
 export default function Login() {
+  const setAuthData = useSetRecoilState(authDataAtom);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const getUser = async () => {
+    const user = await Auth.currentUserInfo();
+    if (user) {
+      setAuthData(user);
+    }
+    setLoading(false);
+  };
+
+  const signIn = async () => {
+    await Auth.federatedSignIn({
+      provider: "GitHub",
+    });
+  };
+
+  // const handleLogin = () => {};
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  if (loading) return <div className="container">Loading...</div>;
+
   return (
     <Wrapper>
       <img src={SampleStartCharacterImage} className="w-60" />
@@ -11,12 +39,10 @@ export default function Login() {
         <Title>깃마고치</Title>
         <Description>생성형 AI를 통해</Description>
         <Description>나만의 다마고치를 키워보세요.</Description>
-        <Link to="/character/create">
-          <LoginButton>
-            <GitHubIcon />
-            <LoginText>GitHub로 로그인하기</LoginText>
-          </LoginButton>
-        </Link>
+        <LoginButton onClick={signIn}>
+          <GitHubIcon />
+          <LoginText>GitHub로 로그인하기</LoginText>
+        </LoginButton>
       </Content>
     </Wrapper>
   );

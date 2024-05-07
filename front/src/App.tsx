@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Navbar from "@/components/common/Navber";
@@ -19,14 +19,65 @@ import Test from "@/pages/Test";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
+import { authDataAtom } from "./store/auth";
+import { useRecoilState } from "recoil";
+import { useEffect } from "react";
+import { userDataAtom } from "./store/user";
+import { characterDataAtom } from "./store/character";
+import { Auth } from "aws-amplify";
+import { getUser } from "./api/user";
+import { getCharacter } from "./api/character";
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [authData, setAuthData] = useRecoilState(authDataAtom);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
+  const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+
+  useEffect(() => {
+    const fetchCognitoUser = async () => {
+      const cognitoUser = await Auth.currentUserInfo();
+      if (cognitoUser) {
+        setAuthData(cognitoUser);
+      } else {
+        navigate("/login", { replace: true });
+      }
+    };
+
+    const fetchUser = async () => {
+      const user = await getUser();
+      if (user) {
+        setUserData(user);
+      } else {
+        // const newUser = createUser();
+        setUserData(null);
+      }
+    };
+
+    const fetchCharacter = async () => {
+      const character = await getCharacter();
+      if (character) {
+        setCharacterData(character);
+      } else {
+        navigate("/character/create", { replace: true });
+      }
+    };
+
+    if (!authData) {
+      fetchCognitoUser();
+    } else if (!userData) {
+      fetchUser();
+    } else if (!characterData) {
+      fetchCharacter();
+    }
+  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+
   return (
     <>
       {location.pathname === "/" && (
         <>
-          {" "}
           <Background
             style={{
               backgroundImage: `url(${SampleBg})`,
