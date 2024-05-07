@@ -20,6 +20,8 @@ export default function Login() {
 
   const signIn = async () => {
     await Auth.federatedSignIn({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       provider: "GitHub",
     });
   };

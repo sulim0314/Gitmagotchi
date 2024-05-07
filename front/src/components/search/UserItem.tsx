@@ -13,7 +13,7 @@ export default function UserItem({ user }: IProps) {
           <img src={user.profileImg} className="w-12 rounded-md shadow-md" />
           <Nickname>{user.nickname}</Nickname>
         </UserDetailContainer>
-        <GitHubUsername>{user.id}</GitHubUsername>
+        <GitHubUsername>{user.githubUsername}</GitHubUsername>
       </UserContainer>
     </Wrapper>
   );

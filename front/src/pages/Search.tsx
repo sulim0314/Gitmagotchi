@@ -1,10 +1,5 @@
 import tw from "tailwind-styled-components";
-import {
-  HiChevronLeft,
-  HiChevronRight,
-  HiChevronDown,
-  HiChevronUp,
-} from "react-icons/hi";
+import { HiChevronLeft, HiChevronRight, HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { HiOutlineSearch } from "react-icons/hi";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -41,16 +36,10 @@ export default function Search() {
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem
-          $selected={type === "CHARACTER"}
-          onClick={() => setType("CHARACTER")}
-        >
+        <DesktopMenuItem $selected={type === "CHARACTER"} onClick={() => setType("CHARACTER")}>
           <DesktopMenuText>캐릭터 검색</DesktopMenuText>
         </DesktopMenuItem>
-        <DesktopMenuItem
-          $selected={type === "USER"}
-          onClick={() => setType("USER")}
-        >
+        <DesktopMenuItem $selected={type === "USER"} onClick={() => setType("USER")}>
           <DesktopMenuText>사용자 검색</DesktopMenuText>
         </DesktopMenuItem>
       </DesktopMenu>
@@ -66,9 +55,7 @@ export default function Search() {
         </MobileHeader>
         <InputContainer>
           <SearchInput
-            placeholder={`${
-              type === "CHARACTER" ? "캐릭터" : "사용자"
-            }를 찾아보세요.`}
+            placeholder={`${type === "CHARACTER" ? "캐릭터" : "사용자"}를 찾아보세요.`}
             onChange={onChangeKeyword}
           />
           <SearchIcon />
@@ -84,9 +71,7 @@ export default function Search() {
                   <DownIcon onClick={toggleHistoryOpen} />
                 )}
               </TitleContainer>
-              {historyOpen && (
-                <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>
-              )}
+              {historyOpen && <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>}
             </RecentKeywordContainer>
             {historyOpen && <Divider />}
             <ResultContainer>
@@ -102,7 +87,7 @@ export default function Search() {
               ) : (
                 <UserResultList>
                   {data?.map((u: IUser) => (
-                    <UserItem key={u.id} user={u} />
+                    <UserItem key={u.userId} user={u} />
                   ))}
                 </UserResultList>
               )}
@@ -135,8 +120,7 @@ space-y-2
 `;
 
 const DesktopMenuItem = tw.button<{ $selected: boolean }>`
-${(p) =>
-  p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent"}
+${(p) => (p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent")}
 border-2
 h-14
 w-full
