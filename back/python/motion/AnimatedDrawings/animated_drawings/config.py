@@ -87,10 +87,11 @@ class SceneConfig():
         each: Dict[str, str]
         for each in scene_cfg['ANIMATED_CHARACTERS']:
             char_cfg_fn: str = each['character_cfg']
+            usr_assets_dir: str = each['usr_assets_dir']
             motion_cfg_fn: str = each['motion_cfg']
             retarget_cfg_fn: str = each['retarget_cfg']
             self.animated_characters.append((
-                CharacterConfig(char_cfg_fn),
+                CharacterConfig(char_cfg_fn, usr_assets_dir),
                 RetargetConfig(retarget_cfg_fn),
                 MotionConfig(motion_cfg_fn)
             ))
@@ -254,7 +255,7 @@ class CharacterConfig():
         name: str
         parent: Union[None, str]
 
-    def __init__(self, char_cfg_fn: str) -> None:  # noqa: C901
+    def __init__(self, char_cfg_fn: str, usr_assets_dir: str) -> None:  # noqa: C901
         character_cfg_p = resolve_ad_filepath(char_cfg_fn, 'character cfg')
         with open(str(character_cfg_p), 'r') as f:
             char_cfg = yaml.load(f, Loader=yaml.FullLoader)
@@ -326,7 +327,7 @@ class CharacterConfig():
         # validate mask and texture files
         try:
             self.mask_p: Path = character_cfg_p.parent / 'mask.png'
-            self.txtr_p: Path = character_cfg_p.parent / 'texture.png'
+            self.txtr_p: Path = Path(usr_assets_dir) / 'texture.png'
             assert self.mask_p.exists(), f'cannot find character mask: {self.mask_p}'
             assert self.txtr_p.exists(), f'cannot find character texture: {self.txtr_p}'
         except AssertionError as e:

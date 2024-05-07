@@ -186,7 +186,6 @@ class PNGWriter(VideoWriter):
         logging.info(f"Frames: {len(self.frames)}")
 
         output = Image.new("RGBA", (OUTPUT_SIZE[0] * len(self.frames), OUTPUT_SIZE[1]))
-        print(f"Writing a sprite sheet to {self.output_p}")
         for i, a_frame in tqdm(enumerate(self.frames)):
             frame = Image.fromarray(a_frame)
             extracted_frame = frame.resize(OUTPUT_SIZE).convert("RGBA")

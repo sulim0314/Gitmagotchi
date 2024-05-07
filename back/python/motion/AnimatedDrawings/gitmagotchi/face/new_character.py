@@ -2,15 +2,14 @@ import cv2
 from pathlib import Path
 import numpy as np
 
-def make_new_character(char_anno_dir: str):
+def make_new_character(char_anno_dir: str, usr_assets_dir: str):
 
-    texture_path = str(Path(char_anno_dir, "org_texture.png"))
-    face_path = str(Path(char_anno_dir, "image-face.png"))
-    new_img_path = str(Path(char_anno_dir, "texture.png"))
+    texture_path = str(Path(char_anno_dir, "texture.png"))
+    face_path = str(Path(usr_assets_dir, "image-face.png"))
+    new_img_path = str(Path(usr_assets_dir, "texture.png"))
     
     full_img = cv2.imread(texture_path, cv2.IMREAD_UNCHANGED)
     face_img = cv2.imread(face_path, cv2.IMREAD_UNCHANGED)
-
 
     b,t,l,r=798,112,208,782
     face_img_cropped = face_img[t:b, l:r]
@@ -19,6 +18,4 @@ def make_new_character(char_anno_dir: str):
 
     # cv2.imshow("added", full_img)
     # cv2.waitKey()
-    cv2.imwrite(str(Path(char_anno_dir,'texture.png')), full_img)
-
-    pass
+    cv2.imwrite(new_img_path, full_img)
