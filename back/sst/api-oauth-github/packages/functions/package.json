@@ -1,0 +1,19 @@
+{
+  "name": "@api-oauth-github/functions",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind vitest",
+    "typecheck": "tsc -noEmit"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.134",
+    "@types/node": "^20.11.24",
+    "sst": "^2.40.6",
+    "vitest": "^1.3.1"
+  },
+  "dependencies": {
+    "lambda-multipart-parser": "^1.0.1",
+    "node-fetch": "^3.3.2"
+  }
+}
