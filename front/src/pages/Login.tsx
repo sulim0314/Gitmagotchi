@@ -2,14 +2,18 @@ import tw from "tailwind-styled-components";
 import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import { FaGithub } from "react-icons/fa";
 import { Auth } from "aws-amplify";
+import { useNavigate } from "react-router";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const signIn = async () => {
     await Auth.federatedSignIn({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       provider: "GitHub",
     });
+    navigate("/", { replace: true });
   };
 
   // const handleLogin = () => {};
