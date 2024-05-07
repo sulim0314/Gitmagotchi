@@ -17,8 +17,6 @@ import { IoMdClose } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
-import { useRecoilValue } from "recoil";
-import { authDataAtom } from "@/store/auth";
 import Modal from "react-modal";
 
 interface IServerMsg {
@@ -28,7 +26,6 @@ interface IServerMsg {
 
 export default function Home() {
   const navigate = useNavigate();
-  const authData = useRecoilValue(authDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
   const [modal, setModal] = useState<boolean>(false);
@@ -40,34 +37,24 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    // if (!authData.isLogin) {
-    //   navigate("/login", { replace: true });
-    // } else if (!authData.characterId) {
-    //   navigate("/character/create", { replace: true });
-    // }
+    modalBottomRef.current?.scrollIntoView();
+  }, [modal, serverMsgList, modalBottomRef]);
+
+  const toggleModal = () => {
+    // delete this
     setServerMsgList([
       {
         timestamp: new Date(),
         text: "-- 깃마고치에 오신 것을 환영합니다. --",
       },
     ]);
-  }, [authData, navigate]);
-
-  useEffect(() => {
-    modalBottomRef.current?.scrollIntoView();
-  }, [modal, serverMsgList, modalBottomRef]);
-
-  const toggleModal = () => {
     setModal(!modal);
   };
 
   const formatTimestamp = (date: Date) => {
     const hour = date.getHours();
     const minute = date.getMinutes();
-    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(
-      2,
-      "0"
-    )}] `;
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
   };
 
   return (
@@ -209,9 +196,7 @@ export default function Home() {
         <ModalMsgList>
           {serverMsgList.map((msg) => (
             <ModalMsg key={formatTimestamp(msg.timestamp)}>
-              <ModalMsgTimestamp>
-                {formatTimestamp(msg.timestamp)}
-              </ModalMsgTimestamp>
+              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}

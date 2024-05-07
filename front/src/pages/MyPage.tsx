@@ -1,16 +1,26 @@
 import tw from "tailwind-styled-components";
 import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import { HiOutlinePencil } from "react-icons/hi";
+import { Auth } from "aws-amplify";
+import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { authDataAtom } from "@/store/auth";
 
 export default function MyPage() {
+  const navigate = useNavigate();
+  const setAuthData = useSetRecoilState(authDataAtom);
+
+  const signOut = async () => {
+    await Auth.signOut();
+    setAuthData(null);
+    navigate("/login");
+  };
+
   return (
     <Wrapper>
       <UserInfoContainer>
         <UserContainer>
-          <img
-            src={sampleProfileImage}
-            className="w-16 lg:w-24 rounded-md shadow-md"
-          />
+          <img src={sampleProfileImage} className="w-16 lg:w-24 rounded-md shadow-md" />
           <UserDetailContainer>
             <GitHubUsername>Tama1001</GitHubUsername>
             <NicknameContainer>
@@ -20,6 +30,7 @@ export default function MyPage() {
           </UserDetailContainer>
         </UserContainer>
         <DetailContainer>
+          <LogoutText onClick={signOut}>로그아웃</LogoutText>
           <DetailRow>
             <DetailText>가입일</DetailText>
             <DetailText>2024.04.26.</DetailText>
@@ -33,6 +44,7 @@ export default function MyPage() {
         <CommitImgContainer>
           <img src={"https://ghchart.rshah.org/rheeeuro"} className="w-full" />
         </CommitImgContainer>
+
         <DelteText>
           회원 탈퇴하시려면 <DeleteLink>여기</DeleteLink>를 눌러주세요.
         </DelteText>
@@ -122,6 +134,15 @@ const CommitImgContainer = tw.div`
 w-full
 flex
 lg:p-6
+`;
+
+const LogoutText = tw.a`
+w-full
+text-xl
+text-red-500
+hover:text-red-300
+text-right
+cursor-pointer
 `;
 
 const DelteText = tw.p`

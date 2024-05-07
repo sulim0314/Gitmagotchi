@@ -1,7 +1,8 @@
 export interface IUser {
-  id: number;
+  userId: number;
   profileImg: string;
   nickname: string;
+  githubUsername: string;
   gold: number;
   meal: number;
   lastTime: string;
