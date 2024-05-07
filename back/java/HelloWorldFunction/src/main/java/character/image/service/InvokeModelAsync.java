@@ -1,9 +1,8 @@
-package character.image.create.service;
+package character.image.service;
 
 import common.s3.util.S3Util;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeAsyncClient;

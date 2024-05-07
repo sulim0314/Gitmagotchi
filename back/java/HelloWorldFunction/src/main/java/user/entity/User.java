@@ -1,32 +1,29 @@
 package user.entity;
 
 import collections.entity.Collections;
+import common.entity.BaseEntity;
 import lombok.Getter;
-import lombok.Setter;
+import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Setter
 
 @Table(name = "user")
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String profile_img;
     private String nickname;
     private String github_username;
-    private Integer gold;
-    private Integer meal;
-    private Timestamp last_time;
+    private Integer gold = 0;
+    private Integer meal = 0;
+    private LocalDateTime last_time = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
     private List<Collections> collectionList = new ArrayList<>();
-
-    public User() {}
 }

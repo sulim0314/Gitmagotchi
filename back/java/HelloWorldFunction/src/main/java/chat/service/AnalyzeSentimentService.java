@@ -1,4 +1,4 @@
-package character.chat.sentiment.service;
+package chat.service;
 
 import org.json.JSONObject;
 import software.amazon.awssdk.regions.Region;
@@ -8,8 +8,7 @@ import software.amazon.awssdk.services.comprehend.model.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class DetectSentimentService {
-
+public class AnalyzeSentimentService {
     private static ComprehendAsyncClient comprehendAsyncClient;
 
     private static synchronized ComprehendAsyncClient getComprehendAsyncClient() {
