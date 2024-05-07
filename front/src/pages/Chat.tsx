@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { userDataAtom } from "@/store/user";
+import { ImExit } from "react-icons/im";
 
 interface IUserChat {
   isUser: boolean;
@@ -107,6 +108,10 @@ export default function Chat() {
   return (
     <Wrapper>
       <ChatContainer>
+        <ExitButton>
+          <ExitIcon />
+          <ExitButtonText>대화 종료하기</ExitButtonText>
+        </ExitButton>
         <ChatList>
           {chatList.map((c, i) => {
             if (c.isUser) {
@@ -155,7 +160,39 @@ const ChatContainer = tw.div`
 w-full
 h-20
 flex-grow
+relative
 `;
+
+const ExitButton = tw.div`
+cursor-pointer
+absolute
+top-4
+right-4
+lg:right-8
+bg-purple-300
+hover:bg-purple-400
+hover:scale-110
+flex
+items-center
+space-x-2
+border-2
+border-slate-800
+rounded-2xl
+p-3
+lg:py-2
+lg:px-4
+`;
+
+const ExitButtonText = tw.h3`
+hidden
+lg:block
+text-lg
+font-bold
+`;
+
+const ExitIcon = tw(ImExit)`
+w-6
+h-6`;
 
 const ChatList = tw.div`
 w-full
