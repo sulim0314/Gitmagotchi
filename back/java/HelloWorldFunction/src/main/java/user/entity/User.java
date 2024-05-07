@@ -3,7 +3,6 @@ package user.entity;
 import collections.entity.Collections;
 import common.entity.BaseEntity;
 import lombok.Getter;
-import lombok.Setter;
 import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
