@@ -2,6 +2,7 @@ import sampleCollectionImage from "@/assets/images/sampleCollection.png";
 import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleFaceImage from "@/assets/images/sampleFace.png";
+import sampleFace2Image from "@/assets/images/sampleFace2.png";
 import { ICharacter, ICollection, IUser } from "@/models";
 
 export const sampleUser = {
@@ -17,9 +18,9 @@ export const sampleUser = {
 export const sampleCharacter = {
   id: 1,
   userId: 47638660,
-  name: "도날드덕",
-  exp: 900,
-  faceUrl: sampleFaceImage,
+  name: "싸피취준생",
+  exp: 943,
+  faceUrl: sampleFace2Image,
   characterUrl: sampleCollectionImage,
 };
 

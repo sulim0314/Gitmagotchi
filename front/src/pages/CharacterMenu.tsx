@@ -5,9 +5,12 @@ import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import CommonMenuItem from "@/components/common/CommonMenuItem";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { characterDataAtom } from "@/store/character";
 
 export default function CharacterMenu() {
   const navigate = useNavigate();
+  const characterData = useRecoilValue(characterDataAtom);
 
   const onClickLink = (url: string) => {
     return () => {
@@ -19,15 +22,15 @@ export default function CharacterMenu() {
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>LV.9</LevelText>
+          <LevelText>{`LV.${Math.floor((characterData?.exp || 0) / 100)}`}</LevelText>
           <ExpBarContainer>
-            <ExpBar />
-            <DataText>60 / 100</DataText>
+            <ExpBar style={{ width: `${(characterData?.exp || 0) % 100}%` }} />
+            <DataText>{`${(characterData?.exp || 0) % 100} / 100`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
           <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
-          <Name>도날드덕</Name>
+          <Name>{characterData?.name}</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>
       </CharacterContainer>
@@ -62,18 +65,9 @@ export default function CharacterMenu() {
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem
-            text={"캐릭터 능력치"}
-            onClick={onClickLink("/character/stat")}
-          />
-          <CommonMenuItem
-            text={"캐릭터 이름 변경"}
-            onClick={onClickLink("/character/rename")}
-          />
-          <CommonMenuItem
-            text={"캐릭터 성형"}
-            onClick={onClickLink("/character/change")}
-          />
+          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
+          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
+          <CommonMenuItem text={"캐릭터 성형"} onClick={onClickLink("/character/change")} />
           <DeleteText>
             캐릭터를 방출하시려면 <DeleteLink>여기</DeleteLink>를 눌러주세요.
           </DeleteText>

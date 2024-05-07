@@ -2,11 +2,12 @@ import tw from "tailwind-styled-components";
 import { IoSend } from "react-icons/io5";
 import CharacterChat from "@/components/chat/CharacterChat";
 import UserChat from "@/components/chat/UserChat";
-import SampleFaceImage from "@/assets/images/sampleFace.png";
-import SampleProfileImage from "@/assets/images/sampleProfile.png";
 import { useMutation } from "@tanstack/react-query";
 import { getChatResponse } from "@/api/character";
 import { useEffect, useRef, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { characterDataAtom } from "@/store/character";
+import { userDataAtom } from "@/store/user";
 
 interface IUserChat {
   isUser: boolean;
@@ -27,6 +28,8 @@ interface ICharacterChat {
 type IChat = IUserChat | ICharacterChat;
 
 export default function Chat() {
+  const userData = useRecoilValue(userDataAtom);
+  const characterData = useRecoilValue(characterDataAtom);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const mutation = useMutation({
     mutationFn: getChatResponse,
@@ -38,10 +41,10 @@ export default function Chat() {
   const [chatList, setChatList] = useState<IChat[]>([
     {
       isUser: false,
-      imgSrc: SampleFaceImage,
+      imgSrc: characterData?.faceUrl || "",
       level: 9,
-      name: "도날드덕",
-      text: "안녕! 난 도날드덕이야.",
+      name: characterData?.name || "",
+      text: `안녕! 난 ${characterData?.name}이야.`,
     },
   ]);
 
@@ -61,9 +64,9 @@ export default function Chat() {
       ...prev,
       {
         isUser: true,
-        imgSrc: SampleProfileImage,
-        username: "Tama1001",
-        nickname: "코드몽키",
+        imgSrc: userData?.profileImg || "",
+        username: userData?.githubUsername || "",
+        nickname: userData?.nickname || "",
         text: chatMsg,
       },
     ]);
@@ -71,8 +74,8 @@ export default function Chat() {
     mutation.mutate({
       body: JSON.stringify({
         characterInfo: {
-          name: "도날드덕",
-          level: 9,
+          name: characterData?.name,
+          level: Math.floor((characterData?.exp || 0) / 100),
           fullness: 70,
           intimacy: 80,
           cleanliness: 60,
@@ -87,9 +90,9 @@ export default function Chat() {
       ...prev,
       {
         isUser: false,
-        imgSrc: SampleFaceImage,
-        level: 9,
-        name: "도날드덕",
+        imgSrc: characterData?.faceUrl || "",
+        level: Math.floor((characterData?.exp || 0) / 100),
+        name: characterData?.name || "",
         text: data,
       },
     ]);
@@ -132,11 +135,7 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
-        <ChatInput
-          placeholder="메시지를 입력하세요."
-          onChange={onChangeMsg}
-          value={chatMsg}
-        />
+        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} value={chatMsg} />
         <button>
           <SendIcon />
         </button>

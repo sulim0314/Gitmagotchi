@@ -49,7 +49,7 @@ export default function App() {
     const fetchUser = async () => {
       const user = await getUser();
       if (user) {
-        setUserData(null);
+        setUserData(user);
       } else {
         // const newUser = createUser();
         setUserData(null);
@@ -59,7 +59,7 @@ export default function App() {
     const fetchCharacter = async () => {
       const character = await getCharacter();
       if (character) {
-        setCharacterData(null);
+        setCharacterData(character);
       } else {
         navigate("/character/create", { replace: true });
       }
