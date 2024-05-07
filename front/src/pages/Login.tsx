@@ -1,23 +1,9 @@
 import tw from "tailwind-styled-components";
 import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import { FaGithub } from "react-icons/fa";
-import { useEffect, useState } from "react";
 import { Auth } from "aws-amplify";
-import { useSetRecoilState } from "recoil";
-import { authDataAtom } from "@/store/auth";
 
 export default function Login() {
-  const setAuthData = useSetRecoilState(authDataAtom);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const getUser = async () => {
-    const user = await Auth.currentUserInfo();
-    if (user) {
-      setAuthData(user);
-    }
-    setLoading(false);
-  };
-
   const signIn = async () => {
     await Auth.federatedSignIn({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -27,12 +13,6 @@ export default function Login() {
   };
 
   // const handleLogin = () => {};
-
-  useEffect(() => {
-    getUser();
-  }, []);
-
-  if (loading) return <div className="container">Loading...</div>;
 
   return (
     <Wrapper>
