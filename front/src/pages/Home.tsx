@@ -67,7 +67,7 @@ export default function Home() {
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img src={characterData?.faceUrl} className="w-16 h-16" />
+              <img src={characterData?.faceUrl} className="w-16 h-16 group-hover:scale-110" />
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
@@ -241,6 +241,7 @@ flex-grow
 `;
 
 const InfoContianer = tw.div`
+group
 flex
 space-x-2
 items-start
@@ -274,6 +275,7 @@ border-2
 border-slate-800
 cursor-pointer
 hover:saturate-200
+hover:scale-125
 `;
 
 const CharacterName = tw.h1`
@@ -383,6 +385,7 @@ w-14
 h-14
 bg-purple-50
 hover:bg-purple-100
+hover:scale-125
 border-2
 border-slate-800
 shadow-xl
