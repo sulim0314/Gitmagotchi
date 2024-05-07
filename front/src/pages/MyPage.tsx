@@ -1,14 +1,15 @@
 import tw from "tailwind-styled-components";
-import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import { HiOutlinePencil } from "react-icons/hi";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authDataAtom } from "@/store/auth";
+import { userDataAtom } from "@/store/user";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const setAuthData = useSetRecoilState(authDataAtom);
+  const userData = useRecoilValue(userDataAtom);
 
   const signOut = async () => {
     await Auth.signOut();
@@ -20,11 +21,11 @@ export default function MyPage() {
     <Wrapper>
       <UserInfoContainer>
         <UserContainer>
-          <img src={sampleProfileImage} className="w-16 lg:w-24 rounded-md shadow-md" />
+          <img src={userData?.profileImg || ""} className="w-16 lg:w-24 rounded-md shadow-md" />
           <UserDetailContainer>
-            <GitHubUsername>Tama1001</GitHubUsername>
+            <GitHubUsername>{userData?.githubUsername}</GitHubUsername>
             <NicknameContainer>
-              <Nickname>코드몽키</Nickname>
+              <Nickname>{userData?.nickname}</Nickname>
               <PenIcon />
             </NicknameContainer>
           </UserDetailContainer>
@@ -42,7 +43,7 @@ export default function MyPage() {
           <DetailText>COMMITS</DetailText>
         </DetailRow>
         <CommitImgContainer>
-          <img src={"https://ghchart.rshah.org/rheeeuro"} className="w-full" />
+          <img src={`https://ghchart.rshah.org/${userData?.githubUsername}`} className="w-full" />
         </CommitImgContainer>
 
         <DelteText>

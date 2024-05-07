@@ -1,9 +1,10 @@
 import tw from "tailwind-styled-components";
 import { useState } from "react";
 import { HiOutlineMenu, HiOutlineChevronLeft, HiX } from "react-icons/hi";
-import SampleProfileImage from "@/assets/images/sampleProfile.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import CommonMenuItem from "./CommonMenuItem";
+import { useRecoilValue } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 interface IProps {
   pageTitle?: string;
@@ -13,6 +14,7 @@ interface IProps {
 export default function Navbar({ pageTitle, canGoBack }: IProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const userData = useRecoilValue(userDataAtom);
   const [open, setOpen] = useState<boolean>(false);
 
   const toggleOpen = () => setOpen(!open);
@@ -51,8 +53,8 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
           </DesktopMenuItem>
         ))}
         <DesktopUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={SampleProfileImage} />
-          <UserNickname>코드몽키</UserNickname>
+          <UserImg src={userData?.profileImg || ""} />
+          <UserNickname>{userData?.nickname}</UserNickname>
         </DesktopUserContainer>
       </DesktopMenu>
       <MobileMenuButton onClick={toggleOpen}>
@@ -61,10 +63,10 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
       <MobileMenu $open={open}>
         <MobileMenuTitle onClick={onClickLink("/")}>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
         <MobileUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={SampleProfileImage} />
+          <UserImg src={userData?.profileImg || ""} />
           <UserInfo>
-            <GithubUsername>Tamma1001</GithubUsername>
-            <UserNickname>코드몽키</UserNickname>
+            <GithubUsername>{userData?.githubUsername}</GithubUsername>
+            <UserNickname>{userData?.nickname}</UserNickname>
           </UserInfo>
         </MobileUserContainer>
         <MobileMenuList>

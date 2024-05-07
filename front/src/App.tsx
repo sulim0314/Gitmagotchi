@@ -21,7 +21,7 @@ import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
 import { authDataAtom } from "./store/auth";
 import { useRecoilState } from "recoil";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
@@ -35,8 +35,11 @@ export default function App() {
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setLoading(true);
+
     const fetchCognitoUser = async () => {
       const cognitoUser = await Auth.currentUserInfo();
       if (cognitoUser) {
@@ -71,8 +74,12 @@ export default function App() {
       fetchUser();
     } else if (!characterData) {
       fetchCharacter();
+    } else {
+      setLoading(false);
     }
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
