@@ -4,8 +4,8 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: user.handler.AuthHandler
-      CodeUri: s3://gitmagotchi-aurora/fe562c16fe92411ae8615fecb4b75f87
+      Handler: user.handler.TokenHandler
+      CodeUri: s3://gitmagotchi-aurora/6530b8f1a57891411aae2c23f43a1ed7
       Runtime: java17
       Architectures:
       - x86_64
