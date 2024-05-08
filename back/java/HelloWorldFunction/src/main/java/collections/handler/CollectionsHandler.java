@@ -9,16 +9,8 @@ import javax.persistence.Persistence;
 import java.util.List;
 
 public class CollectionsHandler implements RequestHandler<Object, String> {
-    private static EntityManagerFactory entityManagerFactory;// = Persistence.createEntityManagerFactory("myPersistenceUnit");
 
-    static {
-        try {
-            entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
-        } catch (Throwable ex) {
-            System.err.println("EntityManagerFactory 생성 중 예외 발생: " + ex);
-            throw ex;
-        }
-    }
+    private final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
 
     @Override
     public String handleRequest(Object input, Context context) {
