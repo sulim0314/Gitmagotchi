@@ -1,6 +1,6 @@
 package user.entity;
 
-import collections.entity.Collections;
+import collection.entity.Collection;
 import common.entity.BaseEntity;
 import lombok.Getter;
 import org.joda.time.LocalDateTime;
@@ -15,7 +15,6 @@ import java.util.List;
 @Table(name = "user")
 public class User extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String profile_img;
     private String nickname;
@@ -25,5 +24,5 @@ public class User extends BaseEntity {
     private LocalDateTime last_time = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
-    private List<Collections> collectionList = new ArrayList<>();
+    private List<Collection> collectionList = new ArrayList<>();
 }
