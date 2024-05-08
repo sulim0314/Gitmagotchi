@@ -165,4 +165,6 @@ gradle-app.setting
 # Ignore persistence.xml file
 **/src/main/resources/META-INF/persistence.xml
 
+.aws-sam/
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,java
