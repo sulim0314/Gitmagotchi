@@ -23,7 +23,9 @@ public class User extends BaseEntity {
     private Integer gold = 0;
     private Integer meal = 0;
     private LocalDateTime last_time = LocalDateTime.now();
+    private String github_token;
 
     @OneToMany(mappedBy = "user")
     private List<Collections> collectionList = new ArrayList<>();
+
 }
