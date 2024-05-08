@@ -2,14 +2,12 @@ package user.handler;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import org.json.JSONObject;
-import user.entity.User;
 
 public class AuthHandler implements RequestHandler<SQSEvent, Void> {
 
@@ -26,7 +24,7 @@ public class AuthHandler implements RequestHandler<SQSEvent, Void> {
 
     @Override
     public Void handleRequest(SQSEvent event, Context context) {
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        context.getLogger().log("Received event: " + event);
 
         for (SQSEvent.SQSMessage msg : event.getRecords()) {
             String body = msg.getBody();
@@ -53,13 +51,7 @@ public class AuthHandler implements RequestHandler<SQSEvent, Void> {
                     context.getLogger().log("User Sign-up !!!");
 
                     // User 테이블에 사용자 정보 삽입
-                    User newUser = new User();
-                    newUser.setId(userId);
-                    newUser.setNickname(nickname);
-                    newUser.setProfile_img(profileImg);
-                    newUser.setGithub_username(githubUsername);
-
-                    entityManager.persist(newUser);
+                    insertUser(entityManager, userId, nickname, profileImg, githubUsername);
                     context.getLogger().log("User created successfully !!");
                 }
                 entityManager.getTransaction().commit();
@@ -68,11 +60,20 @@ public class AuthHandler implements RequestHandler<SQSEvent, Void> {
                 if (entityManager.getTransaction().isActive()) {
                     entityManager.getTransaction().rollback();
                 }
-                response.setStatusCode(500);
             } finally {
                 entityManager.close();
             }
         }
         return null;
+    }
+
+    // EntityManager를 메소드 인자로 추가
+    public void insertUser(EntityManager entityManager, Long id, String nickname, String profileImg, String githubUsername) {
+        entityManager.createNativeQuery("INSERT INTO user (id, nickname, profile_img, github_username) VALUES (:id, :nickname, :profileImg, :githubUsername)")
+            .setParameter("id", id)
+            .setParameter("nickname", nickname)
+            .setParameter("profileImg", profileImg)
+            .setParameter("githubUsername", githubUsername)
+            .executeUpdate();
     }
 }

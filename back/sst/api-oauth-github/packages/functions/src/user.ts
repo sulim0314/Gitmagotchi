@@ -54,8 +54,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   //   }
   // );
 
-  // return {
-  //   sub: token.id,
-  //   ...token,
-  // };
+  return {
+    sub: token.id,
+    ...token,
+  };
 };
