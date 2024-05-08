@@ -32,13 +32,13 @@ def init_db(db_name):
     except ValueError as e:
         raise e
 
-def get_character_img(character_id):
+def get_character_motion(character_id, level):
     conn = init_db(db_name)
-    sql = f"SELECT id, character_url FROM {db_name}.character WHERE id=%s;"
+    sql = f"SELECT id, motion_url FROM {db_name}.motion WHERE character_id=%s and required_level=%s order by id desc limit 1;"
     response = None
     try:
         with conn.cursor() as cur:
-            cur.execute(sql, (str(character_id)))
+            cur.execute(sql, (str(character_id), str(level)))
             response = cur.fetchone()
         conn.commit()
     finally:
@@ -47,32 +47,25 @@ def get_character_img(character_id):
     if response is None:
         return 404, None
 
-    if response[1]=='':
-        return 202, None
-
-    return 200, response[0]
+    return 200, response[1]
 
 def lambda_handler(event, context):
-    character_id = event["queryStringParameters"]['characterId']
-    status, url = get_character_img(character_id)
-    
+    character_id = event['characterId']
+    level = event['requiredLevel']
+
+    level = min(level, 9)
+    status, url = get_character_motion(character_id, level)
+    print(status, url)
     if status == 404:
         return {
             'statusCode': 404,
-            'body': 'Invalid characterId'
-        }
-    
-    
-    if status == 202:
-        return {
-            'statusCode': 202,
-            'body': 'Wait a moment while we create the image...'
+            'body': 'Motion is still being generated or has not reached the level.'
         }
 
     return {
         'statusCode': 200,
         'body': {
-            'characterUrl': url
+            'motionUrl': url
         }
     }
 
