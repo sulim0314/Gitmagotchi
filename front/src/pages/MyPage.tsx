@@ -18,7 +18,7 @@ export default function MyPage() {
     <Wrapper>
       <UserInfoContainer>
         <UserContainer>
-          <img src={userData?.profileImg || ""} className="w-16 lg:w-24 rounded-md shadow-md" />
+          <ProfileImg src={userData?.profileImg || ""} />
           <UserDetailContainer>
             <GitHubUsername>{userData?.githubUsername}</GitHubUsername>
             <NicknameContainer>
@@ -40,7 +40,7 @@ export default function MyPage() {
           <DetailText>COMMITS</DetailText>
         </DetailRow>
         <CommitImgContainer>
-          <img src={`https://ghchart.rshah.org/${userData?.githubUsername}`} className="w-full" />
+          <CommitImg src={`https://ghchart.rshah.org/${userData?.githubUsername}`} />
         </CommitImgContainer>
 
         <DelteText>
@@ -87,6 +87,13 @@ text-base
 lg:text-xl
 `;
 
+const ProfileImg = tw.img`
+w-16
+lg:w-24
+rounded-md
+shadow-md
+`;
+
 const NicknameContainer = tw.div`
 flex
 space-x-4
@@ -105,6 +112,10 @@ h-4
 lg:w-6
 lg:h-6
 text-slate-400
+`;
+
+const CommitImg = tw.img`
+w-full
 `;
 
 const DetailContainer = tw.div`

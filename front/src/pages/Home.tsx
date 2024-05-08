@@ -12,7 +12,7 @@ import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose, IoIosLock } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
@@ -32,7 +32,8 @@ export default function Home() {
   const characterData = useRecoilValue(characterDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
-  const [modal, setModal] = useState<boolean>(false);
+  const [msgModal, setMsgModal] = useState<boolean>(false);
+  const [animModal, setAnimModal] = useState<boolean>(false);
   const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
     {
       timestamp: new Date(),
@@ -42,9 +43,9 @@ export default function Home() {
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
-  }, [modal, serverMsgList, modalBottomRef]);
+  }, [msgModal, serverMsgList, modalBottomRef]);
 
-  const toggleModal = () => {
+  const toggleMsgModal = () => {
     // delete this
     setServerMsgList([
       {
@@ -52,13 +53,26 @@ export default function Home() {
         text: "-- 깃마고치에 오신 것을 환영합니다. --",
       },
     ]);
-    setModal(!modal);
+    setMsgModal(!msgModal);
+  };
+
+  const toggleAnimModal = () => {
+    setAnimModal(!animModal);
   };
 
   const formatTimestamp = (date: Date) => {
     const hour = date.getHours();
     const minute = date.getMinutes();
     return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+  };
+
+  const playAnimation = () => {
+    return () => {
+      setAnimModal(false);
+      if (spritesheet.current) {
+        spritesheet.current.play();
+      }
+    };
   };
 
   return (
@@ -111,14 +125,7 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <PlayIcon
-            src={PlayImage}
-            onClick={() => {
-              if (spritesheet.current) {
-                spritesheet.current.play();
-              }
-            }}
-          />
+          <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
         </LeftHeader>
         <RightHeader>
           <PropertyList>
@@ -181,15 +188,15 @@ export default function Home() {
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox onClick={toggleModal}>
+        <ServerMsgBox onClick={toggleMsgModal}>
           <ServerMsg>{serverMsgList[serverMsgList.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
       <CustomModal
         style={customModalStyles}
-        isOpen={modal}
-        onRequestClose={() => setModal(false)}
+        isOpen={msgModal}
+        onRequestClose={() => setMsgModal(false)}
         ariaHideApp={false}
         contentLabel="서버 메시지"
         shouldCloseOnOverlayClick={true}
@@ -197,7 +204,7 @@ export default function Home() {
       >
         <ModalTitleContainer>
           <ModalTitle>서버 메시지</ModalTitle>
-          <ModalCloseButton onClick={toggleModal} />
+          <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
           {serverMsgList.map((msg) => (
@@ -208,6 +215,31 @@ export default function Home() {
           ))}
           <div ref={modalBottomRef} />
         </ModalMsgList>
+      </CustomModal>
+      <CustomModal
+        style={customModalStyles}
+        isOpen={animModal}
+        onRequestClose={() => setAnimModal(false)}
+        ariaHideApp={false}
+        contentLabel="애니메이션 목록"
+        shouldCloseOnOverlayClick={true}
+      >
+        <ModalTitleContainer>
+          <ModalTitle>애니메이션 목록</ModalTitle>
+          <ModalCloseButton onClick={toggleAnimModal} />
+        </ModalTitleContainer>
+        <AnimGrid>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <AnimContainer key={i}>
+              <AnimButton onClick={playAnimation()}>춤추기</AnimButton>
+              {i !== 1 && (
+                <AnimDisabled>
+                  <LockIcon />
+                </AnimDisabled>
+              )}
+            </AnimContainer>
+          ))}
+        </AnimGrid>
       </CustomModal>
     </Wrapper>
   );
@@ -550,6 +582,50 @@ const ModalCloseButton = tw(IoMdClose)`
 w-6
 h-6
 cursor-pointer
+`;
+
+const AnimGrid = tw.div`
+w-full
+h-20
+flex-grow
+p-4
+grid
+grid-cols-3
+grid-rows-3
+gap-2
+`;
+
+const AnimContainer = tw.div`
+
+relative
+`;
+
+const AnimButton = tw.div`
+bg-orange-400
+w-full
+h-full
+flex
+justify-center
+items-center
+cursor-pointer
+`;
+
+const AnimDisabled = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+bg-slate-50/70
+flex
+justify-center
+items-center
+`;
+
+const LockIcon = tw(IoIosLock)`
+w-10
+h-10
+text-slate-400
 `;
 
 const customModalStyles: ReactModal.Styles = {
