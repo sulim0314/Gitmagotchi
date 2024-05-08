@@ -1,8 +1,11 @@
 package user.entity;
 
-import collections.entity.Collections;
+import collection.entity.Collection;
 import common.entity.BaseEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
@@ -11,11 +14,12 @@ import java.util.List;
 
 @Entity
 @Getter
-
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "user")
 public class User extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String profile_img;
     private String nickname;
@@ -23,9 +27,7 @@ public class User extends BaseEntity {
     private Integer gold = 0;
     private Integer meal = 0;
     private LocalDateTime last_time = LocalDateTime.now();
-    private String github_token;
 
     @OneToMany(mappedBy = "user")
-    private List<Collections> collectionList = new ArrayList<>();
-
+    private List<Collection> collectionList = new ArrayList<>();
 }
