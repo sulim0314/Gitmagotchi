@@ -4,14 +4,17 @@ import json
 import logging
 import boto3
 import random
+import pymysql
 
 from botocore.exceptions import ClientError
 
 # 필요한 설정 값을 설정하세요
 S3_BUCKET = 'gitmagotchi-generated'  # S3 버킷 이름
-AWS_REGION = 'us-east-1'  # 리전 정보
+AWS_REGION_VIRGINIA = 'us-east-1'
+AWS_REGION_SEOUL = 'ap-northeast-2'  # 리전 정보
 
-s3_client = boto3.client('s3', region_name=AWS_REGION)
+s3_client = boto3.client('s3', region_name=AWS_REGION_VIRGINIA)
+ssm_client = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
 
 class ImageGenerationError(Exception):
     """Base class for exceptions in this module."""
@@ -29,6 +32,13 @@ class PolicyViolationError(ImageGenerationError):
         self.message = message
         super().__init__(self.message)
 
+def get_parameter(name):
+    """Parameter Store로부터 파라미터 값을 가져오는 함수"""
+    response = ssm_client.get_parameter(
+        Name=name,
+        WithDecryption=True
+    )
+    return response['Parameter']['Value']
 
 def generate_image(model_id, body):
     try:
@@ -77,11 +87,39 @@ def upload_to_s3(image_bytes, bucket_name, file_name):
     """
     try:
         s3_client.put_object(Bucket=bucket_name, Key=file_name, Body=image_bytes, ContentType='image/png')
-        url = f"https://{bucket_name}.s3.{AWS_REGION}.amazonaws.com/{file_name}"
+        url = f"https://{bucket_name}.s3.{AWS_REGION_VIRGINIA}.amazonaws.com/{file_name}"
         return url
     except ClientError as e:
         logging.error(e)
         return None
+
+def save_to_aurora(image_url):
+    # 환경 변수로부터 파라미터 이름을 읽어옵니다.
+    db_host = get_parameter('mysql-host')
+    db_user = get_parameter('mysql-username')
+    db_password = get_parameter('mysql-password')
+    db_name = "gitmagotchi"  # 데이터베이스 이름을 설정합니다.
+
+    # 데이터베이스에 연결
+    conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
+    
+    try:
+        with conn.cursor() as cur:
+            insert_query = """
+            INSERT INTO background (image_url)
+            VALUE (%s);
+            """
+            cur.execute(insert_query, (image_url,))
+        conn.commit()
+    except Exception as e:
+        # 예외가 발생한 경우, 에러 메시지를 반환합니다.
+        return {
+            'statusCode': 400,
+            'body': json.dumps(f"An error occurred: {str(e)}")
+        }
+    finally:
+        # 데이터베이스 연결을 안전하게 종료합니다.
+        conn.close()
 
 def lambda_handler(event, context):
     json_body = event.get('body')
@@ -100,24 +138,19 @@ def lambda_handler(event, context):
     
     model_id = 'stability.stable-diffusion-xl-v1'
     prompt = f"""
-    wallpaper, picture-like image, cute game, high quality, cartoonish, only background, {user_input}    
+    wallpaper, picture-like image, cute game, high quality, cartoonish, only background without character, {user_input}    
     """
     print("Prompt:", prompt)
 
     seed = random.randint(0, 4294967295)
 
     body = {
-                "text_prompts": [{"text": prompt}],
-                "negative_prompts": ["people", "text", "low quality", "object", "cloudy", "person", "character"],
+                "text_prompts": [{"text": prompt, "negativeText" : "people, text, low quality, object, cloudy, person, character"}],                
                 "seed": seed,
                 "cfg_scale": 10,
                 "steps": 30,
-            }
-    
-    style_preset = "photographic"
-
-    if style_preset:
-        body["style_preset"] = style_preset
+                "style_preset": "photographic"
+            }    
     
     try:
         # 이미지 생성
@@ -129,6 +162,7 @@ def lambda_handler(event, context):
         
         # S3 URL 리턴
         if image_url:
+            save_to_aurora(image_url)
             return {
                 'statusCode': 200,
                 'body': json.dumps({"imageUrl": image_url}),
