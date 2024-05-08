@@ -4,8 +4,10 @@ import { Auth } from "aws-amplify";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authDataAtom } from "@/store/auth";
 import { userDataAtom } from "@/store/user";
+import { useNavigate } from "react-router-dom";
 
 export default function MyPage() {
+  const navigate = useNavigate();
   const setAuthData = useSetRecoilState(authDataAtom);
   const userData = useRecoilValue(userDataAtom);
 
@@ -14,7 +16,9 @@ export default function MyPage() {
     await Auth.signOut();
   };
 
-  const changeName = () => {};
+  const changeName = () => {
+    navigate("/editProfile");
+  };
 
   return (
     <Wrapper>

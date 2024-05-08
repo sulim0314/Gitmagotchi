@@ -27,6 +27,7 @@ import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
+import EditProfile from "./pages/EditProfile";
 
 export default function App() {
   const location = useLocation();
@@ -51,7 +52,7 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const user = await getUser();
+      const user = await getUser({ userId: JSON.parse(authData!.attributes.identities)[0].userId });
       if (user) {
         setUserData(user);
       } else {
@@ -113,6 +114,7 @@ export default function App() {
             <Route path="/changebg" element={<ChangeBg />} />
             <Route path="/search" element={<Search />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/character" element={<CharacterMenu />} />
             <Route path="/character/create" element={<CreateCharacter />} />
             <Route path="/character/chat" element={<Chat />} />
@@ -121,7 +123,6 @@ export default function App() {
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/change" element={null} />
             <Route path="/background/create" element={<CreateBg />} />
-            <Route path="/test" element={<Test />} />
           </Routes>
         </Content>
       </Wrapper>
