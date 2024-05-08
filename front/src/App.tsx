@@ -15,7 +15,6 @@ import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharactetRename";
-import Test from "@/pages/Test";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
