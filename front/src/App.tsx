@@ -45,6 +45,7 @@ export default function App() {
       if (cognitoUser) {
         setAuthData(cognitoUser);
       } else {
+        setLoading(false);
         navigate("/login", { replace: true });
       }
     };
@@ -64,6 +65,7 @@ export default function App() {
       if (character) {
         setCharacterData(character);
       } else {
+        setLoading(false);
         navigate("/character/create", { replace: true });
       }
     };

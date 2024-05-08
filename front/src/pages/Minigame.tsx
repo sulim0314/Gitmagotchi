@@ -1,6 +1,8 @@
 import tw from "tailwind-styled-components";
 import { FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { characterDataAtom } from "@/store/character";
 
 export default function Minigame() {
   class Block {
@@ -28,6 +30,18 @@ export default function Minigame() {
       ctx.current!.fill();
     }
 
+    drawImage() {
+      const x = this.col * blockSize.current;
+      const y = this.row * blockSize.current;
+      ctx.current!.drawImage(
+        faceRef.current,
+        x - blockSize.current,
+        y - blockSize.current,
+        blockSize.current * 3,
+        blockSize.current * 3
+      );
+    }
+
     equal(otherBlock: Block) {
       return this.col === otherBlock.col && this.row === otherBlock.row;
     }
@@ -47,6 +61,8 @@ export default function Minigame() {
       for (const block of this.segments) {
         block.drawSquare("Blue");
       }
+
+      this.segments[0].drawImage();
     }
 
     move() {
@@ -80,10 +96,10 @@ export default function Minigame() {
     }
 
     checkCollision(head: Block) {
-      const leftCollision = head.col === 0;
-      const topCollision = head.row === 0;
-      const rightCollision = head.col === widthInBlocks.current - 1;
-      const bottomCollision = head.row === heightInBlocks.current - 1;
+      const leftCollision = head.col < 0;
+      const topCollision = head.row < 0;
+      const rightCollision = head.col >= widthInBlocks.current;
+      const bottomCollision = head.row >= heightInBlocks.current;
 
       const wallCollision = leftCollision || topCollision || rightCollision || bottomCollision;
       let selfCollision = false;
@@ -128,7 +144,9 @@ export default function Minigame() {
     }
   }
 
+  const characterData = useRecoilValue(characterDataAtom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const faceRef = useRef<HTMLImageElement>(new Image());
   const [score, setScore] = useState<number>(0);
   const snake = useRef<Snake>(new Snake());
   const apple = useRef<Apple>(new Apple());
@@ -142,19 +160,25 @@ export default function Minigame() {
   const blockSize = useRef<number>(0);
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      ctx.current = canvas.getContext("2d");
-      width.current = canvas.width;
-      height.current = canvas.height;
+    if (characterData?.faceUrl) {
+      faceRef.current.src = characterData.faceUrl;
+      faceRef.current.onload = () => {
+        if (canvasRef.current) {
+          const canvas = canvasRef.current;
+          ctx.current = canvas.getContext("2d");
+          width.current = canvas.width;
+          height.current = canvas.height;
 
-      blockSize.current = 10;
-      widthInBlocks.current = width.current / blockSize.current;
-      heightInBlocks.current = height.current / blockSize.current;
-      setScore(0);
+          blockSize.current = 10;
+          widthInBlocks.current = width.current / blockSize.current;
+          heightInBlocks.current = height.current / blockSize.current;
+          setScore(0);
 
-      intervalId.current = setInterval(game, 50);
+          intervalId.current = setInterval(game, 50);
+        }
+      };
     }
+
     addEventListener("keydown", handleKeydown);
 
     return () => {
@@ -167,8 +191,8 @@ export default function Minigame() {
     if (ctx.current) {
       ctx.current.clearRect(0, 0, width.current, height.current);
       snake.current.move();
-      snake.current.draw();
       apple.current.draw();
+      snake.current.draw();
     }
   };
 
@@ -192,45 +216,47 @@ export default function Minigame() {
   return (
     <Wrapper>
       <GameContainer>
-        <GameArea ref={canvasRef} width={400} height={400} />
+        <GameAreaContainer>
+          <GameArea ref={canvasRef} width={400} height={400} />
+        </GameAreaContainer>
+        <DetailContainer>
+          <ScoreContainer>
+            <ScoreText>{`현재 점수: ${score}`}</ScoreText>
+          </ScoreContainer>
+          <GameKeyContainer>
+            <ArrowButton
+              onClick={() => {
+                snake.current.setDirection("UP");
+              }}
+            >
+              <UpArrowIcon />
+            </ArrowButton>
+            <MiddleKeyContainer>
+              <ArrowButton
+                onClick={() => {
+                  snake.current.setDirection("LEFT");
+                }}
+              >
+                <LeftArrowIcon />
+              </ArrowButton>
+              <ArrowButton
+                onClick={() => {
+                  snake.current.setDirection("RIGHT");
+                }}
+              >
+                <RightArrowIcon />
+              </ArrowButton>
+            </MiddleKeyContainer>
+            <ArrowButton
+              onClick={() => {
+                snake.current.setDirection("DOWN");
+              }}
+            >
+              <DownArrowIcon />
+            </ArrowButton>
+          </GameKeyContainer>
+        </DetailContainer>
       </GameContainer>
-      <DetailContainer>
-        <ScoreContainer>
-          <ScoreText>{`현재 점수: ${score}`}</ScoreText>
-        </ScoreContainer>
-        <GameKeyContainer>
-          <ArrowButton
-            onClick={() => {
-              snake.current.setDirection("UP");
-            }}
-          >
-            <UpArrowIcon />
-          </ArrowButton>
-          <MiddleKeyContainer>
-            <ArrowButton
-              onClick={() => {
-                snake.current.setDirection("LEFT");
-              }}
-            >
-              <LeftArrowIcon />
-            </ArrowButton>
-            <ArrowButton
-              onClick={() => {
-                snake.current.setDirection("RIGHT");
-              }}
-            >
-              <RightArrowIcon />
-            </ArrowButton>
-          </MiddleKeyContainer>
-          <ArrowButton
-            onClick={() => {
-              snake.current.setDirection("DOWN");
-            }}
-          >
-            <DownArrowIcon />
-          </ArrowButton>
-        </GameKeyContainer>
-      </DetailContainer>
     </Wrapper>
   );
 }
@@ -239,19 +265,26 @@ const Wrapper = tw.div`
 w-full
 h-full
 flex
-flex-col
-lg:flex-row
 justify-center
 items-center
 `;
 
 const GameContainer = tw.div`
+-mt-4
+flex
+flex-col
+lg:flex-row
+border-8
+border-slate-500
+shadow-2xl
+`;
+
+const GameAreaContainer = tw.div`
 aspect-square
 w-80
 h-80
 lg:w-[30rem]
 lg:h-[30rem]
-border-2
 border-slate-800
 `;
 
