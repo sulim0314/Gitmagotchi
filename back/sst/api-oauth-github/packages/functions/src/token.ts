@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     )
   ).json();
 
-  console.log(token);
+  console.log(token); // DB에 넣자
   console.log(token);
   console.log(token);
   console.log(token);

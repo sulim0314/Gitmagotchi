@@ -19,19 +19,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
   const params = {
     MessageBody: JSON.stringify({
-      id: token.id,
-      login: token.login,
-      avatar_url: token.avatar_url,
-      name: token.name,
+      userId: token.id,
+      githubUsername: token.login,
+      profileImg: token.avatar_url,
+      nickname: token.name,
     }),
-    // QueueUrl:
-    //   "https://sqs.ap-northeast-2.amazonaws.com/992382698264/SQStest0503.fifo", // SQS 큐test URL
-    // // "https://sqs.ap-northeast-2.amazonaws.com/992382698264/SignInOrUp.fifo", // 로그인 로그아웃 테스트
-    // MessageGroupId: "AuthUser", // 메시지 그룹 ID
+    QueueUrl:
+      "https://sqs.ap-northeast-2.amazonaws.com/992382698264/SignInOrSignUp.fifo", // SQS 큐test URL
+    MessageGroupId: "AuthUser", // 메시지 그룹 ID
   };
 
   // SQS 큐에 메시지 추가
-  // await sqs.sendMessage(params).promise();
+  await sqs.sendMessage(params).promise();
 
   return {
     statusCode: 200, // HTTP 응답 코드 추가
@@ -55,8 +54,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   //   }
   // );
 
-  return {
-    sub: token.id,
-    ...token,
-  };
+  // return {
+  //   sub: token.id,
+  //   ...token,
+  // };
 };
