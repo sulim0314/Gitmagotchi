@@ -23,6 +23,7 @@ import { characterDataAtom } from "@/store/character";
 import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
+import HungryEffect from "@/components/home/HungryEffect";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -193,6 +194,9 @@ export default function Home() {
             <BrokenHeartContainer>
               <BrokenHeart />
             </BrokenHeartContainer>
+            <HungryEffectContainer>
+              <HungryEffect />
+            </HungryEffectContainer>
             <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
           </EffectContainer>
         </CharacterCanvasContainer>
@@ -574,6 +578,14 @@ w-full
 h-full
 flex
 justify-center
+`;
+
+const HungryEffectContainer = tw.div`
+absolute
+w-full
+h-full
+left-0
+top-0
 `;
 
 const LevelupText = tw.div`
