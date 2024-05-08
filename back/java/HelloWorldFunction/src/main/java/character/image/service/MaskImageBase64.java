@@ -1,4 +1,4 @@
-package character.image.create.service;
+package character.image.service;
 
 public class MaskImageBase64 {
 

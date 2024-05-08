@@ -4,8 +4,8 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: character.image.create.handler.CharacterImageHandler
-      CodeUri: s3://gitmagotchi-java/1be32d3ecb70823bff57bc92d29cfd4e
+      Handler: chat.handler.AnalyzeSentimentHandler
+      CodeUri: s3://gitmagotchi-java/f6f699a4425fc54dceb7cab2bccf90d5
       Runtime: java17
       Architectures:
       - x86_64

@@ -1,11 +1,10 @@
-package character.image.create.handler;
+package character.image.handler;
 
-import java.io.IOException;
-
+import character.image.service.BedrockRuntimeUsageDemo;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
-import character.image.create.service.BedrockRuntimeUsageDemo;
+import java.io.IOException;
 
 public class CharacterImageHandler implements RequestHandler<Object, String> {
 
