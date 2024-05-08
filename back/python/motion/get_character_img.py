@@ -50,10 +50,17 @@ def get_character_img(character_id):
     if response[1]=='':
         return 202, None
 
-    return 200, response[0]
+    return 200, response[1]
 
 def lambda_handler(event, context):
-    character_id = event["queryStringParameters"]['characterId']
+    
+    character_id = event.get('queryStringParameters', {}).get('characterId')
+    if not character_id:
+        return {
+            'statusCode': 400,
+            'body': 'Missing \'characterId\' query string.'
+        }
+    
     status, url = get_character_img(character_id)
     
     if status == 404:
@@ -72,7 +79,7 @@ def lambda_handler(event, context):
     return {
         'statusCode': 200,
         'body': {
-            'characterUrl': url
+            "characterUrl": url
         }
     }
 
