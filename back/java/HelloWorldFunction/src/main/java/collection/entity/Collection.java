@@ -23,9 +23,14 @@ public class Collection extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EndingType ending;
 
-    private String character_name;
-    private Integer fullness_stat;  //포만감
-    private Integer intimacy_stat;  //친밀도
-    private Integer cleanness_stat; //청결도
-    private String character_url;
+    @Column(name = "character_name")
+    private String characterName;
+    @Column(name = "fullness_stat")
+    private Integer fullnessStat;  //포만감
+    @Column(name = "intimacy_stat")
+    private Integer intimacyStat;  //친밀도
+    @Column(name = "cleanness_stat")
+    private Integer cleannessStat; //청결도
+    @Column(name = "character_url")
+    private String characterUrl;
 }

@@ -1,22 +1,25 @@
 package collection.handler;
 
+import collection.dto.CollectionResponseDto;
 import collection.entity.Collection;
 import collection.enums.EndingType;
-import collection.enums.OrderBy;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.google.gson.Gson;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private static final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
+    private static final Gson gson = new Gson();
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
@@ -28,12 +31,12 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             String keyword = queryParams.getOrDefault("keyword", "");
             Boolean isCollection = Boolean.parseBoolean(queryParams.getOrDefault("isCollection", "false"));
             String isIndependent = queryParams.get("isIndependent");
-            String orderBy = queryParams.get("orderBy");
+            String orderBy = queryParams.getOrDefault("orderBy", "LATEST");
 
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
 
             if (keyword != null && !keyword.isEmpty()) {
-                queryStr += " AND c.character_name LIKE :keyword";
+                queryStr += " AND c.characterName LIKE :keyword";
             }
 
             if (isIndependent != null) {
@@ -44,9 +47,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
                 }
             }
 
-            if (orderBy != null) {
-                queryStr += " ORDER BY c.createdAt " + (orderBy.equals("LATEST") ? "DESC" : "ASC");
-            }
+            queryStr += " ORDER BY c.createdAt " + (orderBy.equals("OLDEST") ? "ASC" : "DESC");
 
             TypedQuery<Collection> query = entityManager.createQuery(queryStr, Collection.class);
 
@@ -64,37 +65,30 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
 
             List<Collection> collections = query.getResultList();
-            StringBuilder sb = new StringBuilder();
-            for (Collection collection : collections) {
-                sb.append(collection.getId()).append("\n");
-            }
-            entityManager.getTransaction().commit();
 
+            List<CollectionResponseDto> responseDtos = collections.stream().map(collection ->
+                    CollectionResponseDto.builder()
+                        .id(collection.getId())
+                        .characterName(collection.getCharacterName())
+                        .ending(collection.getEnding().toString()) // Enum 값을 문자열로 변환
+                        .fullnessStat(collection.getFullnessStat())
+                        .intimacyStat(collection.getIntimacyStat())
+                        .cleannessStat(collection.getCleannessStat())
+                        .characterUrl(collection.getCharacterUrl())
+                        .build()
+            ).collect(Collectors.toList());
+
+            entityManager.getTransaction().commit();
+            entityManager.close();
+
+            String jsonResponse = gson.toJson(responseDtos);
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
             response.setStatusCode(200);
-            response.setBody(sb.toString());
+            response.setBody(jsonResponse);
+
             return response;
         } finally {
             entityManager.close();
         }
     }
-
-//    private final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
-//
-//    @Override
-//    public String handleRequest(Object input, Context context) {
-//        EntityManager entityManager = entityManagerFactory.createEntityManager();
-//        try {
-//            entityManager.getTransaction().begin();
-//            List<Collection> employees = entityManager.createQuery("from Collection", Collection.class).getResultList();
-//            StringBuilder sb = new StringBuilder();
-//            for (Collection employee : employees) {
-//                sb.append(employee.getId()).append("\n");
-//            }
-//            entityManager.getTransaction().commit();
-//            return sb.toString();
-//        } finally {
-//            entityManager.close();
-//        }
-//    }
 }

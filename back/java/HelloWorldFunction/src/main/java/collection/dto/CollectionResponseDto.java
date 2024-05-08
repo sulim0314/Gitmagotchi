@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import user.entity.User;
-
-import javax.persistence.*;
 
 @Getter
 @Builder
@@ -16,10 +13,10 @@ import javax.persistence.*;
 public class CollectionResponseDto {
 
     private Long id;
-    private String character_name;
-    private EndingType ending;
-    private Integer fullness_stat;  //포만감
-    private Integer intimacy_stat;  //친밀도
-    private Integer cleanness_stat; //청결도
-    private String character_url;
+    private String characterName;
+    private String ending;
+    private Integer fullnessStat;  //포만감
+    private Integer intimacyStat;  //친밀도
+    private Integer cleannessStat; //청결도
+    private String characterUrl;
 }

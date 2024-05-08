@@ -42,7 +42,6 @@ dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
     implementation 'com.amazonaws:aws-lambda-java-events:3.10.0'
 
-
     // JPA와 Hibernate
     implementation 'org.hibernate:hibernate-core:5.4.18.Final'
     implementation 'javax.persistence:javax.persistence-api:2.2'
@@ -53,8 +52,12 @@ dependencies {
     // 테스트를 위한 의존성
     testImplementation 'junit:junit:4.12'
 
+    //Lombok
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.9.0'
 }
 
 sourceCompatibility = 17
