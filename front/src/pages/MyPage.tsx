@@ -1,20 +1,17 @@
 import tw from "tailwind-styled-components";
 import { HiOutlinePencil } from "react-icons/hi";
 import { Auth } from "aws-amplify";
-import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authDataAtom } from "@/store/auth";
 import { userDataAtom } from "@/store/user";
 
 export default function MyPage() {
-  const navigate = useNavigate();
   const setAuthData = useSetRecoilState(authDataAtom);
   const userData = useRecoilValue(userDataAtom);
 
   const signOut = async () => {
-    await Auth.signOut();
     setAuthData(null);
-    navigate("/login");
+    await Auth.signOut();
   };
 
   return (
