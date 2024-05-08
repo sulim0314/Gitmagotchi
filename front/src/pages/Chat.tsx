@@ -3,12 +3,14 @@ import { IoSend } from "react-icons/io5";
 import CharacterChat from "@/components/chat/CharacterChat";
 import UserChat from "@/components/chat/UserChat";
 import { useMutation } from "@tanstack/react-query";
-import { getChatResponse } from "@/api/character";
+import { getChatResponse, getChatSentiment } from "@/api/character";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { userDataAtom } from "@/store/user";
 import { ImExit } from "react-icons/im";
+import { useNavigate } from "react-router-dom";
+import { messageDataAtom } from "@/store/message";
 
 interface IUserChat {
   isUser: boolean;
@@ -29,12 +31,34 @@ interface ICharacterChat {
 type IChat = IUserChat | ICharacterChat;
 
 export default function Chat() {
+  const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
+  const setMessageData = useSetRecoilState(messageDataAtom);
   const chatBottomRef = useRef<HTMLDivElement>(null);
-  const mutation = useMutation({
+  const chatMutation = useMutation({
     mutationFn: getChatResponse,
     onSuccess: (data) => getMessage(unicodeToChar(data.body)),
+    onError: (err) => console.log(err),
+  });
+  const sentimentMutation = useMutation({
+    mutationFn: getChatSentiment,
+    onSuccess: (data) => {
+      let text: string;
+      if (data === "POSITIVE") {
+        text = "대화을 통해 기분이 좋아져 친밀도가 상승했습니다 +5";
+      } else if (data === "NEGATIVE") {
+        text = "대화을 통해 기분이 안좋아져 친밀도가 하락했습니다 -5";
+      }
+      setMessageData((prev) => [
+        ...prev,
+        {
+          timestamp: new Date(),
+          text,
+        },
+      ]);
+      navigate("/");
+    },
     onError: (err) => console.log(err),
   });
 
@@ -72,7 +96,7 @@ export default function Chat() {
       },
     ]);
 
-    mutation.mutate({
+    chatMutation.mutate({
       body: JSON.stringify({
         characterInfo: {
           name: characterData?.name,
@@ -105,10 +129,19 @@ export default function Chat() {
     });
   };
 
+  const exitChat = () => {
+    sentimentMutation.mutate({
+      source_text: chatList
+        .filter((c) => !c.isUser)
+        .map((c) => c.text)
+        .join(" "),
+    });
+  };
+
   return (
     <Wrapper>
       <ChatContainer>
-        <ExitButton>
+        <ExitButton onClick={exitChat}>
           <ExitIcon />
           <ExitButtonText>대화 종료하기</ExitButtonText>
         </ExitButton>

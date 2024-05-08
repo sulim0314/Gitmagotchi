@@ -21,9 +21,9 @@ usInstance.interceptors.request.use(
     if (recoilValue) {
       const recoilJson = JSON.parse(recoilValue);
       const accessToken = recoilJson.authData.attributes.sub;
-      const userId = recoilJson.userData.userId;
+      // const userId = recoilJson.userData.userId;
       config.headers["Authorization"] = `Bearer ${accessToken}`;
-      config.headers["userId"] = userId;
+      // config.headers["userId"] = userId;
     }
     return config;
   },
@@ -40,9 +40,9 @@ seoulInstance.interceptors.request.use(
     if (recoilValue) {
       const recoilJson = JSON.parse(recoilValue);
       const accessToken = recoilJson.authData.attributes.sub;
-      const userId = recoilJson.userData.userId;
+      // const userId = recoilJson.userData.userId;
       config.headers["Authorization"] = `Bearer ${accessToken}`;
-      config.headers["userId"] = userId;
+      // config.headers["userId"] = userId;
     }
     return config;
   },

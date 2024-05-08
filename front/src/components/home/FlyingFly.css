@@ -1,0 +1,132 @@
+#emptySeccCont {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 472px;
+}
+
+#emptySeccTxt {
+  font: 24px "Myriad Pro Condensed", sans-serif;
+  text-align: center;
+  width: 100%;
+  text-transform: uppercase;
+  top: 25px;
+  position: relative;
+}
+
+/*//////// FLY ////////////*/
+.flyRute {
+  opacity: 0.53;
+}
+
+#flyRute1 {
+  position: absolute;
+  top: 140px;
+  left: 200px;
+  -webkit-transform: translate(-50%, -50%) rotateX(60deg) scale(0.8, 0.8);
+  transform: translate(-50%, -50%) rotateX(60deg) scale(0.8, 0.8);
+}
+
+#flyRute2 {
+  position: absolute;
+  top: 340px;
+  left: 300px;
+  -webkit-transform: translate(-50%, -50%) rotateX(60deg) scale(-0.8, 0.8);
+  transform: translate(-50%, -50%) rotateX(60deg) scale(-0.8, 0.8);
+}
+
+.flyCont {
+  position: relative;
+  width: 800px;
+  height: 800px;
+  border-radius: 100%;
+  display: block;
+  -webkit-transform: rotateX(-250deg);
+  transform: rotateX(-250deg);
+}
+
+#flyRute1 > .flyCont {
+  -webkit-animation: flyMove 2s infinite linear;
+  animation: flyMove 2s infinite linear;
+}
+
+#flyRute2 > .flyCont {
+  -webkit-animation: flyMove 3s infinite linear;
+  animation: flyMove 3s infinite linear;
+}
+
+#flyWingCont {
+  position: relative;
+  width: 20px;
+  height: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#fly {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  border-radius: 100%;
+  background: #333;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.flyWing {
+  position: absolute;
+  width: 15px;
+  height: 5px;
+  border-radius: 100%;
+  left: 50%;
+  background: #c2c2c2;
+  transform-origin: 100% 50%;
+}
+
+#flyWingCont div:nth-child(2) {
+  top: 0;
+  transform: translateX(-50%) rotate(10deg);
+  -webkit-animation: wingMove1 2s infinite linear;
+  animation: wingMove1 0.2s infinite linear;
+}
+
+#flyWingCont div:nth-child(3) {
+  bottom: 0;
+  transform: translateX(-50%) rotate(-10deg);
+  -webkit-animation: wingMove2 2s infinite linear;
+  animation: wingMove2 0.2s infinite linear;
+}
+
+@keyframes flyMove {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wingMove1 {
+  0% {
+    transform: translateX(-50%) rotate(10deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(50deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(10deg);
+  }
+}
+
+@keyframes wingMove2 {
+  0% {
+    transform: translateX(-50%) rotate(-10deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(-50deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(-10deg);
+  }
+}

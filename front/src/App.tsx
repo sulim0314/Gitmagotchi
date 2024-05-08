@@ -173,6 +173,7 @@ bg-center
 absolute
 left-0
 top-0
+overflow-hidden
 `;
 
 const Content = tw.div`

@@ -14,6 +14,11 @@ export const getChatResponse = async (params: any): Promise<any> => {
   return response.data;
 };
 
+export const getChatSentiment = async (params: any): Promise<any> => {
+  const response = await usInstance.post("/character/chat/sentiment", params);
+  return response.data;
+};
+
 export const generateFace = async (params: any): Promise<any> => {
   const response = await usInstance.post("/character/face/ai", params);
   return response.data;

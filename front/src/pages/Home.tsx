@@ -17,42 +17,29 @@ import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import Modal from "react-modal";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
-
-interface IServerMsg {
-  timestamp: Date;
-  text: string;
-}
+import { messageDataAtom } from "@/store/message";
+import FlyingFly from "@/components/home/FlyingFly";
+import BrokenHeart from "@/components/home/BrokenHeart";
 
 export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
+  const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
+  const levelupRef = useRef<HTMLDivElement>(null);
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
-  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
-    {
-      timestamp: new Date(),
-      text: "-- 깃마고치에 오신 것을 환영합니다. --",
-    },
-  ]);
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
-  }, [msgModal, serverMsgList, modalBottomRef]);
+  }, [msgModal, messageData, modalBottomRef]);
 
   const toggleMsgModal = () => {
-    // delete this
-    setServerMsgList([
-      {
-        timestamp: new Date(),
-        text: "-- 깃마고치에 오신 것을 환영합니다. --",
-      },
-    ]);
     setMsgModal(!msgModal);
   };
 
@@ -73,6 +60,34 @@ export default function Home() {
         spritesheet.current.play();
       }
     };
+  };
+
+  const interactionEat = () => {
+    levelUpEffect();
+  };
+
+  const levelUpEffect = () => {
+    const keyframes: Keyframe[] = [
+      { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
+      { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
+      { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
+      { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
+      { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
+      { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
+    ];
+    const options: KeyframeAnimationOptions = {
+      delay: 1300,
+      duration: 1000,
+      easing: "ease-in-out",
+    };
+    levelupRef.current?.animate(keyframes, options);
+    setMessageData((prev) => [
+      ...prev,
+      {
+        timestamp: new Date(),
+        text: "레벨이 9로 올랐습니다.",
+      },
+    ]);
   };
 
   return (
@@ -171,9 +186,18 @@ export default function Home() {
               },
             ]}
           />
+          <EffectContainer>
+            <FlyingFlyContainer>
+              <FlyingFly />
+            </FlyingFlyContainer>
+            <BrokenHeartContainer>
+              <BrokenHeart />
+            </BrokenHeartContainer>
+            <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
+          </EffectContainer>
         </CharacterCanvasContainer>
         <InteractionContainer>
-          <InteractionButton>
+          <InteractionButton onClick={interactionEat}>
             <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton>
@@ -189,7 +213,7 @@ export default function Home() {
       </MainContainer>
       <ServerMsgContainer>
         <ServerMsgBox onClick={toggleMsgModal}>
-          <ServerMsg>{serverMsgList[serverMsgList.length - 1].text}</ServerMsg>
+          <ServerMsg>{messageData[messageData.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
@@ -207,8 +231,8 @@ export default function Home() {
           <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
-          {serverMsgList.map((msg) => (
-            <ModalMsg key={formatTimestamp(msg.timestamp)}>
+          {messageData.map((msg) => (
+            <ModalMsg key={msg.timestamp.toString()}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
@@ -524,9 +548,45 @@ absolute
 aspect-square
 `;
 
+const EffectContainer = tw.div`
+absolute
+w-full
+h-full
+top-0
+left-0
+flex
+justify-center
+`;
+
+const FlyingFlyContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+`;
+
+const BrokenHeartContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+flex
+justify-center
+`;
+
+const LevelupText = tw.div`
+opacity-0
+text-3xl
+font-bold
+text-green-600
+`;
+
 const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
+translate-y-10
 `;
 
 const CustomModal = tw(Modal)`

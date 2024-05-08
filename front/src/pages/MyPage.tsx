@@ -14,6 +14,8 @@ export default function MyPage() {
     await Auth.signOut();
   };
 
+  const changeName = () => {};
+
   return (
     <Wrapper>
       <UserInfoContainer>
@@ -23,7 +25,7 @@ export default function MyPage() {
             <GitHubUsername>{userData?.githubUsername}</GitHubUsername>
             <NicknameContainer>
               <Nickname>{userData?.nickname}</Nickname>
-              <PenIcon />
+              <PenIcon onClick={changeName} />
             </NicknameContainer>
           </UserDetailContainer>
         </UserContainer>
@@ -112,6 +114,7 @@ h-4
 lg:w-6
 lg:h-6
 text-slate-400
+cursor-pointer
 `;
 
 const CommitImg = tw.img`
@@ -161,4 +164,5 @@ text-slate-500
 
 const DeleteLink = tw.span`
 underline
+cursor-pointer
 `;
