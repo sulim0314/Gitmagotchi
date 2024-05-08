@@ -8,23 +8,35 @@ interface IProps {
 }
 
 export default function CollectionItem({ collection, award }: IProps) {
+  const formatEnding = (ending: string) => {
+    if (ending === "RUNAWAY") {
+      return "가출";
+    } else if (ending === "SICK") {
+      return "병사";
+    } else if (ending === "HUNGRY") {
+      return "아사";
+    }
+  };
+
   return (
     <Wrapper>
       <Container>
         <BackgroundImage
-          $grayscale={collection.ending !== "졸업"}
+          $grayscale={collection.ending !== "INDEPENDENT"}
           style={{
             backgroundImage: `url(${collection.characterUrl})`,
           }}
         />
-        {collection.ending !== "졸업" && (
+        {collection.ending !== "INDEPENDENT" && (
           <img src={deathFrameImage} className="absolute w-full h-full" />
         )}
         <NameContainer>
           <CharacterName>{collection.characterName}</CharacterName>
         </NameContainer>
         {award && <Username>{collection.userId}</Username>}
-        {collection.ending !== "졸업" && <DeathType>{collection.ending}</DeathType>}
+        {collection.ending !== "INDEPENDENT" && (
+          <DeathType>{formatEnding(collection.ending)}</DeathType>
+        )}
       </Container>
     </Wrapper>
   );

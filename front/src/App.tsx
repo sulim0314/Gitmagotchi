@@ -27,6 +27,7 @@ import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
 import EditProfile from "./pages/EditProfile";
+import { IUser } from "./models";
 
 export default function App() {
   const location = useLocation();
@@ -51,8 +52,11 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const user = await getUser({ userId: JSON.parse(authData!.attributes.identities)[0].userId });
-      if (user) {
+      const response = await getUser({
+        userId: JSON.parse(authData!.attributes.identities)[0].userId,
+      });
+      if (response) {
+        const user: IUser = JSON.parse(response.body);
         setUserData(user);
       } else {
         // const newUser = createUser();

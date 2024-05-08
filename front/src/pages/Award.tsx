@@ -3,13 +3,20 @@ import LaurelImg from "@/assets/images/collectionLaurel.png";
 import { HiChevronDown } from "react-icons/hi";
 import CollectionItem from "@/components/common/CollectionItem";
 import { useQuery } from "@tanstack/react-query";
-import { getAwardList } from "@/api/collection";
+import { searchCollection } from "@/api/collection";
 import { ICollection } from "@/models";
 
 export default function Award() {
   const { data } = useQuery({
     queryKey: ["award"],
-    queryFn: getAwardList,
+    queryFn: async () => {
+      const response = await searchCollection({
+        isCollection: false,
+        isIndependent: true,
+        orderBy: "LATEST",
+      });
+      return JSON.parse(response.body);
+    },
   });
 
   return (
