@@ -1,0 +1,25 @@
+stages:
+  - deploy
+
+deploy_to_s3:
+  stage: deploy
+  image: node:20.11.1
+  script:
+    - cd front
+    - echo "VITE_APP_BASE_URL=$VITE_APP_BASE_URL" > .env
+    - echo "VITE_APP_COGNITO_DOMAIN=$VITE_APP_COGNITO_DOMAIN" >> .env
+    - echo "VITE_APP_API_URL=$VITE_APP_API_URL" >> .env
+    - echo "VITE_APP_REGION=$VITE_APP_REGION" >> .env
+    - echo "VITE_APP_USER_POOL_ID=$VITE_APP_USER_POOL_ID" >> .env
+    - echo "VITE_APP_IDENTITY_POOL_ID=$VITE_APP_IDENTITY_POOL_ID" >> .env
+    - echo "VITE_APP_USER_POOL_CLIENT_ID=$VITE_APP_USER_POOL_CLIENT_ID" >> .env
+    - npm install
+    - npm run build
+    - apt-get update && apt-get install -y python3-venv
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install awscli
+    - aws s3 sync dist/ s3://$S3_BUCKET_NAME/ --delete
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+  only:
+    - dev-frontend
