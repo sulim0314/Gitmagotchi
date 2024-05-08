@@ -77,8 +77,8 @@ export default function Home() {
       { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
     ];
     const options: KeyframeAnimationOptions = {
-      delay: 1300,
-      duration: 1000,
+      delay: 300,
+      duration: 2000,
       easing: "ease-in-out",
     };
     levelupRef.current?.animate(keyframes, options);
