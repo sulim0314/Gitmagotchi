@@ -1,0 +1,147 @@
+.heart-Circle {
+  border-radius: 130px;
+  height: 70px;
+  position: relative;
+  width: 70px;
+}
+
+.heart-Container {
+  left: 11%;
+  position: absolute;
+  top: -10%;
+  transition: all 0.35s;
+}
+
+[aria-checked="true"] .heart-Container {
+  left: 6%;
+  top: 5%;
+}
+
+.heart {
+  height: 45px;
+  position: relative;
+  width: 25px;
+}
+
+.heart:before,
+.heart:after {
+  background: #fc2e5a;
+  border-radius: 50px 50px 0 0;
+  content: "";
+  height: 40px;
+  left: 25px;
+  position: absolute;
+  top: 2px;
+  width: 25px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+
+.heart:after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+/* Split the heart in two */
+.sides {
+  float: left;
+  position: relative;
+  transition: all 0.35s;
+}
+
+.half {
+  overflow: hidden;
+  position: relative;
+  width: 25px;
+}
+
+.right-Side .heart:after,
+.right-Side .heart:before {
+  left: -25px;
+}
+
+/* create the rip in the center */
+.points {
+  position: absolute;
+  top: 10px;
+}
+
+.left-Side .points {
+  left: 100%;
+}
+.right-Side .points {
+  right: 100%;
+}
+
+.point {
+  border-bottom: 4px solid transparent;
+  border-left: 8px solid #fc2e5a;
+  border-top: 4px solid transparent;
+  height: 0;
+  width: 0;
+}
+
+.right-Side .point {
+  border-bottom: 4px solid transparent;
+  border-left: none;
+  border-right: 8px solid #fc2e5a;
+  border-top: 4px solid transparent;
+  position: relative;
+}
+
+.left-Side .point {
+  left: -1.5px;
+  position: relative;
+  top: 1.5px;
+  transform: rotate(-2deg);
+}
+
+.left-Side .pt1 {
+  left: -2.5px;
+  top: -2px;
+  transform: rotate(29deg);
+}
+
+.left-Side .pt2 {
+  top: 0.5px;
+}
+
+.left-Side .pt3 {
+  left: -2.5px;
+  top: 2px;
+  transform: rotate(29deg);
+}
+
+.left-Side .pt4 {
+  left: -3.5px;
+  position: absolute;
+  top: 2.5px;
+  transform: rotate(-9deg);
+}
+
+.right-Side .point {
+  right: -1.5px;
+  top: -2.5px;
+  transform: rotate(-15deg);
+}
+
+.right-Side .pt2 {
+  top: -3.5px;
+}
+
+.right-Side .pt3 {
+  right: -2.5px;
+  top: -3px;
+  transform: rotate(-26deg);
+}
+
+[aria-checked="true"] .left-Side {
+  margin-right: 7px;
+  transform: rotate(-20deg);
+}
+
+[aria-checked="true"] .right-Side {
+  margin-left: 5px;
+  transform: rotate(14deg);
+}
