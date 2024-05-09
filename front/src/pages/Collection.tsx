@@ -4,7 +4,7 @@ import LaurelImg from "@/assets/images/collectionLaurel.png";
 import DeathImg from "@/assets/images/collectionDeath.png";
 import { useState } from "react";
 import CollectionItem from "@/components/common/CollectionItem";
-import { getCollectionList } from "@/api/collection";
+import { searchCollection } from "@/api/collection";
 import { useQuery } from "@tanstack/react-query";
 import { ICollection } from "@/models";
 
@@ -12,10 +12,25 @@ type CollectionMenu = "TOTAL" | "AWARD" | "DEATH";
 
 export default function Collection() {
   const [menu, setMenu] = useState<CollectionMenu>("TOTAL");
+
   const { data } = useQuery({
     queryKey: ["collection", menu],
-    queryFn: () => getCollectionList({ menu }),
+    queryFn: () =>
+      searchCollection({
+        isCollection: true,
+        isIndependent: menuProp(menu),
+        orderBy: "LATEST",
+      }),
   });
+
+  const menuProp = (type: CollectionMenu) => {
+    if (type === "AWARD") {
+      return true;
+    } else if (type === "DEATH") {
+      return false;
+    }
+    return null;
+  };
 
   const changeMenu = (type: CollectionMenu) => {
     return () => {
@@ -45,11 +60,7 @@ export default function Collection() {
       <CollectionContainer>
         <CharacterGrid>
           {data?.map((collection: ICollection) => (
-            <CollectionItem
-              key={collection.id}
-              collection={collection}
-              award={false}
-            />
+            <CollectionItem key={collection.id} collection={collection} award={false} />
           ))}
         </CharacterGrid>
       </CollectionContainer>

@@ -72,9 +72,7 @@ export default function CharacterStat() {
                 <UpIcon />
               </LevelupButton>
             </StatRow>
-            <StatDescription>
-              청결도 스텟을 올릴 시 청결도 최대치가 상승합니다.
-            </StatDescription>
+            <StatDescription>청결도 스텟을 올릴 시 청결도 최대치가 상승합니다.</StatDescription>
           </StatRowContainer>
           <CommonButton title="스탯 초기화 (💰100)" />
         </StatList>
@@ -85,11 +83,13 @@ export default function CharacterStat() {
 
 const Wrapper = tw.div`
 w-full
-h-full
+h-20
+flex-grow
 flex
 flex-col
 lg:flex-row
 items-center
+overflow-y-scroll
 `;
 
 const CharacterContainer = tw.div`

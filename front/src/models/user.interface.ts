@@ -1,5 +1,5 @@
 export interface IUser {
-  userId: number;
+  id: number;
   profileImg: string;
   nickname: string;
   githubUsername: string;

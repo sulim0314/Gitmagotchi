@@ -79,11 +79,13 @@ export default function CharacterMenu() {
 
 const Wrapper = tw.div`
 w-full
-h-full
+h-20
+flex-grow
 flex
 flex-col
 lg:flex-row
 items-center
+overflow-y-scroll
 `;
 
 const CharacterContainer = tw.div`

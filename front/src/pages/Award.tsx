@@ -9,14 +9,12 @@ import { ICollection } from "@/models";
 export default function Award() {
   const { data } = useQuery({
     queryKey: ["award"],
-    queryFn: async () => {
-      const response = await searchCollection({
+    queryFn: () =>
+      searchCollection({
         isCollection: false,
         isIndependent: true,
         orderBy: "LATEST",
-      });
-      return JSON.parse(response.body);
-    },
+      }),
   });
 
   return (

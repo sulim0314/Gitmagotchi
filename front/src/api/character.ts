@@ -9,17 +9,14 @@ export const getCharacter = async (): Promise<any> => {
   });
 };
 
-export const getChatResponse = async (params: any): Promise<any> => {
-  const response = await usInstance.post("/character/chat", params);
-  return response.data;
+export const getChatResponse = async (params: { body: string }): Promise<string> => {
+  return usInstance.post("/character/chat", params);
 };
 
-export const getChatSentiment = async (params: any): Promise<any> => {
-  const response = await usInstance.post("/character/chat/sentiment", params);
-  return response.data;
+export const getChatSentiment = async (params: { source_text: string }): Promise<string> => {
+  return usInstance.post("/character/chat/sentiment", params);
 };
 
-export const generateFace = async (params: any): Promise<any> => {
-  const response = await usInstance.post("/character/face/ai", params);
-  return response.data;
+export const generateFace = async (params: { body: string }): Promise<{ imageUrl: string }> => {
+  return usInstance.post("/character/face/ai", params);
 };

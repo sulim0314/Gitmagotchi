@@ -11,8 +11,6 @@ export default function EditProfile() {
   const [nickname, setNickname] = useState<string>(userData?.nickname || "");
   const [profileImg, setProfileImg] = useState<string | null>(userData?.profileImg || "");
 
-  console.log(profileImg);
-
   const onChangeProfileImg: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (e.target.files) {
       const file = e.target.files[0];

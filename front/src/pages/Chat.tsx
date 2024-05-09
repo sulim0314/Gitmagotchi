@@ -38,7 +38,7 @@ export default function Chat() {
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const chatMutation = useMutation({
     mutationFn: getChatResponse,
-    onSuccess: (data) => getMessage(unicodeToChar(data.body)),
+    onSuccess: (data) => getMessage(unicodeToChar(data)),
     onError: (err) => console.log(err),
   });
   const sentimentMutation = useMutation({
@@ -124,7 +124,7 @@ export default function Chat() {
   };
 
   const unicodeToChar = (text: string) => {
-    return text.slice(1, -1).replace(/\\u[\dA-F]{4}/gi, function (match) {
+    return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
       return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
     });
   };

@@ -27,7 +27,6 @@ import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
 import EditProfile from "./pages/EditProfile";
-import { IUser } from "./models";
 
 export default function App() {
   const location = useLocation();
@@ -52,16 +51,11 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const response = await getUser({
-        userId: JSON.parse(authData!.attributes.identities)[0].userId,
+      const user = await getUser({
+        userId: authData!.username.slice(7),
       });
-      if (response) {
-        if (response.statusCode === 200) {
-          const user: IUser = JSON.parse(response.body);
-          setUserData(user);
-        } else {
-          timeoutId.current = setTimeout(fetchUser, 1000);
-        }
+      if (user) {
+        setUserData(user);
       } else {
         timeoutId.current = setTimeout(fetchUser, 1000);
       }
@@ -192,4 +186,6 @@ overflow-hidden
 const Content = tw.div`
 flex-grow
 w-full
+flex
+flex-col
 `;

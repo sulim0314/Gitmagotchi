@@ -448,7 +448,7 @@ export const sampleBackground = [
 
 export const sampleUserList: IUser[] = [
   {
-    userId: 1,
+    id: 1,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "코드몽키",
@@ -457,7 +457,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 2,
+    id: 2,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "송윤재",
@@ -466,7 +466,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 3,
+    id: 3,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "고수림",
@@ -475,7 +475,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 4,
+    id: 4,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "권송아",
@@ -484,7 +484,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 5,
+    id: 5,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "김희연",
@@ -493,7 +493,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 6,
+    id: 6,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "이유로",
