@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+dependencies {
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+    testImplementation 'junit:junit:4.13.2'
+
+    // AWS SDK BOM (Bill of Materials)를 사용하여 일관된 라이브러리 버전 관리
+    implementation platform('software.amazon.awssdk:bom:2.24.0')
+
+    // AWS SDK STS (Security Token Service) module
+    implementation 'software.amazon.awssdk:sts'
+
+    // Example dependency on a custom module that doesn't actually exist
+    // in the AWS SDK. This is just for illustrative purposes.
+    implementation 'software.amazon.awssdk:bedrock'
+    implementation 'software.amazon.awssdk:bedrockruntime:2.20.162'
+
+    // JSON library for Java
+    implementation 'org.json:json:20231013'
+
+    //캐릭터 이미지 생성
+    implementation 'software.amazon.awssdk:bedrock:2.25.40'
+    implementation 'commons-codec:commons-codec:1.15'
+
+    implementation 'software.amazon.awssdk:comprehend:2.13.51'
+
+    // AWS SDK for S3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.118'
+
+    // AWS Lambda Java libraries
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.10.0'
+
+    // JPA와 Hibernate
+    implementation 'org.hibernate:hibernate-core:5.4.18.Final'
+    implementation 'javax.persistence:javax.persistence-api:2.2'
+
+    // MySQL JDBC 드라이버
+    runtimeOnly 'mysql:mysql-connector-java:8.0.19'
+
+    // 테스트를 위한 의존성
+    testImplementation 'junit:junit:4.12'
+
+    //Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.9.0'
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17
