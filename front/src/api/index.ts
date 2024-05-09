@@ -89,7 +89,6 @@ seoulInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
     const body = JSON.parse(data.body);
-    console.log(body);
     if (data.statusCode === 200) {
       return body;
     }
