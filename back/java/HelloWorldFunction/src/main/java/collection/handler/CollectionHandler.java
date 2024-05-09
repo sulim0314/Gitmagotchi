@@ -36,8 +36,17 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             String countQueryStr = "SELECT COUNT(c) FROM Collection c WHERE 1 = 1";  // 전체 항목 수를 계산하는 쿼리
 
             //페이징 처리
-            int page = Integer.parseInt(queryParams.getOrDefault("page", "1")) - 1;  // 페이지 번호 (0부터 시작)
-            int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
+            String pageStr = queryParams.get("page");
+            if (pageStr == null || pageStr.trim().isEmpty()) {
+                pageStr = "1";
+            }
+            int page = Integer.parseInt(pageStr) - 1;
+
+            String sizeStr = queryParams.get("page");
+            if (sizeStr == null || sizeStr.trim().isEmpty()) {
+                sizeStr = "9";
+            }
+            int size = Integer.parseInt(sizeStr);
 
             if (keyword != null && !keyword.isEmpty()) {
                 queryStr += " AND c.characterName LIKE :keyword";
