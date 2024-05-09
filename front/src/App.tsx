@@ -56,7 +56,7 @@ export default function App() {
         userId: JSON.parse(authData!.attributes.identities)[0].userId,
       });
       if (response) {
-        if (response.status === 200) {
+        if (response.statusCode === 200) {
           const user: IUser = JSON.parse(response.body);
           setUserData(user);
         } else {
