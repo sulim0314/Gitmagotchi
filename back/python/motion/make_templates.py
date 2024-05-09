@@ -1,32 +1,55 @@
-import sys
+
 from gitmagotchi.motion.image_to_animation import image_to_animation
 from gitmagotchi.face.new_character import make_new_character
+from pathlib import Path
 import os
 
-def start(char_anno_dir: str, motion_cfg_fn: str, usr_assets_dir: str):
-    if char_anno_dir is None:
-        char_anno_dir = "AnimatedDrawings/gitmagotchi/assets"
-        # char_anno_dir = "/function/gitmagotchi/out"
-    
-    if usr_assets_dir is None:
-        usr_assets_dir = "user_assets/test01"
+motion_name_by_lv = dict()
+motion_name_by_lv[1] = "wave_hello.yaml"
+motion_name_by_lv[2] = "zombie.yaml"
+motion_name_by_lv[3] = "jumping.yaml"
+motion_name_by_lv[4] = "dab.yaml"
+motion_name_by_lv[5] = "dab.yaml"
+motion_name_by_lv[6] = "dab.yaml"
+motion_name_by_lv[7] = "dab.yaml"
+motion_name_by_lv[8] = "dab.yaml"
+motion_name_by_lv[9] = "dab.yaml"
+def start(event: dict):
 
-    if motion_cfg_fn is None:
-        motion_cfg_fn = "AnimatedDrawings/gitmagotchi/config/motion/walking.yaml"
-        # motion_cfg_fn = "/function/gitmagotchi/config/motion/dab.yaml"
-    
-    retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
-    # retarget_cfg_fn = "/function/gitmagotchi/config/retarget/fair1_ppf.yaml"
-    
-    # 얼굴 합성
-    make_new_character(char_anno_dir, usr_assets_dir)
+    char_anno_dir = "/function/gitmagotchi/assets"
+    motion_cfg_dir = "/function/gitmagotchi/config/motion"
+    retarget_cfg_fn = "/function/gitmagotchi/config/retarget/fair1_ppf.yaml"
+    usr_assets_dir = "/tmp/out/character_assets"
 
-    # 모션 생성
-    image_to_animation(char_anno_dir, usr_assets_dir, motion_cfg_fn, retarget_cfg_fn)
+    # char_anno_dir = "AnimatedDrawings/gitmagotchi/assets"
+    # motion_cfg_dir = "AnimatedDrawings/gitmagotchi/config/motion"
+    # retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
+    # usr_assets_dir = "character_assets"
+
+    character_id = event["characterId"]
+    level = event["requiredLevel"]
+
+    # tmp에 characterId 폴더를 생성함
+    usr_assets_path = os.path.join(usr_assets_dir, str(character_id))
+    if not os.path.exists(usr_assets_path):
+        os.makedirs(usr_assets_path)
+
+    # 캐릭터 템플릿 생성
+    success, user_id = make_new_character(character_id, level, char_anno_dir, usr_assets_path)
+    if not success:
+        return {'statusCode': 404,
+            'body': 'No Face!'}
+
+    # 레벨 별 모션 생성
+    motion_cfg_fn = str(Path(motion_cfg_dir, motion_name_by_lv[level]).resolve())
+    success, url = image_to_animation(character_id, user_id, level, char_anno_dir, usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
+    if url is None:
+        return {'statusCode': 500,
+                'body': 'Motion assignment failed.'}
+    return {'statusCode': 200, 'body': f'{url}'}
 
 def handler(event, context):
-    start(None, None, None)
-    return "OK"
+    return start(event=event)
 
-if __name__ == "__main__":
-    handler(None, None)
+# if __name__ == "__main__":
+#     handler(None, None)

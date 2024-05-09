@@ -12,53 +12,83 @@ import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose, IoIosLock } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import Modal from "react-modal";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
-
-interface IServerMsg {
-  timestamp: Date;
-  text: string;
-}
+import { messageDataAtom } from "@/store/message";
+import FlyingFly from "@/components/home/FlyingFly";
+import BrokenHeart from "@/components/home/BrokenHeart";
+import HungryEffect from "@/components/home/HungryEffect";
 
 export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
+  const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
-  const [modal, setModal] = useState<boolean>(false);
-  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
-    {
-      timestamp: new Date(),
-      text: "-- 깃마고치에 오신 것을 환영합니다. --",
-    },
-  ]);
+  const levelupRef = useRef<HTMLDivElement>(null);
+  const [msgModal, setMsgModal] = useState<boolean>(false);
+  const [animModal, setAnimModal] = useState<boolean>(false);
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
-  }, [modal, serverMsgList, modalBottomRef]);
+  }, [msgModal, messageData, modalBottomRef]);
 
-  const toggleModal = () => {
-    // delete this
-    setServerMsgList([
-      {
-        timestamp: new Date(),
-        text: "-- 깃마고치에 오신 것을 환영합니다. --",
-      },
-    ]);
-    setModal(!modal);
+  const toggleMsgModal = () => {
+    setMsgModal(!msgModal);
+  };
+
+  const toggleAnimModal = () => {
+    setAnimModal(!animModal);
   };
 
   const formatTimestamp = (date: Date) => {
     const hour = date.getHours();
     const minute = date.getMinutes();
     return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+  };
+
+  const playAnimation = () => {
+    return () => {
+      setAnimModal(false);
+      if (spritesheet.current) {
+        spritesheet.current.play();
+      }
+    };
+  };
+
+  const interactionEat = () => {
+    levelUpEffect();
+  };
+
+  const levelUpEffect = () => {
+    const keyframes: Keyframe[] = [
+      { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
+      { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
+      { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
+      { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
+      { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
+      { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
+    ];
+    const options: KeyframeAnimationOptions = {
+      delay: 300,
+      duration: 2000,
+      easing: "ease-in-out",
+    };
+    levelupRef.current?.animate(keyframes, options);
+    setMessageData((prev) => [
+      ...prev,
+      {
+        timestamp: new Date(),
+        text: "레벨이 9로 올랐습니다.",
+      },
+    ]);
   };
 
   return (
@@ -111,14 +141,7 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <PlayIcon
-            src={PlayImage}
-            onClick={() => {
-              if (spritesheet.current) {
-                spritesheet.current.play();
-              }
-            }}
-          />
+          <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
         </LeftHeader>
         <RightHeader>
           <PropertyList>
@@ -164,9 +187,21 @@ export default function Home() {
               },
             ]}
           />
+          <EffectContainer>
+            <FlyingFlyContainer>
+              <FlyingFly />
+            </FlyingFlyContainer>
+            <BrokenHeartContainer>
+              <BrokenHeart />
+            </BrokenHeartContainer>
+            <HungryEffectContainer>
+              <HungryEffect />
+            </HungryEffectContainer>
+            <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
+          </EffectContainer>
         </CharacterCanvasContainer>
         <InteractionContainer>
-          <InteractionButton>
+          <InteractionButton onClick={interactionEat}>
             <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton>
@@ -181,15 +216,15 @@ export default function Home() {
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox onClick={toggleModal}>
-          <ServerMsg>{serverMsgList[serverMsgList.length - 1].text}</ServerMsg>
+        <ServerMsgBox onClick={toggleMsgModal}>
+          <ServerMsg>{messageData[messageData.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
       <CustomModal
         style={customModalStyles}
-        isOpen={modal}
-        onRequestClose={() => setModal(false)}
+        isOpen={msgModal}
+        onRequestClose={() => setMsgModal(false)}
         ariaHideApp={false}
         contentLabel="서버 메시지"
         shouldCloseOnOverlayClick={true}
@@ -197,17 +232,42 @@ export default function Home() {
       >
         <ModalTitleContainer>
           <ModalTitle>서버 메시지</ModalTitle>
-          <ModalCloseButton onClick={toggleModal} />
+          <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
-          {serverMsgList.map((msg) => (
-            <ModalMsg key={formatTimestamp(msg.timestamp)}>
+          {messageData.map((msg) => (
+            <ModalMsg key={msg.timestamp.toString()}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}
           <div ref={modalBottomRef} />
         </ModalMsgList>
+      </CustomModal>
+      <CustomModal
+        style={customModalStyles}
+        isOpen={animModal}
+        onRequestClose={() => setAnimModal(false)}
+        ariaHideApp={false}
+        contentLabel="애니메이션 목록"
+        shouldCloseOnOverlayClick={true}
+      >
+        <ModalTitleContainer>
+          <ModalTitle>애니메이션 목록</ModalTitle>
+          <ModalCloseButton onClick={toggleAnimModal} />
+        </ModalTitleContainer>
+        <AnimGrid>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <AnimContainer key={i}>
+              <AnimButton onClick={playAnimation()}>춤추기</AnimButton>
+              {i !== 1 && (
+                <AnimDisabled>
+                  <LockIcon />
+                </AnimDisabled>
+              )}
+            </AnimContainer>
+          ))}
+        </AnimGrid>
       </CustomModal>
     </Wrapper>
   );
@@ -492,9 +552,53 @@ absolute
 aspect-square
 `;
 
+const EffectContainer = tw.div`
+absolute
+w-full
+h-full
+top-0
+left-0
+flex
+justify-center
+`;
+
+const FlyingFlyContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+`;
+
+const BrokenHeartContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+flex
+justify-center
+`;
+
+const HungryEffectContainer = tw.div`
+absolute
+w-full
+h-full
+left-0
+top-0
+`;
+
+const LevelupText = tw.div`
+opacity-0
+text-3xl
+font-bold
+text-green-600
+`;
+
 const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
+translate-y-10
 `;
 
 const CustomModal = tw(Modal)`
@@ -550,6 +654,50 @@ const ModalCloseButton = tw(IoMdClose)`
 w-6
 h-6
 cursor-pointer
+`;
+
+const AnimGrid = tw.div`
+w-full
+h-20
+flex-grow
+p-4
+grid
+grid-cols-3
+grid-rows-3
+gap-2
+`;
+
+const AnimContainer = tw.div`
+
+relative
+`;
+
+const AnimButton = tw.div`
+bg-orange-400
+w-full
+h-full
+flex
+justify-center
+items-center
+cursor-pointer
+`;
+
+const AnimDisabled = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+bg-slate-50/70
+flex
+justify-center
+items-center
+`;
+
+const LockIcon = tw(IoIosLock)`
+w-10
+h-10
+text-slate-400
 `;
 
 const customModalStyles: ReactModal.Styles = {

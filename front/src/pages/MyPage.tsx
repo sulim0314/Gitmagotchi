@@ -1,10 +1,10 @@
 import tw from "tailwind-styled-components";
 import { HiOutlinePencil } from "react-icons/hi";
 import { Auth } from "aws-amplify";
-import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authDataAtom } from "@/store/auth";
 import { userDataAtom } from "@/store/user";
+import { useNavigate } from "react-router-dom";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -12,21 +12,24 @@ export default function MyPage() {
   const userData = useRecoilValue(userDataAtom);
 
   const signOut = async () => {
-    await Auth.signOut();
     setAuthData(null);
-    navigate("/login");
+    await Auth.signOut();
+  };
+
+  const changeName = () => {
+    navigate("/editProfile");
   };
 
   return (
     <Wrapper>
       <UserInfoContainer>
         <UserContainer>
-          <img src={userData?.profileImg || ""} className="w-16 lg:w-24 rounded-md shadow-md" />
+          <ProfileImg src={userData?.profileImg || ""} />
           <UserDetailContainer>
             <GitHubUsername>{userData?.githubUsername}</GitHubUsername>
             <NicknameContainer>
               <Nickname>{userData?.nickname}</Nickname>
-              <PenIcon />
+              <PenIcon onClick={changeName} />
             </NicknameContainer>
           </UserDetailContainer>
         </UserContainer>
@@ -43,7 +46,7 @@ export default function MyPage() {
           <DetailText>COMMITS</DetailText>
         </DetailRow>
         <CommitImgContainer>
-          <img src={`https://ghchart.rshah.org/${userData?.githubUsername}`} className="w-full" />
+          <CommitImg src={`https://ghchart.rshah.org/${userData?.githubUsername}`} />
         </CommitImgContainer>
 
         <DelteText>
@@ -90,6 +93,13 @@ text-base
 lg:text-xl
 `;
 
+const ProfileImg = tw.img`
+w-16
+lg:w-24
+rounded-md
+shadow-md
+`;
+
 const NicknameContainer = tw.div`
 flex
 space-x-4
@@ -108,6 +118,11 @@ h-4
 lg:w-6
 lg:h-6
 text-slate-400
+cursor-pointer
+`;
+
+const CommitImg = tw.img`
+w-full
 `;
 
 const DetailContainer = tw.div`
@@ -153,4 +168,5 @@ text-slate-500
 
 const DeleteLink = tw.span`
 underline
+cursor-pointer
 `;

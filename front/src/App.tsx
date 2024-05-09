@@ -15,23 +15,25 @@ import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharactetRename";
-import Test from "@/pages/Test";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
 import { authDataAtom } from "./store/auth";
 import { useRecoilState } from "recoil";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
+import EditProfile from "./pages/EditProfile";
+import { IUser } from "./models";
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -39,7 +41,6 @@ export default function App() {
 
   useEffect(() => {
     setLoading(true);
-
     const fetchCognitoUser = async () => {
       const cognitoUser = await Auth.currentUserInfo();
       if (cognitoUser) {
@@ -51,12 +52,18 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const user = await getUser();
-      if (user) {
-        setUserData(user);
+      const response = await getUser({
+        userId: JSON.parse(authData!.attributes.identities)[0].userId,
+      });
+      if (response) {
+        if (response.statusCode === 200) {
+          const user: IUser = JSON.parse(response.body);
+          setUserData(user);
+        } else {
+          timeoutId.current = setTimeout(fetchUser, 1000);
+        }
       } else {
-        // const newUser = createUser();
-        setUserData(null);
+        timeoutId.current = setTimeout(fetchUser, 1000);
       }
     };
 
@@ -79,6 +86,12 @@ export default function App() {
     } else {
       setLoading(false);
     }
+
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
   if (loading) return <div>Loading...</div>;
@@ -113,6 +126,7 @@ export default function App() {
             <Route path="/changebg" element={<ChangeBg />} />
             <Route path="/search" element={<Search />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/character" element={<CharacterMenu />} />
             <Route path="/character/create" element={<CreateCharacter />} />
             <Route path="/character/chat" element={<Chat />} />
@@ -121,7 +135,6 @@ export default function App() {
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/change" element={null} />
             <Route path="/background/create" element={<CreateBg />} />
-            <Route path="/test" element={<Test />} />
           </Routes>
         </Content>
       </Wrapper>
@@ -173,6 +186,7 @@ bg-center
 absolute
 left-0
 top-0
+overflow-hidden
 `;
 
 const Content = tw.div`
