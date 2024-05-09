@@ -11,3 +11,4 @@ scikit-learn==1.1.2
 Pillow==10.1.0
 awslambdaric
 boto3
+pymysql
