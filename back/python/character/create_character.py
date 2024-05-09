@@ -60,7 +60,7 @@ def create_character(userId, name, faceUrl):
             INSERT INTO `stat` (character_id, user_id, fullness_stat, intimacy_stat, cleanness_stat, unused_stat)
             VALUES (%s, %s, %s, %s, %s, %s);
             """
-            cur.execute(insert_stat_query, (characterId, userId, 1, 1, 1, 0))
+            cur.execute(insert_stat_query, (characterId, userId, 0, 0, 0, 0))
 
         except Exception as e:
             print(f"An error occurred: {e}")
