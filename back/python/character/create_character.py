@@ -38,12 +38,30 @@ def create_character(userId, name, faceUrl):
         raise ValueError("Name and faceUrl are required")
     conn = init_db()    
     with conn.cursor() as cur:
-        try:            
-            insert_query = """
+        try:
+            # 캐릭터 생성            
+            insert_character_query = """
             INSERT INTO `character` (user_id, name, face_url)
             VALUES (%s, %s, %s);
             """
-            cur.execute(insert_query, (userId, name, faceUrl))            
+            cur.execute(insert_character_query, (userId, name, faceUrl))
+            characterId = cur.lastrowid
+            print("characterId : ", characterId)
+
+            # 상태 생성
+            insert_status_query = """
+            INSERT INTO `status` (character_id, user_id, fullness, intimacy, cleanness)
+            VALUES (%s, %s, %s, %s, %s);
+            """
+            cur.execute(insert_status_query, (characterId, userId, 100, 100, 100))
+
+            # 능력치 생성
+            insert_stat_query = """
+            INSERT INTO `stat` (character_id, user_id, fullness_stat, intimacy_stat, cleanness_stat, unused_stat)
+            VALUES (%s, %s, %s, %s, %s, %s);
+            """
+            cur.execute(insert_stat_query, (characterId, userId, 1, 1, 1, 0))
+
         except Exception as e:
             print(f"An error occurred: {e}")
     conn.commit()
