@@ -33,6 +33,8 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             String isIndependent = queryParams.getOrDefault("isIndependent", "");
             String orderBy = queryParams.getOrDefault("orderBy", "LATEST");
 
+            String userId = queryParams.getOrDefault("userId", "");
+
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
 
             if (keyword != null && !keyword.isEmpty()) {
@@ -40,13 +42,16 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
 
             if (isIndependent != null && !isIndependent.isEmpty()) {
-                System.out.println("##################");
-                System.out.println("null 들어가나?");
                 if (Boolean.parseBoolean(isIndependent)) {
                     queryStr += " AND c.ending = :endingType";
                 } else {
                     queryStr += " AND c.ending IN (:nonIndependentTypes)";
                 }
+            }
+
+            //임의로 params에서 userId 가져오기
+            if(isCollection && userId != null && !userId.isEmpty()){
+                queryStr += " AND c.user.id = :userId";
             }
 
             queryStr += " ORDER BY c.createdAt " + (orderBy.equals("OLDEST") ? "ASC" : "DESC");
@@ -64,6 +69,10 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
                     // INDEPENDENT가 아닌 모든 종류를 포함하도록 설정
                     query.setParameter("nonIndependentTypes", Arrays.asList(EndingType.HUNGRY, EndingType.SICK, EndingType.RUNAWAY));
                 }
+            }
+
+            if(isCollection && userId != null && !userId.isEmpty()){
+                query.setParameter("userId", Long.valueOf(userId));
             }
 
             List<Collection> collections = query.getResultList();

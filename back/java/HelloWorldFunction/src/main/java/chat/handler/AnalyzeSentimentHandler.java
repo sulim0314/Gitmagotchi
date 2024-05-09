@@ -11,7 +11,7 @@ public class AnalyzeSentimentHandler implements RequestHandler<Map<String, Objec
 
     @Override
     public String handleRequest(Map<String, Object> requestObject, Context context) {
-        String sourceText = (String) requestObject.get("source_text");
+        String sourceText = (String) requestObject.get("body");
         context.getLogger().log("Extracted text: " + sourceText);
         AnalyzeSentimentService detectSentimentService = new AnalyzeSentimentService();
         JSONObject jsonOb = detectSentimentService.detectSentiments(sourceText);
