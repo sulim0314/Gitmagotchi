@@ -20,7 +20,7 @@ import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
 import { authDataAtom } from "./store/auth";
 import { useRecoilState } from "recoil";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
@@ -33,6 +33,7 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -40,7 +41,6 @@ export default function App() {
 
   useEffect(() => {
     setLoading(true);
-
     const fetchCognitoUser = async () => {
       const cognitoUser = await Auth.currentUserInfo();
       if (cognitoUser) {
@@ -56,11 +56,14 @@ export default function App() {
         userId: JSON.parse(authData!.attributes.identities)[0].userId,
       });
       if (response) {
-        const user: IUser = JSON.parse(response.body);
-        setUserData(user);
+        if (response.status === 200) {
+          const user: IUser = JSON.parse(response.body);
+          setUserData(user);
+        } else {
+          timeoutId.current = setTimeout(fetchUser, 1000);
+        }
       } else {
-        // const newUser = createUser();
-        setUserData(null);
+        timeoutId.current = setTimeout(fetchUser, 1000);
       }
     };
 
@@ -83,6 +86,12 @@ export default function App() {
     } else {
       setLoading(false);
     }
+
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
   if (loading) return <div>Loading...</div>;

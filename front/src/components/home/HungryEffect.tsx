@@ -5,6 +5,7 @@ export default function HungryEffect() {
   const pathRef1 = useRef<SVGPathElement>(null);
   const pathRef2 = useRef<SVGPathElement>(null);
   const pathRef3 = useRef<SVGPathElement>(null);
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     const xs: number[] = [];
     for (let i = 0; i <= 60; i++) {
@@ -33,11 +34,14 @@ export default function HungryEffect() {
       pathRef3.current!.setAttribute("d", path);
 
       t += 1;
-
-      requestAnimationFrame(animate);
     }
 
-    animate();
+    intervalId.current = setInterval(animate, 100);
+    return () => {
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
+    };
   }, []);
   return (
     <Wrapper>
