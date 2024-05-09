@@ -5,7 +5,7 @@ Resources:
       Timeout: 300
       MemorySize: 128
       Handler: collection.handler.CollectionHandler
-      CodeUri: s3://gitmagotchi-backend/d396d24fcf31d96c09aff4b30c98ca10
+      CodeUri: s3://gitmagotchi-backend/0659aa8b3a57aae1d43d8ef10f0c2f0a
       Runtime: java17
       Architectures:
       - x86_64
