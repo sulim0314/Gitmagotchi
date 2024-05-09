@@ -30,7 +30,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             Map<String, String> queryParams = Optional.ofNullable(request.getQueryStringParameters()).orElse(Collections.emptyMap());
             String keyword = queryParams.getOrDefault("keyword", "");
             Boolean isCollection = Boolean.parseBoolean(queryParams.getOrDefault("isCollection", "false"));
-            String isIndependent = queryParams.get("isIndependent");
+            String isIndependent = queryParams.getOrDefault("isIndependent", "");
             String orderBy = queryParams.getOrDefault("orderBy", "LATEST");
 
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
@@ -39,7 +39,9 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
                 queryStr += " AND c.characterName LIKE :keyword";
             }
 
-            if (isIndependent != null) {
+            if (isIndependent != null && !isIndependent.isEmpty()) {
+                System.out.println("##################");
+                System.out.println("null 들어가나?");
                 if (Boolean.parseBoolean(isIndependent)) {
                     queryStr += " AND c.ending = :endingType";
                 } else {
@@ -55,7 +57,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
                 query.setParameter("keyword", '%' + keyword + '%'); // LIKE 파라미터 설정
             }
 
-            if (isIndependent != null) {
+            if (isIndependent != null && !isIndependent.isEmpty()) {
                 if (Boolean.parseBoolean(isIndependent)) {
                     query.setParameter("endingType", EndingType.INDEPENDENT);
                 } else {
