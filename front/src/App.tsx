@@ -25,8 +25,10 @@ import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
-import { getCharacter } from "./api/character";
+import { getCharacter, getStat, getStatus } from "./api/character";
 import EditProfile from "./pages/EditProfile";
+import { statDataAtom } from "./store/stat";
+import { statusDataAtom } from "./store/status";
 
 export default function App() {
   const location = useLocation();
@@ -36,6 +38,8 @@ export default function App() {
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const [statData, setStatData] = useRecoilState(statDataAtom);
+  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -71,12 +75,34 @@ export default function App() {
       }
     };
 
+    const fetchStat = async () => {
+      const stat = await getStat();
+      if (stat) {
+        setStatData(stat);
+      } else {
+        timeoutId.current = setTimeout(fetchStat, 1000);
+      }
+    };
+
+    const fetchStatus = async () => {
+      const status = await getStatus();
+      if (status) {
+        setStatusData(status);
+      } else {
+        timeoutId.current = setTimeout(fetchStatus, 1000);
+      }
+    };
+
     if (!authData) {
       fetchCognitoUser();
     } else if (!userData) {
       fetchUser();
     } else if (!characterData) {
       fetchCharacter();
+    } else if (!statData) {
+      fetchStat();
+    } else if (!statusData) {
+      fetchStatus();
     } else {
       setLoading(false);
     }
@@ -86,7 +112,19 @@ export default function App() {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+  }, [
+    authData,
+    setAuthData,
+    userData,
+    setUserData,
+    characterData,
+    setCharacterData,
+    statData,
+    setStatData,
+    statusData,
+    setStatusData,
+    navigate,
+  ]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -112,8 +150,9 @@ export default function App() {
         <Navbar />
         <Content>
           <Routes>
-            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/character/create" element={<CreateCharacter />} />
+            <Route path="/" element={<Home />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/award" element={<Award />} />
             <Route path="/ranking" element={<Ranking />} />
@@ -122,7 +161,6 @@ export default function App() {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/character" element={<CharacterMenu />} />
-            <Route path="/character/create" element={<CreateCharacter />} />
             <Route path="/character/chat" element={<Chat />} />
             <Route path="/character/stat" element={<CharacterStat />} />
             <Route path="/character/rename" element={<CharacterRename />} />

@@ -24,11 +24,16 @@ import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
+import { expHandler, statusHandler } from "@/util/status";
+import { statDataAtom } from "@/store/stat";
+import { statusDataAtom } from "@/store/status";
 
 export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
+  const statData = useRecoilValue(statDataAtom);
+  const statusData = useRecoilValue(statusDataAtom);
   const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
@@ -91,19 +96,29 @@ export default function Home() {
     ]);
   };
 
+  console.log(
+    (
+      statusData?.fullness ||
+      1 /
+        statusHandler(expHandler(characterData?.exp || 0).level, statData?.intimacyStat || 1)
+          .cleannessMax
+    ).toFixed(2)
+  );
+
   return (
     <Wrapper>
       <Header>
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img src={characterData?.faceUrl} className="w-16 h-16 group-hover:scale-110" />
+              <img
+                src={characterData?.faceUrl}
+                className="w-16 h-16 group-hover:scale-110 transition-all"
+              />
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${Math.floor(
-                  (characterData?.exp || 0) / 100
-                )}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
@@ -117,27 +132,65 @@ export default function Home() {
           </InfoContianer>
           <ExpContainer>
             <ExpBarContainer>
-              <ExpBar style={{ width: `${(characterData?.exp || 0) % 100}%` }} />
-              <ExpText>{`${(characterData?.exp || 0) % 100} / 100`}</ExpText>
+              <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+              <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
+                expHandler(characterData?.exp || 0).maxExp
+              }`}</ExpText>
             </ExpBarContainer>
           </ExpContainer>
           <StatContainer>
             <StatRow>
               <BatteryIcon />
               <StatBarContainer className="bg-red-400/50">
-                <StatBar className="bg-red-500" />
+                <StatBar
+                  className="bg-red-500"
+                  style={{
+                    width: `${(
+                      statusData?.fullness ||
+                      1 /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).fullnessMax
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <HeartIcon />
               <StatBarContainer className="bg-amber-400/50">
-                <StatBar className="bg-amber-500" />
+                <StatBar
+                  className="bg-amber-500"
+                  style={{
+                    width: `${(
+                      statusData?.intimacy ||
+                      1 /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).intimacyMax
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <ShineIcon />
               <StatBarContainer className="bg-blue-400/50">
-                <StatBar className="bg-blue-500" />
+                <StatBar
+                  className="bg-blue-500"
+                  style={{
+                    width: `${(
+                      statusData?.cleanness ||
+                      1 /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).cleannessMax
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
           </StatContainer>
@@ -336,6 +389,7 @@ border-slate-800
 cursor-pointer
 hover:saturate-200
 hover:scale-125
+transition-all
 `;
 
 const CharacterName = tw.h1`
@@ -446,6 +500,7 @@ h-14
 bg-purple-50
 hover:bg-purple-100
 hover:scale-125
+transition-all
 border-2
 border-slate-800
 shadow-xl
@@ -477,6 +532,8 @@ justify-between
 items-center
 px-4
 bg-gray-900/30
+hover:bg-gray-900/50
+transition-all
 `;
 
 const ServerMsg = tw.p`
@@ -525,7 +582,6 @@ const StatBar = tw.div`
 absolute
 top-0
 left-0
-w-3/5
 h-full
 rounded-lg
 `;

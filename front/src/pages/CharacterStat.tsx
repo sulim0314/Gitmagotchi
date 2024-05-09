@@ -5,21 +5,29 @@ import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa";
+import { useRecoilValue } from "recoil";
+import { statDataAtom } from "@/store/stat";
+import { characterDataAtom } from "@/store/character";
+import { expHandler } from "@/util/status";
 
 export default function CharacterStat() {
+  const characterData = useRecoilValue(characterDataAtom);
+  const statData = useRecoilValue(statDataAtom);
   return (
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
           <LevelText>LV.9</LevelText>
           <ExpBarContainer>
-            <ExpBar />
-            <DataText>60 / 100</DataText>
+            <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+            <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
+              expHandler(characterData?.exp || 0).maxExp
+            }`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
           <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
-          <Name>도날드덕</Name>
+          <Name>{characterData?.name}</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>
       </CharacterContainer>
@@ -27,7 +35,7 @@ export default function CharacterStat() {
         <StatPointContainer>
           <StatPointText>스탯 포인트</StatPointText>
           <StatPointBox>
-            <StatPointNumber>1</StatPointNumber>
+            <StatPointNumber>{statData?.unusedStat}</StatPointNumber>
           </StatPointBox>
         </StatPointContainer>
         <StatList>
@@ -37,7 +45,7 @@ export default function CharacterStat() {
                 <BatteryIcon />
                 <StatText>포만감</StatText>
               </StatTitle>
-              <StatText>LV.1</StatText>
+              <StatText>{`LV.${statData?.fullnessStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>
@@ -52,7 +60,7 @@ export default function CharacterStat() {
                 <HeartIcon />
                 <StatText>친밀도</StatText>
               </StatTitle>
-              <StatText>LV.4</StatText>
+              <StatText>{`LV.${statData?.intimacyStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>
@@ -67,7 +75,7 @@ export default function CharacterStat() {
                 <ShineIcon />
                 <StatText>청결도</StatText>
               </StatTitle>
-              <StatText>LV.6</StatText>
+              <StatText>{`LV.${statData?.cleannessStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>
@@ -126,6 +134,8 @@ flex
 justify-center
 items-center
 relative
+border-2
+border-slate-500
 `;
 
 const ExpBar = tw.div`
@@ -133,7 +143,6 @@ absolute
 top-0
 left-0
 bg-green-500
-w-3/5
 h-full
 rounded-lg
 `;

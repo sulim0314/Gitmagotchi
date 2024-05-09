@@ -13,6 +13,9 @@ export interface ICharacterStatus {
   fullness: number;
   intimacy: number;
   cleanness: number;
+  lastUpdatedFullness: string;
+  lastUpdatedIntimacy: string;
+  lastUpdatedCleanness: string;
 }
 
 export interface ICharacterStat {
@@ -21,6 +24,7 @@ export interface ICharacterStat {
   fullnessStat: number;
   intimacyStat: number;
   cleannessStat: number;
+  unusedStat: number;
 }
 
 export interface ICharacterMotion {

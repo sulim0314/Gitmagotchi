@@ -1,9 +1,10 @@
 import tw from "tailwind-styled-components";
 import { FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { useNavigate } from "react-router-dom";
+import { messageDataAtom } from "@/store/message";
 
 export default function Minigame() {
   class Block {
@@ -146,6 +147,7 @@ export default function Minigame() {
   }
 
   const navigate = useNavigate();
+  const setMessageData = useSetRecoilState(messageDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const faceRef = useRef<HTMLImageElement>(new Image());
@@ -154,7 +156,6 @@ export default function Minigame() {
   const snake = useRef<Snake>(new Snake());
   const apple = useRef<Apple>(new Apple());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
   const width = useRef<number>(0);
@@ -162,6 +163,9 @@ export default function Minigame() {
   const widthInBlocks = useRef<number>(0);
   const heightInBlocks = useRef<number>(0);
   const blockSize = useRef<number>(0);
+
+  const endCount = useRef<number>(5);
+  const [endCountText, setEndCountText] = useState<number>(endCount.current);
 
   useEffect(() => {
     if (characterData?.faceUrl) {
@@ -189,9 +193,6 @@ export default function Minigame() {
     return () => {
       if (intervalId.current) {
         clearInterval(intervalId.current);
-      }
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
       }
       removeEventListener("keydown", handleKeydown);
     };
@@ -252,9 +253,23 @@ export default function Minigame() {
       drawText("GAME OVER", 50, 200, 100);
       drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 20, 200, 300);
       removeEventListener("keydown", handleKeydown);
-      timeoutId.current = setTimeout(() => {
-        navigate("/");
-      }, 5000);
+      if (score.current > 0) {
+        setMessageData((prev) => [
+          ...prev,
+          {
+            timestamp: new Date(),
+            text: `미니게임에서 ${score.current}점을 달성해 ${score.current}골드를 획득했습니다.`,
+          },
+        ]);
+      }
+      intervalId.current = setInterval(() => {
+        endCount.current -= 1;
+        setEndCountText(endCount.current);
+        if (endCount.current < 0) {
+          clearInterval(intervalId.current!);
+          navigate("/");
+        }
+      }, 1000);
     }
   };
 
@@ -303,7 +318,7 @@ export default function Minigame() {
         ) : (
           <StartContainer>
             {gameStatus === "END" ? (
-              <EndingText>5초 후 메인페이지로 이동합니다.</EndingText>
+              <EndingText>{`${endCountText}초 후 메인페이지로 이동합니다.`}</EndingText>
             ) : (
               <StartButton onClick={gameStart}>게임 시작</StartButton>
             )}

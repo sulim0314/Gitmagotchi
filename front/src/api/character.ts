@@ -1,10 +1,26 @@
 import { usInstance } from ".";
-import { sampleCharacter } from "./sample";
+import { sampleCharacter, sampleStat, sampleStatus } from "./sample";
 
 export const getCharacter = async (): Promise<any> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(sampleCharacter);
+    }, 2000);
+  });
+};
+
+export const getStat = async (): Promise<any> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(sampleStat);
+    }, 2000);
+  });
+};
+
+export const getStatus = async (): Promise<any> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(sampleStatus);
     }, 2000);
   });
 };

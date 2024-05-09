@@ -3,7 +3,7 @@ import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleFaceImage from "@/assets/images/sampleFace.png";
 import sampleFace2Image from "@/assets/images/sampleFace2.png";
-import { ICharacter, ICollection, IUser } from "@/models";
+import { ICharacter, ICharacterStat, ICharacterStatus, ICollection, IUser } from "@/models";
 
 export const sampleUser = {
   userId: 47638660,
@@ -19,9 +19,29 @@ export const sampleCharacter = {
   id: 1,
   userId: 47638660,
   name: "싸피취준생",
-  exp: 943,
+  exp: 210,
   faceUrl: sampleFace2Image,
   characterUrl: sampleCollectionImage,
+};
+
+export const sampleStat: ICharacterStat = {
+  characterId: 1,
+  userId: 1,
+  fullnessStat: 1,
+  intimacyStat: 7,
+  cleannessStat: 3,
+  unusedStat: 1,
+};
+
+export const sampleStatus: ICharacterStatus = {
+  characterId: 1,
+  userId: 1,
+  fullness: 60,
+  intimacy: 85,
+  cleanness: 50,
+  lastUpdatedFullness: new Date().toString(),
+  lastUpdatedIntimacy: new Date().toString(),
+  lastUpdatedCleanness: new Date().toString(),
 };
 
 export const sampleAward = [
