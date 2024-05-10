@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private LocalDateTime lastTime = LocalDateTime.now();
 
     @Column(name = "background_id")
-    private Integer backgroundId; //현재의 배경화면
+    private Integer backgroundId = 1; //현재의 배경화면
     @Column(name = "character_id")
     private Integer characterId;  //현재의 캐릭터
 
