@@ -27,8 +27,9 @@ public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             String orderBy = queryParams.getOrDefault("type", "BEST");
 
             List<Object[]> results = entityManager.createQuery(
-                            "SELECT u, COUNT(c.ending) as cnt " +
-                                    "FROM User u LEFT JOIN u.collectionList c " +
+                            "SELECT u.id, COUNT(c) as cnt " +
+                                    "FROM User u JOIN Collection c " +
+                                    "WHERE c.ending = 'INDEPENDENT' " +
                                     "GROUP BY u.id " +
                                     "ORDER BY cnt DESC", Object[].class)
                     .getResultList();
