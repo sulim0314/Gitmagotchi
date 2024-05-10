@@ -11,7 +11,7 @@ import user.entity.User;
 import javax.persistence.*;
 import java.util.*;
 
-public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class SearchHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
     private static final Gson gson = new Gson();
 
@@ -22,8 +22,7 @@ public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             entityManager.getTransaction().begin();
 
             Map<String, String> queryParams = Optional.ofNullable(request.getQueryStringParameters()).orElse(Collections.emptyMap());
-            String type = queryParams.getOrDefault("type", "BEST");
-            String userId = queryParams.getOrDefault("userId", "");
+            String keyword = queryParams.getOrDefault("keyword", "");
 
             //페이징 처리
             String pageStr = queryParams.get("page");
@@ -37,26 +36,24 @@ public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
                 sizeStr = "9";
             }
             int size = Integer.parseInt(sizeStr);
-            System.out.println("****************");
-            System.out.println("page: " + page);
-            System.out.println("size: " + size);
 
-            String queryStr = "SELECT u FROM User u LEFT JOIN u.collectionList c ";
-            String countQueryStr = "SELECT COUNT(DISTINCT u) FROM User u LEFT JOIN u.collectionList c ";  // 전체 항목 수를 계산하는 쿼리
+            String queryStr = "SELECT u FROM User u WHERE 1 = 1";
+            String countQueryStr = "SELECT COUNT(DISTINCT u) FROM User u WHERE 1 = 1";  // 전체 항목 수를 계산하는 쿼리
 
-            if ("BEST".equals(type)) {
-                queryStr += "WHERE c.ending = 'INDEPENDENT' ";
-                countQueryStr += "WHERE c.ending = 'INDEPENDENT' ";
-            } else {
-                queryStr += "WHERE c.ending IN ('SICK', 'RUNAWAY', 'HUNGRY') ";
-                countQueryStr += "WHERE c.ending IN ('SICK', 'RUNAWAY', 'HUNGRY') ";
+            if (keyword != null && !keyword.isEmpty()) {
+                queryStr += " AND u.nickname LIKE :keyword";
+                countQueryStr += " AND u.nickname LIKE :keyword";
             }
-            queryStr += "GROUP BY u.id ORDER BY COUNT(c) DESC";
 
             Query countQuery = entityManager.createQuery(countQueryStr);
             TypedQuery<User> query = entityManager.createQuery(queryStr, User.class);
             query.setFirstResult(page * size); // 설정: 첫번째 결과의 인덱스
             query.setMaxResults(size);         // 설정: 최대 결과 수
+
+            if (keyword != null && !keyword.isEmpty()) {
+                query.setParameter("keyword", '%' + keyword + '%'); // LIKE 파라미터 설정
+                countQuery.setParameter("keyword", '%' + keyword + '%');
+            }
 
             long totalElements = (long) countQuery.getSingleResult();
             List<User> users = query.getResultList();
@@ -81,9 +78,6 @@ public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             for (User user : users) {
                 sb.append(user.getId()).append("\n");
             }
-            System.out.println("#################");
-            System.out.println(sb);
-            System.out.println("totalElements: " + totalElements);
 
             entityManager.getTransaction().commit();
             entityManager.close();
@@ -102,7 +96,6 @@ public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
             response.setStatusCode(200);
             response.setBody(jsonResponse);
-
             return response;
         } finally {
             entityManager.close();
