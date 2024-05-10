@@ -42,7 +42,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
             int page = Integer.parseInt(pageStr) - 1;
 
-            String sizeStr = queryParams.get("page");
+            String sizeStr = queryParams.get("pageSize");
             if (sizeStr == null || sizeStr.trim().isEmpty()) {
                 sizeStr = "9";
             }
