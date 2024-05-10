@@ -93,8 +93,8 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
 
             if(isCollection && userId != null && !userId.isEmpty()){
-                query.setParameter("userId", Long.valueOf(userId));
-                countQuery.setParameter("userId", Long.valueOf(userId));
+                query.setParameter("userId", Integer.parseInt(userId));
+                countQuery.setParameter("userId", Integer.parseInt(userId));
             }
 
             long totalElements = (long) countQuery.getSingleResult(); // 전체 항목 수 가져오기

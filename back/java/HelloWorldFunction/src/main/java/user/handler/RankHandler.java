@@ -11,7 +11,7 @@ import user.entity.User;
 import javax.persistence.*;
 import java.util.*;
 
-public class LankHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistenceUnit");
     private static final Gson gson = new Gson();
 
