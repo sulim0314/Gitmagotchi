@@ -6,7 +6,7 @@ export interface IAuth {
     identities: string;
     name: string;
     picture: string;
-    dsub: string;
+    sub: string;
   };
   id?: string;
 }

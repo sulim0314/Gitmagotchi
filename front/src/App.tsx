@@ -15,31 +15,35 @@ import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharactetRename";
-import Test from "@/pages/Test";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
 import { authDataAtom } from "./store/auth";
 import { useRecoilState } from "recoil";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
-import { getCharacter } from "./api/character";
+import { getCharacter, getStat, getStatus } from "./api/character";
+import EditProfile from "./pages/EditProfile";
+import { statDataAtom } from "./store/stat";
+import { statusDataAtom } from "./store/status";
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const [statData, setStatData] = useRecoilState(statDataAtom);
+  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
-
     const fetchCognitoUser = async () => {
       const cognitoUser = await Auth.currentUserInfo();
       if (cognitoUser) {
@@ -51,12 +55,13 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const user = await getUser();
+      const user = await getUser({
+        userId: authData!.username.slice(7),
+      });
       if (user) {
         setUserData(user);
       } else {
-        // const newUser = createUser();
-        setUserData(null);
+        timeoutId.current = setTimeout(fetchUser, 1000);
       }
     };
 
@@ -70,16 +75,56 @@ export default function App() {
       }
     };
 
+    const fetchStat = async () => {
+      const stat = await getStat();
+      if (stat) {
+        setStatData(stat);
+      } else {
+        timeoutId.current = setTimeout(fetchStat, 1000);
+      }
+    };
+
+    const fetchStatus = async () => {
+      const status = await getStatus();
+      if (status) {
+        setStatusData(status);
+      } else {
+        timeoutId.current = setTimeout(fetchStatus, 1000);
+      }
+    };
+
     if (!authData) {
       fetchCognitoUser();
     } else if (!userData) {
       fetchUser();
     } else if (!characterData) {
       fetchCharacter();
+    } else if (!statData) {
+      fetchStat();
+    } else if (!statusData) {
+      fetchStatus();
     } else {
       setLoading(false);
     }
-  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
+  }, [
+    authData,
+    setAuthData,
+    userData,
+    setUserData,
+    characterData,
+    setCharacterData,
+    statData,
+    setStatData,
+    statusData,
+    setStatusData,
+    navigate,
+  ]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -105,23 +150,23 @@ export default function App() {
         <Navbar />
         <Content>
           <Routes>
-            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/character/create" element={<CreateCharacter />} />
+            <Route path="/" element={<Home />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/award" element={<Award />} />
             <Route path="/ranking" element={<Ranking />} />
             <Route path="/changebg" element={<ChangeBg />} />
             <Route path="/search" element={<Search />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/character" element={<CharacterMenu />} />
-            <Route path="/character/create" element={<CreateCharacter />} />
             <Route path="/character/chat" element={<Chat />} />
             <Route path="/character/stat" element={<CharacterStat />} />
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/change" element={null} />
             <Route path="/background/create" element={<CreateBg />} />
-            <Route path="/test" element={<Test />} />
           </Routes>
         </Content>
       </Wrapper>
@@ -173,9 +218,12 @@ bg-center
 absolute
 left-0
 top-0
+overflow-hidden
 `;
 
 const Content = tw.div`
 flex-grow
 w-full
+flex
+flex-col
 `;

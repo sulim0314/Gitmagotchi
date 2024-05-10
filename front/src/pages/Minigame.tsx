@@ -1,8 +1,13 @@
 import tw from "tailwind-styled-components";
 import { FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
+import { useNavigate } from "react-router-dom";
+import { messageDataAtom } from "@/store/message";
+import { useMutation } from "@tanstack/react-query";
+import { gainGold } from "@/api/user";
+import { userDataAtom } from "@/store/user";
 
 export default function Minigame() {
   class Block {
@@ -88,7 +93,7 @@ export default function Minigame() {
       this.segments.unshift(newHead);
 
       if (newHead.equal(apple.current.position)) {
-        setScore((prev) => prev + 1);
+        score.current += 1;
         apple.current.move();
       } else {
         this.segments.pop();
@@ -144,13 +149,30 @@ export default function Minigame() {
     }
   }
 
+  const navigate = useNavigate();
+  const [userData, setUserData] = useRecoilState(userDataAtom);
+  const setMessageData = useSetRecoilState(messageDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const faceRef = useRef<HTMLImageElement>(new Image());
-  const [score, setScore] = useState<number>(0);
+  const score = useRef<number>(0);
+  const [gameStatus, setGameStatus] = useState<"READY" | "GAME" | "END">("READY");
   const snake = useRef<Snake>(new Snake());
   const apple = useRef<Apple>(new Apple());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const mutation = useMutation({
+    mutationFn: gainGold,
+    onSuccess: (data) => {
+      setUserData((prev) => {
+        if (prev === null) return null;
+        return {
+          ...prev,
+          gold: data.value,
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
 
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
   const width = useRef<number>(0);
@@ -158,6 +180,9 @@ export default function Minigame() {
   const widthInBlocks = useRef<number>(0);
   const heightInBlocks = useRef<number>(0);
   const blockSize = useRef<number>(0);
+
+  const endCount = useRef<number>(5);
+  const [endCountText, setEndCountText] = useState<number>(endCount.current);
 
   useEffect(() => {
     if (characterData?.faceUrl) {
@@ -172,20 +197,47 @@ export default function Minigame() {
           blockSize.current = 10;
           widthInBlocks.current = width.current / blockSize.current;
           heightInBlocks.current = height.current / blockSize.current;
-          setScore(0);
 
-          intervalId.current = setInterval(game, 50);
+          if (!ctx.current) return;
+          ctx.current.clearRect(0, 0, width.current, height.current);
+          ctx.current.drawImage(faceRef.current, 100, 100, 200, 200);
+          drawText("스네이크 게임", 50, 200, 30);
+          drawText("획득한 점수만큼 골드를 획득할 수 있어요", 20, 200, 330);
         }
       };
     }
 
-    addEventListener("keydown", handleKeydown);
-
     return () => {
-      clearInterval(intervalId.current!);
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
       removeEventListener("keydown", handleKeydown);
     };
-  }, []);
+  }, [characterData?.faceUrl]);
+
+  const drawScore = function () {
+    if (!ctx.current) return;
+    ctx.current.font = "20px NanumBarunpen";
+    ctx.current.fillStyle = "White";
+    ctx.current.textAlign = "left";
+    ctx.current.textBaseline = "top";
+    ctx.current.fillText("Score : " + score.current, blockSize.current, blockSize.current);
+  };
+
+  const drawText = (text: string, fontSize: number, x: number, y: number) => {
+    if (!ctx.current) return;
+    ctx.current.font = `${fontSize}px NanumBarunpen`;
+    ctx.current.fillStyle = "White";
+    ctx.current.textAlign = "center";
+    ctx.current.textBaseline = "top";
+    ctx.current.fillText(text, x, y);
+  };
+
+  const gameStart = () => {
+    setGameStatus("GAME");
+    addEventListener("keydown", handleKeydown);
+    intervalId.current = setInterval(game, 50);
+  };
 
   const game = () => {
     if (ctx.current) {
@@ -193,6 +245,7 @@ export default function Minigame() {
       snake.current.move();
       apple.current.draw();
       snake.current.draw();
+      drawScore();
     }
   };
 
@@ -209,8 +262,33 @@ export default function Minigame() {
   };
 
   const gameOver = () => {
-    // alert("game over");
-    clearInterval(intervalId.current!);
+    if (intervalId.current) {
+      setGameStatus("END");
+      clearInterval(intervalId.current);
+      if (!ctx.current) return;
+      ctx.current.clearRect(0, 0, width.current, height.current);
+      drawText("GAME OVER", 50, 200, 100);
+      drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 20, 200, 300);
+      removeEventListener("keydown", handleKeydown);
+      if (score.current > 0) {
+        mutation.mutate({ userId: userData!.id, value: score.current });
+        setMessageData((prev) => [
+          ...prev,
+          {
+            timestamp: new Date().toString(),
+            text: `미니게임에서 ${score.current}점을 달성해 ${score.current}골드를 획득했습니다.`,
+          },
+        ]);
+      }
+      intervalId.current = setInterval(() => {
+        endCount.current -= 1;
+        setEndCountText(endCount.current);
+        if (endCount.current < 0) {
+          clearInterval(intervalId.current!);
+          navigate("/");
+        }
+      }, 1000);
+    }
   };
 
   return (
@@ -219,43 +297,51 @@ export default function Minigame() {
         <GameAreaContainer>
           <GameArea ref={canvasRef} width={400} height={400} />
         </GameAreaContainer>
-        <DetailContainer>
-          <ScoreContainer>
-            <ScoreText>{`현재 점수: ${score}`}</ScoreText>
-          </ScoreContainer>
-          <GameKeyContainer>
-            <ArrowButton
-              onClick={() => {
-                snake.current.setDirection("UP");
-              }}
-            >
-              <UpArrowIcon />
-            </ArrowButton>
-            <MiddleKeyContainer>
+
+        {gameStatus === "GAME" ? (
+          <DetailContainer>
+            <GameKeyContainer>
               <ArrowButton
                 onClick={() => {
-                  snake.current.setDirection("LEFT");
+                  snake.current.setDirection("UP");
                 }}
               >
-                <LeftArrowIcon />
+                <UpArrowIcon />
               </ArrowButton>
+              <MiddleKeyContainer>
+                <ArrowButton
+                  onClick={() => {
+                    snake.current.setDirection("LEFT");
+                  }}
+                >
+                  <LeftArrowIcon />
+                </ArrowButton>
+                <ArrowButton
+                  onClick={() => {
+                    snake.current.setDirection("RIGHT");
+                  }}
+                >
+                  <RightArrowIcon />
+                </ArrowButton>
+              </MiddleKeyContainer>
               <ArrowButton
                 onClick={() => {
-                  snake.current.setDirection("RIGHT");
+                  snake.current.setDirection("DOWN");
                 }}
               >
-                <RightArrowIcon />
+                <DownArrowIcon />
               </ArrowButton>
-            </MiddleKeyContainer>
-            <ArrowButton
-              onClick={() => {
-                snake.current.setDirection("DOWN");
-              }}
-            >
-              <DownArrowIcon />
-            </ArrowButton>
-          </GameKeyContainer>
-        </DetailContainer>
+            </GameKeyContainer>{" "}
+          </DetailContainer>
+        ) : (
+          <StartContainer>
+            {gameStatus === "END" ? (
+              <EndingText>{`${endCountText}초 후 메인페이지로 이동합니다.`}</EndingText>
+            ) : (
+              <StartButton onClick={gameStart}>게임 시작</StartButton>
+            )}
+          </StartContainer>
+        )}
       </GameContainer>
     </Wrapper>
   );
@@ -312,6 +398,38 @@ justify-center
 items-center
 `;
 
+const StartContainer = tw.div`
+aspect-square
+w-80
+h-80
+lg:w-[30rem]
+lg:h-[30rem]
+border-2
+border-slate-800
+flex
+flex-col
+space-y-6
+justify-center
+items-center
+`;
+
+const EndingText = tw.h2`
+text-xl
+font-bold
+`;
+
+const StartButton = tw.button`
+text-2xl
+border-2
+border-slate-800
+py-4
+px-8
+rounded-3xl
+shadow-lg
+bg-slate-200
+font-bold
+`;
+
 const GameKeyContainer = tw.div`
 flex
 flex-col
@@ -363,7 +481,3 @@ w-6
 h-6
 text-slate-100
 `;
-
-const ScoreContainer = tw.div``;
-
-const ScoreText = tw.h1``;

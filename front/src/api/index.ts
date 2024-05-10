@@ -14,21 +14,87 @@ export const seoulInstance = axios.create({
   },
 });
 
-// axiosInstance.interceptors.request.use(
-//   (config) => {
-//     const accessToken = localStorage.getItem("accessToken");
+usInstance.interceptors.request.use(
+  (config) => {
+    const recoilValue = localStorage.getItem("recoil-persist");
 
-//     if (!accessToken) {
-//       window.location.href = "/login";
-//       return config;
-//     }
+    if (recoilValue) {
+      const recoilJson = JSON.parse(recoilValue);
+      const accessToken = recoilJson.authData.attributes.sub;
+      // const userId = recoilJson.userData.userId;
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+      // config.headers["userId"] = userId;
+    }
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
 
-//     config.headers["Authorization"] = `Bearer ${accessToken}`;
+usInstance.interceptors.request.use(
+  (config) => {
+    const recoilValue = localStorage.getItem("recoil-persist");
 
-//     return config;
-//   },
-//   (error) => {
-//     console.log(error);
-//     return Promise.reject(error);
-//   }
-// );
+    if (recoilValue) {
+      const recoilJson = JSON.parse(recoilValue);
+      const accessToken = recoilJson.authData.attributes.sub;
+      // const userId = recoilJson.userData.userId;
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+      // config.headers["userId"] = userId;
+    }
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
+usInstance.interceptors.response.use(
+  (response) => {
+    const data = response.data;
+    const body = JSON.parse(data.body);
+    if (data.statusCode === 200) {
+      return body;
+    }
+    return Promise.reject(body);
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+seoulInstance.interceptors.request.use(
+  (config) => {
+    const recoilValue = localStorage.getItem("recoil-persist");
+
+    if (recoilValue) {
+      const recoilJson = JSON.parse(recoilValue);
+      const accessToken = recoilJson.authData.attributes.sub;
+      // const userId = recoilJson.userData.userId;
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+      // config.headers["userId"] = userId;
+    }
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
+seoulInstance.interceptors.response.use(
+  (response) => {
+    const data = response.data;
+    const body = JSON.parse(data.body);
+    if (data.statusCode === 200) {
+      return body;
+    }
+    return Promise.reject(body);
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);

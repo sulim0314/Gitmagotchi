@@ -12,53 +12,141 @@ import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
 import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose, IoIosLock } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import Modal from "react-modal";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
-
-interface IServerMsg {
-  timestamp: Date;
-  text: string;
-}
+import { messageDataAtom } from "@/store/message";
+import FlyingFly from "@/components/home/FlyingFly";
+import BrokenHeart from "@/components/home/BrokenHeart";
+import HungryEffect from "@/components/home/HungryEffect";
+import { expHandler, statusHandler } from "@/util/value";
+import { statDataAtom } from "@/store/stat";
+import { statusDataAtom } from "@/store/status";
+import { useMutation } from "@tanstack/react-query";
+import { getInteractionResult } from "@/api/character";
+import { InteractType } from "@/models";
 
 export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
-  const characterData = useRecoilValue(characterDataAtom);
+  const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const statData = useRecoilValue(statDataAtom);
+  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
+  const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
-  const [modal, setModal] = useState<boolean>(false);
-  const [serverMsgList, setServerMsgList] = useState<IServerMsg[]>([
-    {
-      timestamp: new Date(),
-      text: "-- 깃마고치에 오신 것을 환영합니다. --",
+  const levelupRef = useRef<HTMLDivElement>(null);
+  const [msgModal, setMsgModal] = useState<boolean>(false);
+  const [animModal, setAnimModal] = useState<boolean>(false);
+
+  const interactionMution = useMutation({
+    mutationFn: getInteractionResult,
+    onSuccess: (data) => {
+      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
+        levelUpEffect(expHandler(data.exp || 0).level);
+      }
+      setMessageData((prev) => [
+        ...prev,
+        {
+          timestamp: new Date().toString(),
+          text: "상호작용",
+        },
+      ]);
+      setCharacterData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          exp: data.exp,
+        };
+      });
+      setStatusData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          cleanness: data.cleanness,
+          fullness: data.fullness,
+          intimacy: data.intimacy,
+        };
+      });
     },
-  ]);
+    onError: (err) => console.log(err),
+  });
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
-  }, [modal, serverMsgList, modalBottomRef]);
+  }, [msgModal, messageData, modalBottomRef]);
 
-  const toggleModal = () => {
-    // delete this
-    setServerMsgList([
-      {
-        timestamp: new Date(),
-        text: "-- 깃마고치에 오신 것을 환영합니다. --",
-      },
-    ]);
-    setModal(!modal);
+  const toggleMsgModal = () => {
+    setMsgModal(!msgModal);
   };
 
-  const formatTimestamp = (date: Date) => {
-    const hour = date.getHours();
-    const minute = date.getMinutes();
+  const toggleAnimModal = () => {
+    setAnimModal(!animModal);
+  };
+
+  const formatTimestamp = (date: string) => {
+    const d = new Date(date);
+    const hour = d.getHours();
+    const minute = d.getMinutes();
     return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+  };
+
+  const playAnimation = () => {
+    return () => {
+      setAnimModal(false);
+      if (spritesheet.current) {
+        spritesheet.current.play();
+      }
+    };
+  };
+
+  const handleInteraction = (type: InteractType) => {
+    return () => {
+      interactionMution.mutate({
+        body: JSON.stringify({
+          exp: characterData?.exp,
+          interactType: type,
+          status: {
+            fullness: statusData?.fullness,
+            intimacy: statusData?.intimacy,
+            cleanness: statusData?.cleanness,
+          },
+          stat: {
+            fullnessStat: statData?.fullnessStat,
+            intimacyStat: statData?.intimacyStat,
+          },
+        }),
+      });
+    };
+  };
+
+  const levelUpEffect = (level: number) => {
+    const keyframes: Keyframe[] = [
+      { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
+      { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
+      { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
+      { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
+      { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
+      { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
+    ];
+    const options: KeyframeAnimationOptions = {
+      delay: 300,
+      duration: 2000,
+      easing: "ease-in-out",
+    };
+    levelupRef.current?.animate(keyframes, options);
+    setMessageData((prev) => [
+      ...prev,
+      {
+        timestamp: new Date().toString(),
+        text: `레벨이 ${level}로 올랐습니다.`,
+      },
+    ]);
   };
 
   return (
@@ -67,13 +155,14 @@ export default function Home() {
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img src={characterData?.faceUrl} className="w-16 h-16 group-hover:scale-110" />
+              <img
+                src={characterData?.faceUrl}
+                className="w-16 h-16 group-hover:scale-110 transition-all"
+              />
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${Math.floor(
-                  (characterData?.exp || 0) / 100
-                )}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
@@ -85,40 +174,71 @@ export default function Home() {
               </NameContainer>
             </CharacterInfo>
           </InfoContianer>
-          <ExpContainer>
+          <ExpContainer className="text-border">
             <ExpBarContainer>
-              <ExpBar style={{ width: `${(characterData?.exp || 0) % 100}%` }} />
-              <ExpText>{`${(characterData?.exp || 0) % 100} / 100`}</ExpText>
+              <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+              <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
+                expHandler(characterData?.exp || 0).maxExp
+              }`}</ExpText>
             </ExpBarContainer>
           </ExpContainer>
           <StatContainer>
             <StatRow>
               <BatteryIcon />
               <StatBarContainer className="bg-red-400/50">
-                <StatBar className="bg-red-500" />
+                <StatBar
+                  className="bg-red-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.fullness || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).fullnessMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <HeartIcon />
               <StatBarContainer className="bg-amber-400/50">
-                <StatBar className="bg-amber-500" />
+                <StatBar
+                  className="bg-amber-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.intimacy || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).intimacyMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <ShineIcon />
               <StatBarContainer className="bg-blue-400/50">
-                <StatBar className="bg-blue-500" />
+                <StatBar
+                  className="bg-blue-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.cleanness || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).cleannessMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <PlayIcon
-            src={PlayImage}
-            onClick={() => {
-              if (spritesheet.current) {
-                spritesheet.current.play();
-              }
-            }}
-          />
+          <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
         </LeftHeader>
         <RightHeader>
           <PropertyList>
@@ -164,15 +284,33 @@ export default function Home() {
               },
             ]}
           />
+          <EffectContainer>
+            {statusData!.fullness < 50 && (
+              <FlyingFlyContainer>
+                <FlyingFly />
+              </FlyingFlyContainer>
+            )}
+            {statusData!.intimacy < 50 && (
+              <BrokenHeartContainer>
+                <BrokenHeart />
+              </BrokenHeartContainer>
+            )}
+            {statusData!.fullness < 50 && (
+              <HungryEffectContainer>
+                <HungryEffect />
+              </HungryEffectContainer>
+            )}
+            <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
+          </EffectContainer>
         </CharacterCanvasContainer>
         <InteractionContainer>
-          <InteractionButton>
+          <InteractionButton onClick={handleInteraction("EAT")}>
             <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
-          <InteractionButton>
+          <InteractionButton onClick={handleInteraction("WALK")}>
             <img src={interactionRunImage} className="h-10 bg-cover" />
           </InteractionButton>
-          <InteractionButton>
+          <InteractionButton onClick={handleInteraction("SHOWER")}>
             <img src={interactionShowerImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton onClick={() => navigate("/character/game")}>
@@ -181,15 +319,15 @@ export default function Home() {
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox onClick={toggleModal}>
-          <ServerMsg>{serverMsgList[serverMsgList.length - 1].text}</ServerMsg>
+        <ServerMsgBox onClick={toggleMsgModal}>
+          <ServerMsg>{messageData[messageData.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
       <CustomModal
         style={customModalStyles}
-        isOpen={modal}
-        onRequestClose={() => setModal(false)}
+        isOpen={msgModal}
+        onRequestClose={() => setMsgModal(false)}
         ariaHideApp={false}
         contentLabel="서버 메시지"
         shouldCloseOnOverlayClick={true}
@@ -197,17 +335,42 @@ export default function Home() {
       >
         <ModalTitleContainer>
           <ModalTitle>서버 메시지</ModalTitle>
-          <ModalCloseButton onClick={toggleModal} />
+          <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
-          {serverMsgList.map((msg) => (
-            <ModalMsg key={formatTimestamp(msg.timestamp)}>
+          {messageData.map((msg, i) => (
+            <ModalMsg key={msg.timestamp + i}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}
           <div ref={modalBottomRef} />
         </ModalMsgList>
+      </CustomModal>
+      <CustomModal
+        style={customModalStyles}
+        isOpen={animModal}
+        onRequestClose={() => setAnimModal(false)}
+        ariaHideApp={false}
+        contentLabel="애니메이션 목록"
+        shouldCloseOnOverlayClick={true}
+      >
+        <ModalTitleContainer>
+          <ModalTitle>애니메이션 목록</ModalTitle>
+          <ModalCloseButton onClick={toggleAnimModal} />
+        </ModalTitleContainer>
+        <AnimGrid>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <AnimContainer key={i}>
+              <AnimButton onClick={playAnimation()}>춤추기</AnimButton>
+              {i !== 1 && (
+                <AnimDisabled>
+                  <LockIcon />
+                </AnimDisabled>
+              )}
+            </AnimContainer>
+          ))}
+        </AnimGrid>
       </CustomModal>
     </Wrapper>
   );
@@ -276,6 +439,7 @@ border-slate-800
 cursor-pointer
 hover:saturate-200
 hover:scale-125
+transition-all
 `;
 
 const CharacterName = tw.h1`
@@ -314,6 +478,8 @@ left-0
 bg-green-500
 h-full
 rounded-lg
+transition-all
+duration-1000
 `;
 
 const ExpText = tw.p`
@@ -386,6 +552,7 @@ h-14
 bg-purple-50
 hover:bg-purple-100
 hover:scale-125
+transition-all
 border-2
 border-slate-800
 shadow-xl
@@ -417,6 +584,8 @@ justify-between
 items-center
 px-4
 bg-gray-900/30
+hover:bg-gray-900/50
+transition-all
 `;
 
 const ServerMsg = tw.p`
@@ -465,9 +634,10 @@ const StatBar = tw.div`
 absolute
 top-0
 left-0
-w-3/5
 h-full
 rounded-lg
+transition-all
+duration-1000
 `;
 
 const BatteryIcon = tw(LuBatteryFull)`
@@ -492,9 +662,53 @@ absolute
 aspect-square
 `;
 
+const EffectContainer = tw.div`
+absolute
+w-full
+h-full
+top-0
+left-0
+flex
+justify-center
+`;
+
+const FlyingFlyContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+`;
+
+const BrokenHeartContainer = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+flex
+justify-center
+`;
+
+const HungryEffectContainer = tw.div`
+absolute
+w-full
+h-full
+left-0
+top-0
+`;
+
+const LevelupText = tw.div`
+opacity-0
+text-3xl
+font-bold
+text-green-600
+`;
+
 const CharacterCanvas = tw(Spritesheet)`
 w-full
 h-full
+translate-y-10
 `;
 
 const CustomModal = tw(Modal)`
@@ -550,6 +764,50 @@ const ModalCloseButton = tw(IoMdClose)`
 w-6
 h-6
 cursor-pointer
+`;
+
+const AnimGrid = tw.div`
+w-full
+h-20
+flex-grow
+p-4
+grid
+grid-cols-3
+grid-rows-3
+gap-2
+`;
+
+const AnimContainer = tw.div`
+
+relative
+`;
+
+const AnimButton = tw.div`
+bg-orange-400
+w-full
+h-full
+flex
+justify-center
+items-center
+cursor-pointer
+`;
+
+const AnimDisabled = tw.div`
+absolute
+top-0
+left-0
+w-full
+h-full
+bg-slate-50/70
+flex
+justify-center
+items-center
+`;
+
+const LockIcon = tw(IoIosLock)`
+w-10
+h-10
+text-slate-400
 `;
 
 const customModalStyles: ReactModal.Styles = {
