@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -21,7 +19,6 @@ public class UserResponseDto {
     private String githubUsername;
     private Integer gold = 0;
     private Integer meal = 0;
-    private LocalDateTime lastTime = LocalDateTime.now();
     private Integer backgroundId;
     private Integer characterId;
 }
