@@ -69,7 +69,7 @@ export default function Chat() {
       imgSrc: characterData?.faceUrl || "",
       level: 9,
       name: characterData?.name || "",
-      text: `안녕! 난 ${characterData?.name}이야.`,
+      text: `안녕! 난 ${characterData?.name}(이)야.`,
     },
   ]);
 

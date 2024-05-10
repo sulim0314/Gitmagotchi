@@ -24,9 +24,7 @@ import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
-import { expHandler, statusHandler } from "@/util/value";
-import { statDataAtom } from "@/store/stat";
-import { statusDataAtom } from "@/store/status";
+import { expHandler, interactionMessage, statusHandler } from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
 import { getInteractionResult } from "@/api/character";
 import { InteractType } from "@/models";
@@ -35,8 +33,6 @@ export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
-  const statData = useRecoilValue(statDataAtom);
-  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
@@ -54,7 +50,7 @@ export default function Home() {
         ...prev,
         {
           timestamp: new Date().toString(),
-          text: "상호작용",
+          text: interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)),
         },
       ]);
       setCharacterData((prev) => {
@@ -62,15 +58,11 @@ export default function Home() {
         return {
           ...prev,
           exp: data.exp,
-        };
-      });
-      setStatusData((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          cleanness: data.cleanness,
-          fullness: data.fullness,
-          intimacy: data.intimacy,
+          status: {
+            cleanness: data.cleanness,
+            fullness: data.fullness,
+            intimacy: data.intimacy,
+          },
         };
       });
     },
@@ -112,13 +104,13 @@ export default function Home() {
           exp: characterData?.exp,
           interactType: type,
           status: {
-            fullness: statusData?.fullness,
-            intimacy: statusData?.intimacy,
-            cleanness: statusData?.cleanness,
+            fullness: characterData?.status.fullness,
+            intimacy: characterData?.status.intimacy,
+            cleanness: characterData?.status.cleanness,
           },
           stat: {
-            fullnessStat: statData?.fullnessStat,
-            intimacyStat: statData?.intimacyStat,
+            fullnessStat: characterData?.stat.fullnessStat,
+            intimacyStat: characterData?.stat.intimacyStat,
           },
         }),
       });
@@ -190,10 +182,10 @@ export default function Home() {
                   className="bg-red-500"
                   style={{
                     width: `${(
-                      ((statusData?.fullness || 0) /
+                      ((characterData?.status.fullness || 0) /
                         statusHandler(
                           expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
+                          characterData?.stat.intimacyStat || 1
                         ).fullnessMax) *
                       100
                     ).toFixed(2)}%`,
@@ -208,10 +200,10 @@ export default function Home() {
                   className="bg-amber-500"
                   style={{
                     width: `${(
-                      ((statusData?.intimacy || 0) /
+                      ((characterData?.status.intimacy || 0) /
                         statusHandler(
                           expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
+                          characterData?.stat.intimacyStat || 1
                         ).intimacyMax) *
                       100
                     ).toFixed(2)}%`,
@@ -226,10 +218,10 @@ export default function Home() {
                   className="bg-blue-500"
                   style={{
                     width: `${(
-                      ((statusData?.cleanness || 0) /
+                      ((characterData?.status.cleanness || 0) /
                         statusHandler(
                           expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
+                          characterData?.stat.intimacyStat || 1
                         ).cleannessMax) *
                       100
                     ).toFixed(2)}%`,
@@ -285,17 +277,17 @@ export default function Home() {
             ]}
           />
           <EffectContainer>
-            {statusData!.fullness < 50 && (
+            {characterData && characterData.status.fullness < 50 && (
               <FlyingFlyContainer>
                 <FlyingFly />
               </FlyingFlyContainer>
             )}
-            {statusData!.intimacy < 50 && (
+            {characterData && characterData.status.intimacy < 50 && (
               <BrokenHeartContainer>
                 <BrokenHeart />
               </BrokenHeartContainer>
             )}
-            {statusData!.fullness < 50 && (
+            {characterData && characterData.status.fullness < 50 && (
               <HungryEffectContainer>
                 <HungryEffect />
               </HungryEffectContainer>

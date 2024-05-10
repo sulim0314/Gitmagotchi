@@ -1,8 +1,8 @@
 import tw from "tailwind-styled-components";
-import { ICharacter } from "@/models";
+import { ISimpleCharacter } from "@/models";
 
 interface IProps {
-  character: ICharacter;
+  character: ISimpleCharacter;
 }
 
 export default function CharacterItem({ character }: IProps) {

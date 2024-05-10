@@ -1,5 +1,6 @@
 // import { usInstance } from ".";
 
+import { seoulInstance } from ".";
 import { sampleCharacterList, sampleUserList } from "./sample";
 
 export const getSearchList = async (params: any): Promise<any> => {
@@ -14,4 +15,12 @@ export const getSearchList = async (params: any): Promise<any> => {
       }
     }, 2000);
   });
+};
+
+export const getUserSearchList = async (params: any): Promise<any> => {
+  return seoulInstance.get("/users/search", { params });
+};
+
+export const getCharacterSearchList = async (params: any): Promise<any> => {
+  return seoulInstance.get("/characters/search", { params });
 };

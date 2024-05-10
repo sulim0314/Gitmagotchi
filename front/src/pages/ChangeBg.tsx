@@ -3,18 +3,44 @@ import tw from "tailwind-styled-components";
 import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { IBackground } from "@/models";
 import { useState } from "react";
-import { getBackgroundList } from "@/api/user";
+import { changeBackground, getBackgroundList } from "@/api/user";
+import { useRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 export default function ChangeBg() {
   const [selected, setSelected] = useState<IBackground | null>(null);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
 
   const { data } = useQuery({
     queryKey: ["background"],
     queryFn: () => getBackgroundList({ userId: 1 }),
   });
+  const mutation = useMutation({
+    mutationFn: changeBackground,
+    onSuccess: (data) => {
+      console.log(data);
+      setUserData((prev) => {
+        if (prev === null) return null;
+        return {
+          ...prev,
+          backgroundUrl: selected?.imageUrl || prev.backgroundUrl,
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
+
+  const handleChangeBg = () => {
+    mutation.mutate({
+      body: JSON.stringify({
+        userId: userData?.id,
+        backgroundId: selected?.id,
+      }),
+    });
+  };
 
   return (
     <Wrapper>
@@ -54,7 +80,7 @@ export default function ChangeBg() {
           ))}
         </BgList>
       </Content>
-      <CommonButton title="변경" />
+      <CommonButton title="변경" onClick={handleChangeBg} />
     </Wrapper>
   );
 }

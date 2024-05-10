@@ -23,3 +23,7 @@ export const gainGold = async (params: {
 }): Promise<{ value: number }> => {
   return seoulInstance.patch("/users/gold", params);
 };
+
+export const changeBackground = async (params: { body: string }): Promise<{ message: string }> => {
+  return seoulInstance.patch("/users/background", params);
+};

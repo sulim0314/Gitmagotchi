@@ -1,15 +1,19 @@
 import tw from "tailwind-styled-components";
-import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
 import { Link } from "react-router-dom";
 
-export default function CreateResult() {
+interface IProps {
+  faceUrl: string;
+  createdName: string;
+}
+
+export default function CreateResult({ faceUrl, createdName }: IProps) {
   return (
     <Wrapper>
-      <img src={SampleCharacterImage} className="w-60" />
+      <img src={faceUrl} className="w-60" />
       <Content>
         <DesktopTitle>
-          <Title>도날드덕 캐릭터가</Title>
+          <Title>{`${createdName} 캐릭터가`}</Title>
           <Title>생성되었어요.</Title>
         </DesktopTitle>
         <ButtonContainer>

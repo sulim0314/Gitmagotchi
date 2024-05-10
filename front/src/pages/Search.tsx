@@ -1,23 +1,44 @@
 import tw from "tailwind-styled-components";
 import { HiChevronLeft, HiChevronRight, HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { HiOutlineSearch } from "react-icons/hi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getSearchList } from "@/api/search";
+import { getCharacterSearchList, getUserSearchList } from "@/api/search";
 import CharacterItem from "@/components/search/CharacterItem";
-import { ICharacter, IUser } from "@/models";
+import { ISimpleCharacter, IUser } from "@/models";
 import UserItem from "@/components/search/UserItem";
 
 export default function Search() {
   const [type, setType] = useState<"CHARACTER" | "USER">("CHARACTER");
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [keyword, setKeyword] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [searchList, setSearchList] = useState<ISimpleCharacter[] | IUser[]>([]);
+
   const { data } = useQuery({
     queryKey: ["search", type, keyword],
-    queryFn: () => getSearchList({ type, keyword }),
+    queryFn: () => {
+      if (keyword === "") {
+        return [];
+      } else if (type === "CHARACTER") {
+        return getCharacterSearchList({ keyword, page, pageSize: 10 });
+      } else {
+        return getUserSearchList({
+          keyword,
+          page,
+          pageSize: 10,
+        });
+      }
+    },
   });
 
+  useEffect(() => {
+    if (!data?.content) return;
+    setSearchList(data.content);
+  }, [data]);
+
   const changeType = () => {
+    setPage(1);
     if (type === "CHARACTER") {
       setType("USER");
     } else {
@@ -80,13 +101,13 @@ export default function Search() {
               </TitleContainer>
               {data && type === "CHARACTER" ? (
                 <CharacterResultList>
-                  {data?.map((c: ICharacter) => (
+                  {(searchList as ISimpleCharacter[]).map((c: ISimpleCharacter) => (
                     <CharacterItem key={c.id} character={c} />
                   ))}
                 </CharacterResultList>
               ) : (
                 <UserResultList>
-                  {data?.map((u: IUser) => (
+                  {(searchList as IUser[]).map((u: IUser) => (
                     <UserItem key={u.id} user={u} />
                   ))}
                 </UserResultList>

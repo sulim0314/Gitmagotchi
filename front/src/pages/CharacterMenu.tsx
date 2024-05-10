@@ -8,14 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { expHandler, statusHandler } from "@/util/value";
-import { statDataAtom } from "@/store/stat";
-import { statusDataAtom } from "@/store/status";
 
 export default function CharacterMenu() {
   const navigate = useNavigate();
   const characterData = useRecoilValue(characterDataAtom);
-  const statData = useRecoilValue(statDataAtom);
-  const statusData = useRecoilValue(statusDataAtom);
 
   const onClickLink = (url: string) => {
     return () => {
@@ -51,19 +47,19 @@ export default function CharacterMenu() {
                 className="bg-red-500"
                 style={{
                   width: `${(
-                    ((statusData?.fullness || 0) /
+                    ((characterData?.status.fullness || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
+                        characterData?.stat.intimacyStat || 1
                       ).fullnessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.fullness || 1} / ${
+              <DataText>{`${characterData?.status.fullness || 1} / ${
                 statusHandler(
                   expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
+                  characterData?.stat.intimacyStat || 1
                 ).fullnessMax
               }`}</DataText>
             </StatBarContainer>
@@ -77,19 +73,19 @@ export default function CharacterMenu() {
                 className="bg-amber-500"
                 style={{
                   width: `${(
-                    ((statusData?.intimacy || 0) /
+                    ((characterData?.status.intimacy || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
+                        characterData?.stat.intimacyStat || 1
                       ).intimacyMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.intimacy || 1} / ${
+              <DataText>{`${characterData?.status.intimacy || 1} / ${
                 statusHandler(
                   expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
+                  characterData?.stat.intimacyStat || 1
                 ).intimacyMax
               }`}</DataText>
             </StatBarContainer>
@@ -103,19 +99,19 @@ export default function CharacterMenu() {
                 className="bg-blue-500"
                 style={{
                   width: `${(
-                    ((statusData?.cleanness || 0) /
+                    ((characterData?.status.cleanness || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
+                        characterData?.stat.intimacyStat || 1
                       ).cleannessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.cleanness || 1} / ${
+              <DataText>{`${characterData?.status.cleanness || 1} / ${
                 statusHandler(
                   expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
+                  characterData?.stat.intimacyStat || 1
                 ).cleannessMax
               }`}</DataText>
             </StatBarContainer>

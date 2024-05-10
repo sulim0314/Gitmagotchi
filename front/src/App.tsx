@@ -25,10 +25,8 @@ import { userDataAtom } from "./store/user";
 import { characterDataAtom } from "./store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
-import { getCharacter, getStat, getStatus } from "./api/character";
+import { getCharacter } from "./api/character";
 import EditProfile from "./pages/EditProfile";
-import { statDataAtom } from "./store/stat";
-import { statusDataAtom } from "./store/status";
 
 export default function App() {
   const location = useLocation();
@@ -38,8 +36,6 @@ export default function App() {
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
-  const [statData, setStatData] = useRecoilState(statDataAtom);
-  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -66,30 +62,20 @@ export default function App() {
     };
 
     const fetchCharacter = async () => {
-      const character = await getCharacter();
-      if (character) {
-        setCharacterData(character);
-      } else {
+      if (!userData) return;
+      if (userData.characterId === null) {
         setLoading(false);
         navigate("/character/create", { replace: true });
-      }
-    };
-
-    const fetchStat = async () => {
-      const stat = await getStat();
-      if (stat) {
-        setStatData(stat);
       } else {
-        timeoutId.current = setTimeout(fetchStat, 1000);
-      }
-    };
-
-    const fetchStatus = async () => {
-      const status = await getStatus();
-      if (status) {
-        setStatusData(status);
-      } else {
-        timeoutId.current = setTimeout(fetchStatus, 1000);
+        const character = await getCharacter({ characterId: userData?.characterId });
+        setCharacterData(character);
+        setUserData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            characterId: character.id,
+          };
+        });
       }
     };
 
@@ -99,10 +85,6 @@ export default function App() {
       fetchUser();
     } else if (!characterData) {
       fetchCharacter();
-    } else if (!statData) {
-      fetchStat();
-    } else if (!statusData) {
-      fetchStatus();
     } else {
       setLoading(false);
     }
@@ -112,19 +94,7 @@ export default function App() {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [
-    authData,
-    setAuthData,
-    userData,
-    setUserData,
-    characterData,
-    setCharacterData,
-    statData,
-    setStatData,
-    statusData,
-    setStatusData,
-    navigate,
-  ]);
+  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -134,7 +104,7 @@ export default function App() {
         <>
           <Background
             style={{
-              backgroundImage: `url(${SampleBg})`,
+              backgroundImage: `url(${userData?.backgroundUrl || SampleBg})`,
             }}
           />
           <BackgroundFrame

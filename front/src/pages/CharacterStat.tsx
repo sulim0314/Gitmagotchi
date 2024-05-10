@@ -6,13 +6,12 @@ import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
-import { statDataAtom } from "@/store/stat";
 import { characterDataAtom } from "@/store/character";
 import { expHandler } from "@/util/value";
 
 export default function CharacterStat() {
   const characterData = useRecoilValue(characterDataAtom);
-  const statData = useRecoilValue(statDataAtom);
+
   return (
     <Wrapper>
       <CharacterContainer>
@@ -35,7 +34,7 @@ export default function CharacterStat() {
         <StatPointContainer>
           <StatPointText>스탯 포인트</StatPointText>
           <StatPointBox>
-            <StatPointNumber>{statData?.unusedStat}</StatPointNumber>
+            <StatPointNumber>{characterData?.stat.unusedStat}</StatPointNumber>
           </StatPointBox>
         </StatPointContainer>
         <StatList>
@@ -45,7 +44,7 @@ export default function CharacterStat() {
                 <BatteryIcon />
                 <StatText>포만감</StatText>
               </StatTitle>
-              <StatText>{`LV.${statData?.fullnessStat}`}</StatText>
+              <StatText>{`LV.${characterData?.stat.fullnessStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>
@@ -60,7 +59,7 @@ export default function CharacterStat() {
                 <HeartIcon />
                 <StatText>친밀도</StatText>
               </StatTitle>
-              <StatText>{`LV.${statData?.intimacyStat}`}</StatText>
+              <StatText>{`LV.${characterData?.stat.intimacyStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>
@@ -75,7 +74,7 @@ export default function CharacterStat() {
                 <ShineIcon />
                 <StatText>청결도</StatText>
               </StatTitle>
-              <StatText>{`LV.${statData?.cleannessStat}`}</StatText>
+              <StatText>{`LV.${characterData?.stat.cleannessStat}`}</StatText>
               <LevelupButton>
                 <UpIcon />
               </LevelupButton>

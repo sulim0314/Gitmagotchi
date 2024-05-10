@@ -134,4 +134,5 @@ export const interactionMessage = (type: InteractType, exp: number) => {
   } else if (type === "CHAT_NEGATIVE") {
     return `대화을 통해 기분이 안좋아져 친밀도가 하락했습니다`;
   }
+  return "";
 };

@@ -3,45 +3,26 @@ import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleFaceImage from "@/assets/images/sampleFace.png";
 import sampleFace2Image from "@/assets/images/sampleFace2.png";
-import { ICharacter, ICharacterStat, ICharacterStatus, ICollection, IUser } from "@/models";
+import { ICharacter, ICollection, ISimpleCharacter, IUser } from "@/models";
 
-export const sampleUser = {
-  userId: 47638660,
-  profileImg: "https://avatars.githubusercontent.com/u/47638660?v=4",
-  nickname: "Rhee Euro",
-  githubUsername: "rheeeuro",
-  gold: 100,
-  meal: 7,
-  lastTime: "Tue May 07 2024 12:21:20 GMT+0900 (한국 표준시)",
-};
-
-export const sampleCharacter = {
+export const sampleCharacter: ICharacter = {
   id: 1,
   userId: 47638660,
   name: "싸피취준생",
-  exp: 210,
+  exp: 13,
   faceUrl: sampleFace2Image,
   characterUrl: sampleCollectionImage,
-};
-
-export const sampleStat: ICharacterStat = {
-  characterId: 1,
-  userId: 1,
-  fullnessStat: 1,
-  intimacyStat: 7,
-  cleannessStat: 3,
-  unusedStat: 1,
-};
-
-export const sampleStatus: ICharacterStatus = {
-  characterId: 1,
-  userId: 1,
-  fullness: 60,
-  intimacy: 85,
-  cleanness: 50,
-  lastUpdatedFullness: new Date().toString(),
-  lastUpdatedIntimacy: new Date().toString(),
-  lastUpdatedCleanness: new Date().toString(),
+  status: {
+    fullness: 60,
+    intimacy: 85,
+    cleanness: 50,
+  },
+  stat: {
+    fullnessStat: 1,
+    intimacyStat: 1,
+    cleannessStat: 1,
+    unusedStat: 1,
+  },
 };
 
 export const sampleAward = [
@@ -475,6 +456,9 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
   {
     id: 2,
@@ -484,6 +468,9 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
   {
     id: 3,
@@ -493,6 +480,9 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
   {
     id: 4,
@@ -502,6 +492,9 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
   {
     id: 5,
@@ -511,6 +504,9 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
   {
     id: 6,
@@ -520,10 +516,13 @@ export const sampleUserList: IUser[] = [
     gold: 0,
     meal: 0,
     lastTime: "",
+    githubToken: "",
+    backgroundUrl: "",
+    characterId: null,
   },
 ];
 
-export const sampleCharacterList: ICharacter[] = [
+export const sampleCharacterList: ISimpleCharacter[] = [
   {
     id: 1,
     userId: 1,

@@ -5,22 +5,26 @@ export interface ICharacter {
   exp: number;
   faceUrl: string;
   characterUrl: string;
+  status: ICharacterStatus;
+  stat: ICharacterStat;
+}
+
+export interface ISimpleCharacter {
+  id: number;
+  userId: number;
+  name: string;
+  exp: number;
+  faceUrl: string;
+  characterUrl: string;
 }
 
 export interface ICharacterStatus {
-  characterId: number;
-  userId: number;
   fullness: number;
   intimacy: number;
   cleanness: number;
-  lastUpdatedFullness: string;
-  lastUpdatedIntimacy: string;
-  lastUpdatedCleanness: string;
 }
 
 export interface ICharacterStat {
-  characterId: number;
-  userId: number;
   fullnessStat: number;
   intimacyStat: number;
   cleannessStat: number;
