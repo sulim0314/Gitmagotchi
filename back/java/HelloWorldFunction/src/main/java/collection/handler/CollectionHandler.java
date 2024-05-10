@@ -42,7 +42,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
             int page = Integer.parseInt(pageStr) - 1;
 
-            String sizeStr = queryParams.get("page");
+            String sizeStr = queryParams.get("pageSize");
             if (sizeStr == null || sizeStr.trim().isEmpty()) {
                 sizeStr = "9";
             }
@@ -93,8 +93,8 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             }
 
             if(isCollection && userId != null && !userId.isEmpty()){
-                query.setParameter("userId", Long.valueOf(userId));
-                countQuery.setParameter("userId", Long.valueOf(userId));
+                query.setParameter("userId", Integer.parseInt(userId));
+                countQuery.setParameter("userId", Integer.parseInt(userId));
             }
 
             long totalElements = (long) countQuery.getSingleResult(); // 전체 항목 수 가져오기

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CollectionResponseDto {
 
-    private Long id;
+    private Integer id;
     private String characterName;
     private String ending;
     private Integer fullnessStat;  //포만감
