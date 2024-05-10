@@ -10,6 +10,13 @@ export const getCharacter = async (): Promise<ICharacter> => {
   });
 };
 
+export const searchCharacter = async (params: {
+  characterId?: number;
+  name?: string;
+}): Promise<string> => {
+  return seoulInstance.get("/characters", { params });
+};
+
 export const getStat = async (): Promise<ICharacterStat> => {
   return new Promise((resolve) => {
     setTimeout(() => {

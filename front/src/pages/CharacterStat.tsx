@@ -18,7 +18,7 @@ export default function CharacterStat() {
       <CharacterContainer>
         <ExpContainer>
           <LevelText>LV.9</LevelText>
-          <ExpBarContainer>
+          <ExpBarContainer className="text-border">
             <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
             <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
               expHandler(characterData?.exp || 0).maxExp

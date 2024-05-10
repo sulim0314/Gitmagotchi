@@ -163,7 +163,6 @@ export default function Minigame() {
   const mutation = useMutation({
     mutationFn: gainGold,
     onSuccess: (data) => {
-      console.log(data);
       setUserData((prev) => {
         if (prev === null) return null;
         return {

@@ -174,7 +174,7 @@ export default function Home() {
               </NameContainer>
             </CharacterInfo>
           </InfoContianer>
-          <ExpContainer>
+          <ExpContainer className="text-border">
             <ExpBarContainer>
               <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
               <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${

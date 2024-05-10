@@ -28,7 +28,7 @@ export default function CharacterMenu() {
       <CharacterContainer>
         <ExpContainer>
           <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
-          <ExpBarContainer>
+          <ExpBarContainer className="text-border">
             <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
             <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
               expHandler(characterData?.exp || 0).maxExp
@@ -46,17 +46,17 @@ export default function CharacterMenu() {
           <StatRow>
             <BatteryIcon />
             <StatLabelText>포만감</StatLabelText>
-            <StatBarContainer className="bg-red-400/50">
+            <StatBarContainer className="bg-red-400/50 text-border">
               <StatBar
                 className="bg-red-500"
                 style={{
                   width: `${(
-                    statusData?.fullness ||
-                    1 /
+                    ((statusData?.fullness || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
                         statData?.intimacyStat || 1
-                      ).fullnessMax
+                      ).fullnessMax) *
+                    100
                   ).toFixed(2)}%`,
                 }}
               />
@@ -72,17 +72,17 @@ export default function CharacterMenu() {
           <StatRow>
             <HeartIcon />
             <StatLabelText>친밀도</StatLabelText>
-            <StatBarContainer className="bg-amber-400/50">
+            <StatBarContainer className="bg-amber-400/50 text-border">
               <StatBar
                 className="bg-amber-500"
                 style={{
                   width: `${(
-                    statusData?.intimacy ||
-                    1 /
+                    ((statusData?.intimacy || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
                         statData?.intimacyStat || 1
-                      ).intimacyMax
+                      ).intimacyMax) *
+                    100
                   ).toFixed(2)}%`,
                 }}
               />
@@ -98,17 +98,17 @@ export default function CharacterMenu() {
           <StatRow>
             <ShineIcon />
             <StatLabelText>청결도</StatLabelText>
-            <StatBarContainer className="bg-blue-400/50">
+            <StatBarContainer className="bg-blue-400/50 text-border">
               <StatBar
                 className="bg-blue-500"
                 style={{
                   width: `${(
-                    statusData?.cleanness ||
-                    1 /
+                    ((statusData?.cleanness || 0) /
                       statusHandler(
                         expHandler(characterData?.exp || 0).level,
                         statData?.intimacyStat || 1
-                      ).cleannessMax
+                      ).cleannessMax) *
+                    100
                   ).toFixed(2)}%`,
                 }}
               />
