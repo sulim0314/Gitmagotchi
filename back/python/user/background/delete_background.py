@@ -38,14 +38,7 @@ def save_to_aurora(userId, backgroundId):
             DELETE FROM user_background
             WHERE user_id=%s AND background_id=%s;
             """
-            cur.execute(delete_user_background_query, (userId, backgroundId))            
-            
-            # background 테이블에 데이터 삭제
-            delete_background_query = """
-            DELETE FROM background
-            WHERE id=%s;
-            """
-            cur.execute(delete_background_query, (backgroundId,))
+            cur.execute(delete_user_background_query, (userId, backgroundId))
         conn.commit()
     except Exception as e:
         # 예외가 발생한 경우, 에러 메시지를 반환합니다.
