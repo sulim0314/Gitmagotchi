@@ -2,7 +2,7 @@ import tw from "tailwind-styled-components";
 import TotalImg from "@/assets/images/collectionTotal.png";
 import LaurelImg from "@/assets/images/collectionLaurel.png";
 import DeathImg from "@/assets/images/collectionDeath.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CollectionItem from "@/components/common/CollectionItem";
 import { searchCollection } from "@/api/collection";
 import { useQuery } from "@tanstack/react-query";
@@ -12,16 +12,63 @@ type CollectionMenu = "TOTAL" | "AWARD" | "DEATH";
 
 export default function Collection() {
   const [menu, setMenu] = useState<CollectionMenu>("TOTAL");
+  const [page, setPage] = useState<number>(1);
+  const [collectionList, setCollectionList] = useState<ICollection[]>([]);
+  const [countTotal, setCountTotal] = useState<number[]>([0, 0, 0]);
 
   const { data } = useQuery({
-    queryKey: ["collection", menu],
+    queryKey: ["collection", menu, page],
     queryFn: () =>
       searchCollection({
         isCollection: true,
         isIndependent: menuProp(menu),
         orderBy: "LATEST",
+        page,
+        pageSize: 12,
       }),
   });
+
+  useEffect(() => {
+    const fetchCountTotal = async () => {
+      const countTotalPromise = await Promise.all([
+        searchCollection({
+          isCollection: true,
+          isIndependent: null,
+          orderBy: "LATEST",
+        }),
+        searchCollection({
+          isCollection: true,
+          isIndependent: true,
+          orderBy: "LATEST",
+        }),
+        searchCollection({
+          isCollection: true,
+          isIndependent: false,
+          orderBy: "LATEST",
+        }),
+      ]);
+      setCountTotal([
+        countTotalPromise[0].pageable.totalElements,
+        countTotalPromise[1].pageable.totalElements,
+        countTotalPromise[2].pageable.totalElements,
+      ]);
+    };
+    fetchCountTotal();
+  }, []);
+
+  useEffect(() => {
+    if (!data?.content) return;
+
+    if (page === 1) {
+      setCollectionList(data.content);
+    } else {
+      setCollectionList((prev) => [...prev, ...data.content]);
+    }
+  }, [data, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [menu]);
 
   const menuProp = (type: CollectionMenu) => {
     if (type === "AWARD") {
@@ -43,23 +90,23 @@ export default function Collection() {
       <MenuContainer>
         <MenuItem $selected={menu === "TOTAL"} onClick={changeMenu("TOTAL")}>
           <MenuImg src={TotalImg} />
-          <MenuCount>15</MenuCount>
+          <MenuCount>{countTotal[0]}</MenuCount>
           <MenuDescription>키운 캐릭터</MenuDescription>
         </MenuItem>
         <MenuItem $selected={menu === "AWARD"} onClick={changeMenu("AWARD")}>
           <MenuImg src={LaurelImg} />
-          <MenuCount>12</MenuCount>
+          <MenuCount>{countTotal[1]}</MenuCount>
           <MenuDescription>명예의 전당</MenuDescription>
         </MenuItem>
         <MenuItem $selected={menu === "DEATH"} onClick={changeMenu("DEATH")}>
           <MenuImg src={DeathImg} />
-          <MenuCount>3</MenuCount>
+          <MenuCount>{countTotal[2]}</MenuCount>
           <MenuDescription>사망</MenuDescription>
         </MenuItem>
       </MenuContainer>
       <CollectionContainer>
         <CharacterGrid>
-          {data?.map((collection: ICollection) => (
+          {collectionList.map((collection: ICollection) => (
             <CollectionItem key={collection.id} collection={collection} award={false} />
           ))}
         </CharacterGrid>

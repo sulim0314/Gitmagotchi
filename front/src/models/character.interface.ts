@@ -34,3 +34,5 @@ export interface ICharacterMotion {
   name: string;
   isStatic: boolean;
 }
+
+export type InteractType = "SHOWER" | "WALK" | "CHAT_POSITIVE" | "CHAT_NEGATIVE" | "EAT";

@@ -1,3 +1,5 @@
+import { InteractType } from "@/models";
+
 export const expHandler = (exp: number) => {
   const LEVEL_EXP = [0, 10, 25, 45, 65, 90, 120, 150, 190, 230];
   let level = 0;
@@ -42,8 +44,8 @@ export const expHandler = (exp: number) => {
     curExp = exp - LEVEL_EXP[8];
   } else {
     level = 10;
-    maxExp = 0;
-    curExp = 0;
+    maxExp = 200;
+    curExp = 200;
   }
 
   return { level, curExp, maxExp, percentage: ((100 * curExp) / maxExp).toFixed(2) };
@@ -117,6 +119,19 @@ export const statusHandler = (level: number, intimacyLevel: number) => {
   } else if (intimacyLevel === 10) {
     intimacyMax += 100;
   }
-  console.log({ fullnessMax, intimacyMax, cleannessMax });
   return { fullnessMax, intimacyMax, cleannessMax };
+};
+
+export const interactionMessage = (type: InteractType, exp: number) => {
+  if (type === "SHOWER") {
+    return `사워를 진행해 청결도가 상승했습니다. (EXP +${exp})`;
+  } else if (type === "WALK") {
+    return `산책를 진행해 친밀도가 상승했습니다. (EXP +${exp})`;
+  } else if (type === "EAT") {
+    return `밥을 먹어 포만감이 상승했습니다. (EXP +${exp})`;
+  } else if (type === "CHAT_POSITIVE") {
+    return `대화을 통해 기분이 좋아져 친밀도가 상승했습니다. (EXP +${exp})`;
+  } else if (type === "CHAT_NEGATIVE") {
+    return `대화을 통해 기분이 안좋아져 친밀도가 하락했습니다`;
+  }
 };

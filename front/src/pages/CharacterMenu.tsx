@@ -7,7 +7,7 @@ import CommonMenuItem from "@/components/common/CommonMenuItem";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
-import { expHandler, statusHandler } from "@/util/status";
+import { expHandler, statusHandler } from "@/util/value";
 import { statDataAtom } from "@/store/stat";
 import { statusDataAtom } from "@/store/status";
 

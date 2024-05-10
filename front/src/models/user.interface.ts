@@ -6,6 +6,9 @@ export interface IUser {
   gold: number;
   meal: number;
   lastTime: string;
+  backgroundId?: number;
+  characterId?: number;
+  githubToken?: string;
 }
 
 export interface IRanking {

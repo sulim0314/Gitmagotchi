@@ -9,3 +9,13 @@ export interface IResponse {
   statusCode: number;
   body: string;
 }
+
+export interface Pageable<T> {
+  pageable: {
+    totalPages: number;
+    pageSize: number;
+    page: number;
+    totalElements: number;
+  };
+  content: T[];
+}

@@ -1,15 +1,35 @@
 import CommonButton from "@/components/common/CommonButton";
 import { userDataAtom } from "@/store/user";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { MdOutlineCameraAlt } from "react-icons/md";
 import tw from "tailwind-styled-components";
-import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { modifyUser } from "@/api/user";
+import { useNavigate } from "react-router-dom";
+
+type interactType = "SHOWER" | "WALK" | "CHAT_POSITIVE" | "CHAT_NEGATIVE" | "EAT";
 
 export default function EditProfile() {
-  const userData = useRecoilValue(userDataAtom);
+  const navigate = useNavigate();
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const [nickname, setNickname] = useState<string>(userData?.nickname || "");
   const [profileImg, setProfileImg] = useState<string | null>(userData?.profileImg || "");
+  const mutation = useMutation({
+    mutationFn: modifyUser,
+    onSuccess: (data) => {
+      setUserData((prev) => {
+        if (prev === null) return null;
+        return {
+          ...prev,
+          nickname: data.nickname,
+          profileImg: data.profileImg || prev.profileImg,
+        };
+      });
+      navigate("/mypage", { replace: true });
+    },
+    onError: (err) => console.log(err),
+  });
 
   const onChangeProfileImg: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (e.target.files) {
@@ -30,8 +50,15 @@ export default function EditProfile() {
     setNickname(e.target.value);
   };
 
-  const upload = () => {
-    axios.post("/", { nickname, profileImg });
+  const submit = () => {
+    if (!userData?.id) return;
+    mutation.mutate({
+      body: JSON.stringify({
+        userId: userData.id,
+        nickname,
+        profileImg: profileImg === userData?.profileImg ? null : profileImg,
+      }),
+    });
   };
 
   return (
@@ -60,7 +87,7 @@ export default function EditProfile() {
             </NicknameContainer>
           </UserDetailContainer>
         </UserContainer>
-        <CommonButton title="변경" onClick={upload} />
+        <CommonButton title="변경" onClick={submit} />
       </UserInfoContainer>
     </Wrapper>
   );

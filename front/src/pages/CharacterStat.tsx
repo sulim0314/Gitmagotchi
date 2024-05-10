@@ -8,7 +8,7 @@ import { FaArrowUp } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 import { statDataAtom } from "@/store/stat";
 import { characterDataAtom } from "@/store/character";
-import { expHandler } from "@/util/status";
+import { expHandler } from "@/util/value";
 
 export default function CharacterStat() {
   const characterData = useRecoilValue(characterDataAtom);

@@ -1,10 +1,13 @@
 import tw from "tailwind-styled-components";
 import { FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { useNavigate } from "react-router-dom";
 import { messageDataAtom } from "@/store/message";
+import { useMutation } from "@tanstack/react-query";
+import { gainGold } from "@/api/user";
+import { userDataAtom } from "@/store/user";
 
 export default function Minigame() {
   class Block {
@@ -147,6 +150,7 @@ export default function Minigame() {
   }
 
   const navigate = useNavigate();
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const setMessageData = useSetRecoilState(messageDataAtom);
   const characterData = useRecoilValue(characterDataAtom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -156,6 +160,20 @@ export default function Minigame() {
   const snake = useRef<Snake>(new Snake());
   const apple = useRef<Apple>(new Apple());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const mutation = useMutation({
+    mutationFn: gainGold,
+    onSuccess: (data) => {
+      console.log(data);
+      setUserData((prev) => {
+        if (prev === null) return null;
+        return {
+          ...prev,
+          gold: prev.gold,
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
 
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
   const width = useRef<number>(0);
@@ -254,10 +272,11 @@ export default function Minigame() {
       drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 20, 200, 300);
       removeEventListener("keydown", handleKeydown);
       if (score.current > 0) {
+        mutation.mutate({ body: JSON.stringify({ userId: userData!.id, value: score.current }) });
         setMessageData((prev) => [
           ...prev,
           {
-            timestamp: new Date(),
+            timestamp: new Date().toString(),
             text: `미니게임에서 ${score.current}점을 달성해 ${score.current}골드를 획득했습니다.`,
           },
         ]);
