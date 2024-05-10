@@ -30,7 +30,8 @@ public class User extends BaseEntity {
     private String githubUsername;
     private Integer gold = 0;
     private Integer meal = 0;
-    private LocalDateTime last_time = LocalDateTime.now();
+    @Column(name = "last_time")
+    private LocalDateTime lastTime = LocalDateTime.now();
 
     @Column(name = "background_id")
     private Integer backgroundId; //현재의 배경화면
