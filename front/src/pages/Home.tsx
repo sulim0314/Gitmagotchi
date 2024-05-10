@@ -338,8 +338,8 @@ export default function Home() {
           <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
-          {messageData.map((msg) => (
-            <ModalMsg key={msg.timestamp.toString()}>
+          {messageData.map((msg, i) => (
+            <ModalMsg key={msg.timestamp + i}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>

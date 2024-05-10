@@ -8,8 +8,6 @@ import { useMutation } from "@tanstack/react-query";
 import { modifyUser } from "@/api/user";
 import { useNavigate } from "react-router-dom";
 
-type interactType = "SHOWER" | "WALK" | "CHAT_POSITIVE" | "CHAT_NEGATIVE" | "EAT";
-
 export default function EditProfile() {
   const navigate = useNavigate();
   const [userData, setUserData] = useRecoilState(userDataAtom);

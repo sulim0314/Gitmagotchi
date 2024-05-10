@@ -53,7 +53,7 @@ export default function Chat() {
       setMessageData((prev) => [
         ...prev,
         {
-          timestamp: new Date(),
+          timestamp: new Date().toString(),
           text,
         },
       ]);

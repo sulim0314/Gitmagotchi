@@ -17,6 +17,9 @@ export const getBackgroundList = async (params: {
   return seoulInstance.get("/users/background", { params });
 };
 
-export const gainGold = async (params: { body: string }): Promise<{ value: number }> => {
+export const gainGold = async (params: {
+  userId: number;
+  value: number;
+}): Promise<{ value: number }> => {
   return seoulInstance.patch("/users/gold", params);
 };

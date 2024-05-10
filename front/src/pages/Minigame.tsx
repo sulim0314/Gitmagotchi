@@ -168,7 +168,7 @@ export default function Minigame() {
         if (prev === null) return null;
         return {
           ...prev,
-          gold: prev.gold,
+          gold: data.value,
         };
       });
     },
@@ -272,7 +272,7 @@ export default function Minigame() {
       drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 20, 200, 300);
       removeEventListener("keydown", handleKeydown);
       if (score.current > 0) {
-        mutation.mutate({ body: JSON.stringify({ userId: userData!.id, value: score.current }) });
+        mutation.mutate({ userId: userData!.id, value: score.current });
         setMessageData((prev) => [
           ...prev,
           {
