@@ -28,14 +28,14 @@ def lambda_handler(event, context):
         exp = obj.get("exp")
         interactType = obj.get("interactType")
 
-        stat = obj.get("status")
-        fullness = stat.get("fullness")
-        intimacy = stat.get("intimacy")
-        cleanness = stat.get("cleanness")
+        status = obj.get("status")
+        fullness = status.get("fullness")
+        intimacy = status.get("intimacy")
+        cleanness = status.get("cleanness")
 
-        status = obj.get("stat")
-        fullnessStat = status.get("fullnessStat")
-        intimacyStat = status.get("intimacyStat")
+        stat = obj.get("stat")
+        fullnessStat = stat.get("fullnessStat")
+        intimacyStat = stat.get("intimacyStat")
         
         maxValue = get_max_value_by_exp(exp)
         intimacy_max = maxValue + get_max_intimacy(intimacyStat)
