@@ -14,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -37,77 +38,90 @@ public class GetMealHandler implements RequestHandler<APIGatewayProxyRequestEven
         }
     }
 
-    static String githubToken = "Bearer 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";
-    static Long userId = 125880884L;
+    static Integer userId = 125880884; // TODO : userId를 어떻게 받아올까
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
-        EntityManager entityManager = null;
 
-        context.getLogger().log("1111111111111111111");
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 
-        APIGatewayProxyResponseEvent response = null;
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        MealResponseDto mealResponse = getMealRes(entityManager, userId);
+        entityManager.close();
+
+        LocalDateTime lastTime = mealResponse.getLastTime();
+        String githubUsername = mealResponse.getGithubUsername();
+        Integer curMeal = mealResponse.getMeal();
+        String githubToken = mealResponse.getGithubToken();
+
         try {
             // 사용자의 전체 레포 목록 조회
             String reposUrl = "https://api.github.com/user/repos";
             HttpRequest reposRequest = HttpRequest.newBuilder()
                 .uri(URI.create(reposUrl))
-                .header("Authorization", githubToken)
+                .header("Authorization", "Bearer " + githubToken)
                 .build();
-            HttpResponse<String> reposResponse = httpClient.send(reposRequest,
-                HttpResponse.BodyHandlers.ofString());
-            List<Map<String, Object>> repos = gson.fromJson(reposResponse.body(),
-                new TypeToken<List<Map<String, Object>>>() {
-                }.getType());
+            HttpResponse<String> reposResponse = httpClient.send(reposRequest, HttpResponse.BodyHandlers.ofString());
 
-            context.getLogger().log("2222222222222222222");
-
-            entityManager = entityManagerFactory.createEntityManager();
-            entityManager.getTransaction().begin();
-
-            MealResponseDto mealResponse = getMealRes(entityManager, userId);
-
-            context.getLogger().log("mealResponse: " + mealResponse);
-
-            LocalDateTime lastTime = mealResponse.getLastTime();
-            String githubUsername = mealResponse.getGithubUsername();
-
-            context.getLogger().log("3333333333333333333");
+            List<Map<String, Object>> repos = gson.fromJson(reposResponse.body(),  //???
+                new TypeToken<List<Map<String, Object>>>() {}.getType());
 
             // 레포별로 사용자 본인이 커밋한 커밋 기록 조회 및 현재 시각과 비교해서 커밋 개수 세기
             int totalCommitsAfterLastMeal = 0;
+
             for (Map<String, Object> repo : repos) {
+                if (totalCommitsAfterLastMeal >= 3) {
+                    break; // 총 커밋 수가 3 이상인 경우 반복 중지
+                }
+
                 String repoName = (String) repo.get("name");
                 URL url = new URL("https://api.github.com/repos/" + githubUsername + "/" + repoName
-                    + "/commits?author=" + githubUsername);
+                    + "/commits?author=" + githubUsername + "&per_page=10&page=1");
                 HttpRequest commitRequest = HttpRequest.newBuilder()
                     .uri(url.toURI())
-                    .header("Authorization", githubToken)
+                    .header("Authorization", "Bearer " + githubToken)
                     .build();
                 HttpResponse<String> commitResponse = httpClient.send(commitRequest,
                     HttpResponse.BodyHandlers.ofString());
                 List<Map<String, Object>> commits = gson.fromJson(commitResponse.body(),
-                    new TypeToken<List<Map<String, Object>>>() {
-                    }.getType());
+                    new TypeToken<List<Map<String, Object>>>() {}.getType());
+
+                if (commits == null || commits.isEmpty()) {
+                    context.getLogger().log("No commits or commits is null");
+                    continue; // 다음 레포로 넘어간다
+                }
 
                 for (Map<String, Object> commit : commits) {
-                    Map<String, String> commitAuthor = (Map<String, String>) commit.get("commit");
-                    String commitDateStr = commitAuthor.get("date");
-                    LocalDateTime commitDate = LocalDateTime.parse(commitDateStr);
+                    if (totalCommitsAfterLastMeal >= 3) {
+                        break; // 총 커밋 수가 3 이상인 경우 반복 중지
+                    }
+
+                    if (commit == null) {
+                        context.getLogger().log("commit is null");
+                        continue;
+                    }
+
+                    Map<String, Object> commitInfo = (Map<String, Object>) commit.get("commit");
+                    Map<String, String> authorInfo = (Map<String, String>) commitInfo.get("author");
+                    String commitDateStr = authorInfo.get("date");
+
+                    ZonedDateTime zdt = ZonedDateTime.parse(commitDateStr);
+                    LocalDateTime commitDate = zdt.toLocalDateTime();
+
                     if (commitDate.isAfter(lastTime)) {
                         totalCommitsAfterLastMeal++;
                     }
                 }
-
-                context.getLogger().log("4444444444444444444");
-
             }
 
             // 성공적으로 처리된 경우, 커밋 수를 응답에 포함
             response.setBody("처리 완료. 마지막 식사 이후 커밋 수: " + totalCommitsAfterLastMeal);
 
-            // TODO: 마지막에 last_time 업데이트 !!!!!!!
-
+            // meal update, last_time update
+            entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            updateMealCount(entityManager, userId, curMeal + totalCommitsAfterLastMeal);
+            entityManager.getTransaction().commit();
 
         } catch (IOException | InterruptedException e) {
             if (entityManager != null) {
@@ -129,22 +143,28 @@ public class GetMealHandler implements RequestHandler<APIGatewayProxyRequestEven
         return response;
     }
 
-    // user테이블에서 id로 last_time,github_username 반환
-    public MealResponseDto getMealRes(EntityManager entityManager, Long userId) {
-        List<Object[]> results = entityManager.createNativeQuery("SELECT last_time, github_username FROM user WHERE id = :userId")
+    // user테이블에서 id로 last_time,github_username, github_token, meal 반환
+    public MealResponseDto getMealRes(EntityManager entityManager, Integer userId) {
+        List<Object[]> results = entityManager.createNativeQuery("SELECT last_time, github_username, github_token, meal FROM user WHERE id = :userId")
             .setParameter("userId", userId)
             .getResultList();
 
-        if (results.isEmpty()) {
-            // 해당하는 사용자가 없는 경우, 적절한 예외 처리나 대응 필요
-            return null;
-        }
-
-        Object[] result = results.get(0); // 결과가 항상 하나라고 가정
+        Object[] result = results.get(0);
 
         return MealResponseDto.builder()
-            .lastTime((LocalDateTime) result[0])
+            .lastTime(((java.sql.Timestamp) result[0]).toLocalDateTime())
             .githubUsername((String) result[1])
+            .githubToken((String) result[2])
+            .meal((Integer) result[3])
             .build();
     }
+
+    public void updateMealCount(EntityManager entityManager, Integer userId, Integer afterMealCount) {
+        entityManager.createNativeQuery("UPDATE user SET meal = :afterMealCount, last_time = :updatedTime WHERE id = :userId")
+            .setParameter("afterMealCount", afterMealCount)
+            .setParameter("userId", userId)
+            .setParameter("updatedTime", LocalDateTime.now())
+            .executeUpdate();
+    }
+
 }

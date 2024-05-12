@@ -14,5 +14,7 @@ public class MealResponseDto {
 
     private String githubUsername;
     private LocalDateTime lastTime;
+    private Integer meal;
+    private String githubToken;
 
 }

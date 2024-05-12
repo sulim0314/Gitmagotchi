@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder

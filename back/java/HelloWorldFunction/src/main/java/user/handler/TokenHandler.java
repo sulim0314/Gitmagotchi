@@ -39,7 +39,7 @@ public class TokenHandler implements RequestHandler<SQSEvent, Void> {
             String githubToken = bodyJson.getString("token");
 
             EntityManager entityManager;
-            Long userId = null;
+            Integer userId = null;
             String githubUsername = "", nickname = "", profileImg = "";
 
             // GitHub API를 이용하여 사용자 정보 가져오기
@@ -48,7 +48,7 @@ public class TokenHandler implements RequestHandler<SQSEvent, Void> {
                 context.getLogger().log("GitHub User Info: " + userInfo);
 
                 JSONObject userInfoJson = new JSONObject(userInfo);
-                userId = userInfoJson.getLong("id");
+                userId = userInfoJson.getInt("id");
                 githubUsername = userInfoJson.getString("login");
                 nickname = userInfoJson.optString("name", githubUsername);
                 profileImg = userInfoJson.getString("avatar_url");
@@ -110,7 +110,7 @@ public class TokenHandler implements RequestHandler<SQSEvent, Void> {
         return response.toString();
     }
 
-    public void insertUser(EntityManager entityManager, Long id, String nickname, String profileImg, String githubUsername, String githubToken) {
+    public void insertUser(EntityManager entityManager, Integer id, String nickname, String profileImg, String githubUsername, String githubToken) {
         entityManager.createNativeQuery("INSERT INTO user (id, nickname, profile_img, github_username, github_token) VALUES (:id, :nickname, :profileImg, :githubUsername, :githubToken)")
             .setParameter("id", id)
             .setParameter("nickname", nickname)
@@ -120,7 +120,7 @@ public class TokenHandler implements RequestHandler<SQSEvent, Void> {
             .executeUpdate();
     }
 
-    public void updateUser(EntityManager entityManager, Long id, String githubToken) {
+    public void updateUser(EntityManager entityManager, Integer id, String githubToken) {
         entityManager.createNativeQuery(
                 "UPDATE user SET github_token = :githubToken WHERE id = :id")
             .setParameter("id", id)
