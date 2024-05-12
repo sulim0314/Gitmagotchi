@@ -35,7 +35,11 @@ public class S3ImageUploader {
                     new ByteArrayInputStream(imageBytes), metadata);
             s3client.putObject(putRequest);
 
+            // S3 객체 URL 생성
+            String s3ObjectUrl = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fileName);
+
             System.out.println("Image uploaded successfully to bucket " + bucketName + " with name " + fileName);
+            System.out.println(s3ObjectUrl.toString());
         } catch (Exception e) {
             System.err.println("Error uploading image to S3: " + e.getMessage());
         }

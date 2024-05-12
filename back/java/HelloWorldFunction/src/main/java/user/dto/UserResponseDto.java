@@ -1,13 +1,11 @@
 package user.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
 
 @Getter
 @Builder

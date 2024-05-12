@@ -57,7 +57,9 @@ public class BedrockRuntimeUsageDemo {
     }
 
     public static void textToImage() throws IOException {
-        String imagePrompt = "Inside the circle, draw a cute rabbit image of eyes, nose, and mouth. Make the background transparent";
+        String imagePrompt = "Think of the border circle as a face and draw only the eyes, nose, and mouth of the cat character image. "
+        + "Remember, you are not drawing a face in a circle, the circle is a face.";
+
         BedrockRuntimeUsageDemo.invoke(TITAN_IMAGE, imagePrompt);
     }
 
