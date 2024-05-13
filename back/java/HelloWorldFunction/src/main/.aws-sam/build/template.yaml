@@ -4,7 +4,7 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: collection.handler.CollectionHandler
+      Handler: user.handler.RankMeHandler
       CodeUri: Function
       Runtime: java17
       Architectures:

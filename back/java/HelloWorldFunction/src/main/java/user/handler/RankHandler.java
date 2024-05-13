@@ -70,7 +70,7 @@ public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
                             .githubUsername(user.getGithubUsername())
                             .gold(user.getGold())
                             .meal(user.getMeal())
-                            .lastTime(user.getLastTime())
+//                            .lastTime(user.getLastTime())
                             .backgroundId(user.getBackgroundId())
                             .characterId(user.getCharacterId())
                             .build()
