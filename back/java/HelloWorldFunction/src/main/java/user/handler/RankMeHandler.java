@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
-import user.entity.User;
 
 import javax.persistence.*;
 import java.util.*;
@@ -63,7 +62,7 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
                 responseMap.put("collection_count", selectedUser[1]);
                 responseMap.put("rank", selectedUser[2]);
             } else {
-                responseMap.put("message", "No data found for the provided user ID.");
+                responseMap.put("message", "순위에 없음");
             }
 
             String jsonResponse = gson.toJson(responseMap);
