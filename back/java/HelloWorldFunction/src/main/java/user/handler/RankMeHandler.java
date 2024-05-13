@@ -5,7 +5,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
-import user.entity.User;
 
 import javax.persistence.*;
 import java.util.*;
@@ -42,12 +41,19 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             entityManager.getTransaction().commit();
             entityManager.close();
 
+            int userIdInt = Integer.valueOf(userId);
+
             Map<String, Object> responseMap = new HashMap<>();
             Object[] selectedUser = null;
             for (Object[] result : results) {
-                if (result[0].equals(userId)) {
-                    selectedUser = result;
-                    break;
+                System.out.println("#################");
+                System.out.println("result: " + result[0] + ", userId: " + userId);
+                if (result[0] instanceof Integer) {  // result[0]이 Integer 인스턴스인지 확인
+                    Integer resultId = (Integer) result[0];  // 안전하게 Integer로 캐스팅
+                    if (resultId.equals(userIdInt)) {  // Integer 간의 비교
+                        selectedUser = result;
+                        break;
+                    }
                 }
             }
 
@@ -56,7 +62,7 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
                 responseMap.put("collection_count", selectedUser[1]);
                 responseMap.put("rank", selectedUser[2]);
             } else {
-                responseMap.put("message", "No data found for the provided user ID.");
+                responseMap.put("message", "순위에 없음");
             }
 
             String jsonResponse = gson.toJson(responseMap);
