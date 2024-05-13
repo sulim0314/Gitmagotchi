@@ -3,7 +3,7 @@ import { IoSend } from "react-icons/io5";
 import CharacterChat from "@/components/chat/CharacterChat";
 import UserChat from "@/components/chat/UserChat";
 import { useMutation } from "@tanstack/react-query";
-import { getChatResponse, getChatSentiment } from "@/api/character";
+import { getChatSentiment, getTestResponse } from "@/api/character";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
@@ -11,6 +11,7 @@ import { userDataAtom } from "@/store/user";
 import { ImExit } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
 import { messageDataAtom } from "@/store/message";
+import { expHandler } from "@/util/value";
 
 interface IUserChat {
   isUser: boolean;
@@ -37,8 +38,10 @@ export default function Chat() {
   const setMessageData = useSetRecoilState(messageDataAtom);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const chatMutation = useMutation({
-    mutationFn: getChatResponse,
-    onSuccess: (data) => getMessage(unicodeToChar(data)),
+    // mutationFn: getChatResponse,
+    mutationFn: getTestResponse,
+    // onSuccess: (data) => getMessage(unicodeToChar(data)),
+    onSuccess: (data) => getMessage(data),
     onError: (err) => console.log(err),
   });
   const sentimentMutation = useMutation({
@@ -96,21 +99,39 @@ export default function Chat() {
       },
     ]);
 
+    // chatMutation.mutate({
+    //   body: JSON.stringify({
+    //     characterInfo: {
+    //       name: characterData?.name,
+    //       level: Math.floor((characterData?.exp || 0) / 100),
+    //       fullness: 70,
+    //       intimacy: 80,
+    //       cleanliness: 60,
+    //     },
+    //     userInput: chatMsg,
+    //   }),
+    // });
+
     chatMutation.mutate({
       body: JSON.stringify({
         characterInfo: {
           name: characterData?.name,
-          level: Math.floor((characterData?.exp || 0) / 100),
+          level: expHandler(characterData?.exp || 0).level,
           fullness: 70,
           intimacy: 80,
           cleanliness: 60,
         },
         userInput: chatMsg,
+        chat: chatList
+          .filter((_, i) => i > chatList.length - 10)
+          .map((c) => `${c.isUser ? "사용자" : "캐릭터"}: ${c.text}\n`)
+          .join(),
       }),
     });
   };
 
   const getMessage = (data: string) => {
+    const answer = data.startsWith(`${characterData?.name}:`) ? data.split(":")[1] : data;
     setChatList((prev) => [
       ...prev,
       {
@@ -118,16 +139,16 @@ export default function Chat() {
         imgSrc: characterData?.faceUrl || "",
         level: Math.floor((characterData?.exp || 0) / 100),
         name: characterData?.name || "",
-        text: data,
+        text: answer,
       },
     ]);
   };
 
-  const unicodeToChar = (text: string) => {
-    return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
-      return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
-    });
-  };
+  // const unicodeToChar = (text: string) => {
+  //   return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
+  //     return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+  //   });
+  // };
 
   const exitChat = () => {
     sentimentMutation.mutate({

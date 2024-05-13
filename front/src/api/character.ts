@@ -16,6 +16,9 @@ export const searchCharacter = async (params: { name: string }): Promise<string>
 export const getChatResponse = async (params: { body: string }): Promise<string> => {
   return usInstance.post("/character/chat", params);
 };
+export const getTestResponse = async (params: { body: string }): Promise<string> => {
+  return usInstance.post("/character/test", params);
+};
 
 export const getChatSentiment = async (params: { source_text: string }): Promise<string> => {
   return usInstance.post("/character/chat/sentiment", params);

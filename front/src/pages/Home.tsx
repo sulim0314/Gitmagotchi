@@ -40,6 +40,9 @@ export default function Home() {
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
 
+  const spriteRef = useRef<HTMLImageElement>(new Image());
+  const [spriteLoaded, setSpriteLoaded] = useState<boolean>(false);
+
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
     onSuccess: (data) => {
@@ -68,6 +71,13 @@ export default function Home() {
     },
     onError: (err) => console.log(err),
   });
+
+  useEffect(() => {
+    spriteRef.current.src = sampleSpritesheetImage;
+    spriteRef.current.onload = () => {
+      setSpriteLoaded(true);
+    };
+  }, []);
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
@@ -140,6 +150,8 @@ export default function Home() {
       },
     ]);
   };
+
+  if (!spriteLoaded) return null;
 
   return (
     <Wrapper>

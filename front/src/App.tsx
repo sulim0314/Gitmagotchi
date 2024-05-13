@@ -27,6 +27,9 @@ import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
 import EditProfile from "./pages/EditProfile";
+import { seoulInstance, usInstance } from "./api";
+import { IAuth } from "./models";
+import { CognitoUserSession } from "amazon-cognito-identity-js";
 
 export default function App() {
   const location = useLocation();
@@ -38,12 +41,51 @@ export default function App() {
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const frameRef = useRef<HTMLImageElement>(new Image());
+  const [frameLoaded, setFrameLoaded] = useState<boolean>(false);
+  const bgRef = useRef<HTMLImageElement>(new Image());
+  const [bgLoaded, setBgLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    frameRef.current.src = BackgroundImage;
+    frameRef.current.onload = () => {
+      setFrameLoaded(true);
+    };
+    bgRef.current.onload = () => {
+      setBgLoaded(true);
+    };
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     const fetchCognitoUser = async () => {
-      const cognitoUser = await Auth.currentUserInfo();
+      const cognitoUser: IAuth = await Auth.currentUserInfo();
       if (cognitoUser) {
+        const session: CognitoUserSession = await Auth.currentSession();
+        const idToken = session.getIdToken();
         setAuthData(cognitoUser);
+        usInstance.interceptors.request.clear();
+        usInstance.interceptors.request.use(
+          (config) => {
+            config.headers["Authorization"] = idToken.getJwtToken();
+            return config;
+          },
+          (error) => {
+            console.log(error);
+            return Promise.reject(error);
+          }
+        );
+        seoulInstance.interceptors.request.clear();
+        seoulInstance.interceptors.request.use(
+          (config) => {
+            config.headers["Authorization"] = idToken.getJwtToken();
+            return config;
+          },
+          (error) => {
+            console.log(error);
+            return Promise.reject(error);
+          }
+        );
       } else {
         setLoading(false);
         navigate("/login", { replace: true });
@@ -86,6 +128,10 @@ export default function App() {
     } else if (!characterData) {
       fetchCharacter();
     } else {
+      bgRef.current.src = userData.backgroundUrl;
+      bgRef.current.onload = () => {
+        setBgLoaded(true);
+      };
       setLoading(false);
     }
 
@@ -96,7 +142,7 @@ export default function App() {
     };
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
 
   return (
     <>

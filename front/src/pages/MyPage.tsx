@@ -1,18 +1,29 @@
 import tw from "tailwind-styled-components";
 import { HiOutlinePencil } from "react-icons/hi";
 import { Auth } from "aws-amplify";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { authDataAtom } from "@/store/auth";
 import { userDataAtom } from "@/store/user";
 import { useNavigate } from "react-router-dom";
+import { characterDataAtom } from "@/store/character";
+import { messageDataAtom } from "@/store/message";
+import { seoulInstance, usInstance } from "@/api";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const setAuthData = useSetRecoilState(authDataAtom);
-  const userData = useRecoilValue(userDataAtom);
+  const setCharacterData = useSetRecoilState(characterDataAtom);
+  const setMessageData = useSetRecoilState(messageDataAtom);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
 
   const signOut = async () => {
+    localStorage.clear();
     setAuthData(null);
+    setCharacterData(null);
+    setMessageData([]);
+    setUserData(null);
+    usInstance.interceptors.request.clear();
+    seoulInstance.interceptors.request.clear();
     await Auth.signOut();
   };
 

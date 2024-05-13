@@ -24,9 +24,10 @@ export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
 
   const generate: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+    const userInput = prompt;
     setPrompt("");
 
-    mutation.mutate({ body: JSON.stringify({ useInput: prompt }) });
+    mutation.mutate({ body: JSON.stringify({ userInput }) });
   };
 
   const onChangePrompt: React.ChangeEventHandler<HTMLInputElement> = (e) => {
