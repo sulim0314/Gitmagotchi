@@ -4,7 +4,7 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: chat.handler.AnalyzeSentimentHandler
+      Handler: user.handler.RankMeHandler
       CodeUri: C:\KHY\S205\S10P31S205\back\java\HelloWorldFunction
       Runtime: java17
       Architectures:

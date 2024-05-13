@@ -17,9 +17,13 @@ public class AnalyzeSentimentHandler implements RequestHandler<Map<String, Objec
         AnalyzeSentimentService detectSentimentService = new AnalyzeSentimentService();
         JSONObject jsonOb = detectSentimentService.detectSentiments(sourceText);
         context.getLogger().log("JSON: " + jsonOb.optString("sentiment", "No sentiment found"));
+
+        String sentiment = jsonOb.optString("sentiment", "No sentiment found");
+        String quotedSentiment = "\"" + sentiment + "\"";
+
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
         response.setStatusCode(200);
-        response.setBody(jsonOb.optString("sentiment", "No sentiment found"));
+        response.setBody(quotedSentiment);
         return response;
     }
 }

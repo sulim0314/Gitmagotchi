@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class RankResponseDto {
     private Integer id;
     private String profileImg;
     private String nickname;
@@ -21,4 +21,5 @@ public class UserResponseDto {
     private Integer meal = 0;
     private Integer backgroundId;
     private Integer characterId;
+    private Integer rank;
 }
