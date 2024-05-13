@@ -37,6 +37,7 @@ export default function Home() {
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
   const levelupRef = useRef<HTMLDivElement>(null);
+  const messageBarRef = useRef<HTMLDivElement>(null);
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
 
@@ -49,13 +50,7 @@ export default function Home() {
       if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
         levelUpEffect(expHandler(data.exp || 0).level);
       }
-      setMessageData((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toString(),
-          text: interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)),
-        },
-      ]);
+      addMessage(interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)));
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
@@ -83,12 +78,35 @@ export default function Home() {
     modalBottomRef.current?.scrollIntoView();
   }, [msgModal, messageData, modalBottomRef]);
 
+  useEffect(() => {
+    const keyframes: Keyframe[] = [
+      { backgroundColor: "rgb(17 24 39 / 0.9)" },
+      { backgroundColor: "rgb(17 24 39 / 0.3)" },
+    ];
+    const options: KeyframeAnimationOptions = {
+      delay: 300,
+      duration: 1000,
+      easing: "ease-in-out",
+    };
+    messageBarRef.current?.animate(keyframes, options);
+  }, [messageData]);
+
   const toggleMsgModal = () => {
     setMsgModal(!msgModal);
   };
 
   const toggleAnimModal = () => {
     setAnimModal(!animModal);
+  };
+
+  const addMessage = (text: string) => {
+    setMessageData((prev) => [
+      ...prev,
+      {
+        timestamp: new Date().toString(),
+        text,
+      },
+    ]);
   };
 
   const formatTimestamp = (date: string) => {
@@ -109,6 +127,40 @@ export default function Home() {
 
   const handleInteraction = (type: InteractType) => {
     return () => {
+      if (
+        type === "EAT" &&
+        (characterData?.status.fullness || 0) ===
+          statusHandler(
+            expHandler(characterData?.exp || 0).level,
+            characterData?.stat.intimacyStat || 1
+          ).fullnessMax
+      ) {
+        addMessage("배가 불러 더이상 밥을 먹을 수 없습니다.");
+        return;
+      }
+      if (
+        type === "WALK" &&
+        (characterData?.status.intimacy || 0) ===
+          statusHandler(
+            expHandler(characterData?.exp || 0).level,
+            characterData?.stat.intimacyStat || 1
+          ).intimacyMax
+      ) {
+        addMessage("이미 친밀도가 최대치라서 산책하고 싶지 않아 합니다.");
+        return;
+      }
+      if (
+        type === "SHOWER" &&
+        (characterData?.status.cleanness || 0) ===
+          statusHandler(
+            expHandler(characterData?.exp || 0).level,
+            characterData?.stat.intimacyStat || 1
+          ).cleannessMax
+      ) {
+        addMessage("이미 깨끗해 샤워하고 싶지 않아 합니다.");
+        return;
+      }
+
       interactionMution.mutate({
         body: JSON.stringify({
           exp: characterData?.exp,
@@ -323,7 +375,7 @@ export default function Home() {
         </InteractionContainer>
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox onClick={toggleMsgModal}>
+        <ServerMsgBox ref={messageBarRef} onClick={toggleMsgModal}>
           <ServerMsg>{messageData[messageData.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
