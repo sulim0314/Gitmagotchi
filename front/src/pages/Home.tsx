@@ -756,6 +756,8 @@ p-4
 
 const ModalMsg = tw.p`
 p-2
+text-xs
+lg:text-base
 `;
 
 const ModalMsgTimestamp = tw.span`

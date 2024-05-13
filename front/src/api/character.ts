@@ -9,6 +9,10 @@ export const getCharacter = async (params: { characterId: number }): Promise<ICh
   return seoulInstance.get("/characters", { params });
 };
 
+export const modifyCharacter = async (params: { body: string }): Promise<any> => {
+  return seoulInstance.patch("/characters", params);
+};
+
 export const searchCharacter = async (params: { name: string }): Promise<string> => {
   return seoulInstance.get("/characters", { params });
 };
@@ -20,7 +24,7 @@ export const getTestResponse = async (params: { body: string }): Promise<string>
   return usInstance.post("/character/test", params);
 };
 
-export const getChatSentiment = async (params: { source_text: string }): Promise<string> => {
+export const getChatSentiment = async (params: { body: string }): Promise<string> => {
   return usInstance.post("/character/chat/sentiment", params);
 };
 

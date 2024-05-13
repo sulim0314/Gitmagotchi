@@ -1,5 +1,4 @@
 import tw from "tailwind-styled-components";
-import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
@@ -32,7 +31,7 @@ export default function CharacterMenu() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
+          <img src={characterData?.faceUrl} className="w-36 lg:w-72" />
           <Name>{characterData?.name}</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>
@@ -56,7 +55,7 @@ export default function CharacterMenu() {
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${characterData?.status.fullness || 1} / ${
+              <DataText>{`${characterData?.status.fullness || 0} / ${
                 statusHandler(
                   expHandler(characterData?.exp || 0).level,
                   characterData?.stat.intimacyStat || 1
@@ -82,7 +81,7 @@ export default function CharacterMenu() {
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${characterData?.status.intimacy || 1} / ${
+              <DataText>{`${characterData?.status.intimacy || 0} / ${
                 statusHandler(
                   expHandler(characterData?.exp || 0).level,
                   characterData?.stat.intimacyStat || 1

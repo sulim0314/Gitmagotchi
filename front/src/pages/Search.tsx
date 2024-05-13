@@ -102,7 +102,7 @@ export default function Search() {
               {data && type === "CHARACTER" ? (
                 <CharacterResultList>
                   {(searchList as ISimpleCharacter[]).map((c: ISimpleCharacter) => (
-                    <CharacterItem key={c.id} character={c} />
+                    <CharacterItem key={c.characterId} character={c} />
                   ))}
                 </CharacterResultList>
               ) : (

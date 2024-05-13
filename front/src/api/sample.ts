@@ -6,7 +6,7 @@ import sampleFace2Image from "@/assets/images/sampleFace2.png";
 import { ICharacter, ICollection, ISimpleCharacter, IUser } from "@/models";
 
 export const sampleCharacter: ICharacter = {
-  id: 1,
+  characterId: 1,
   userId: 47638660,
   name: "싸피취준생",
   exp: 13,
@@ -524,7 +524,7 @@ export const sampleUserList: IUser[] = [
 
 export const sampleCharacterList: ISimpleCharacter[] = [
   {
-    id: 1,
+    characterId: 1,
     userId: 1,
     name: "도날드덕",
     exp: 100,
@@ -532,7 +532,7 @@ export const sampleCharacterList: ISimpleCharacter[] = [
     characterUrl: sampleCollectionImage,
   },
   {
-    id: 3,
+    characterId: 3,
     userId: 1,
     name: "도날드덕",
     exp: 100,
@@ -540,7 +540,7 @@ export const sampleCharacterList: ISimpleCharacter[] = [
     characterUrl: sampleCollectionImage,
   },
   {
-    id: 4,
+    characterId: 4,
     userId: 1,
     name: "도날드덕",
     exp: 100,
@@ -548,7 +548,7 @@ export const sampleCharacterList: ISimpleCharacter[] = [
     characterUrl: sampleCollectionImage,
   },
   {
-    id: 5,
+    characterId: 5,
     userId: 1,
     name: "도날드덕",
     exp: 100,
@@ -556,7 +556,7 @@ export const sampleCharacterList: ISimpleCharacter[] = [
     characterUrl: sampleCollectionImage,
   },
   {
-    id: 6,
+    characterId: 6,
     userId: 1,
     name: "도날드덕",
     exp: 100,
@@ -564,7 +564,7 @@ export const sampleCharacterList: ISimpleCharacter[] = [
     characterUrl: sampleCollectionImage,
   },
   {
-    id: 7,
+    characterId: 7,
     userId: 1,
     name: "도날드덕",
     exp: 100,

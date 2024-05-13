@@ -1,5 +1,5 @@
 export interface ICharacter {
-  id: number;
+  characterId: number;
   userId: number;
   name: string;
   exp: number;
@@ -10,7 +10,7 @@ export interface ICharacter {
 }
 
 export interface ISimpleCharacter {
-  id: number;
+  characterId: number;
   userId: number;
   name: string;
   exp: number;

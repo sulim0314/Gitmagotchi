@@ -14,21 +14,21 @@ import CreateBg from "@/pages/CreateBg";
 import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
-import CharacterRename from "@/pages/CharactetRename";
+import CharacterRename from "@/pages/CharacterRename";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import Minigame from "@/pages/Minigame";
-import { authDataAtom } from "./store/auth";
+import { authDataAtom } from "@/store/auth";
 import { useRecoilState } from "recoil";
 import { useEffect, useRef, useState } from "react";
-import { userDataAtom } from "./store/user";
-import { characterDataAtom } from "./store/character";
+import { userDataAtom } from "@/store/user";
+import { characterDataAtom } from "@/store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "./api/user";
 import { getCharacter } from "./api/character";
-import EditProfile from "./pages/EditProfile";
-import { seoulInstance, usInstance } from "./api";
-import { IAuth } from "./models";
+import EditProfile from "@/pages/EditProfile";
+import { seoulInstance, usInstance } from "@/api";
+import { IAuth } from "@/models";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 
 export default function App() {
@@ -45,6 +45,8 @@ export default function App() {
   const [frameLoaded, setFrameLoaded] = useState<boolean>(false);
   const bgRef = useRef<HTMLImageElement>(new Image());
   const [bgLoaded, setBgLoaded] = useState<boolean>(false);
+
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     frameRef.current.src = BackgroundImage;
@@ -115,7 +117,7 @@ export default function App() {
           if (!prev) return prev;
           return {
             ...prev,
-            characterId: character.id,
+            characterId: character.characterId,
           };
         });
       }
@@ -141,6 +143,17 @@ export default function App() {
       }
     };
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+
+  useEffect(() => {
+    if (characterData) {
+      intervalId.current = setInterval(() => {}, 3_600_000);
+    }
+    return () => {
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
+    };
+  }, [characterData?.characterId]);
 
   if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
 

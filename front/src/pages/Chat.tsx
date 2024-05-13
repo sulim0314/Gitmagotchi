@@ -70,7 +70,7 @@ export default function Chat() {
     {
       isUser: false,
       imgSrc: characterData?.faceUrl || "",
-      level: 9,
+      level: expHandler(characterData?.exp || 0).level,
       name: characterData?.name || "",
       text: `안녕! 난 ${characterData?.name}(이)야.`,
     },
@@ -137,7 +137,7 @@ export default function Chat() {
       {
         isUser: false,
         imgSrc: characterData?.faceUrl || "",
-        level: Math.floor((characterData?.exp || 0) / 100),
+        level: expHandler(characterData?.exp || 0).level,
         name: characterData?.name || "",
         text: answer,
       },
@@ -152,7 +152,7 @@ export default function Chat() {
 
   const exitChat = () => {
     sentimentMutation.mutate({
-      source_text: chatList
+      body: chatList
         .filter((c) => !c.isUser)
         .map((c) => c.text)
         .join(" "),
