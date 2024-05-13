@@ -42,12 +42,19 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             entityManager.getTransaction().commit();
             entityManager.close();
 
+            int userIdInt = Integer.valueOf(userId);
+
             Map<String, Object> responseMap = new HashMap<>();
             Object[] selectedUser = null;
             for (Object[] result : results) {
-                if (result[0].equals(userId)) {
-                    selectedUser = result;
-                    break;
+                System.out.println("#################");
+                System.out.println("result: " + result[0] + ", userId: " + userId);
+                if (result[0] instanceof Integer) {  // result[0]이 Integer 인스턴스인지 확인
+                    Integer resultId = (Integer) result[0];  // 안전하게 Integer로 캐스팅
+                    if (resultId.equals(userIdInt)) {  // Integer 간의 비교
+                        selectedUser = result;
+                        break;
+                    }
                 }
             }
 
