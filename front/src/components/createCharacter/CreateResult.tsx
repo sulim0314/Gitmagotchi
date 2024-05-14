@@ -77,7 +77,7 @@ const DesktopTitle = tw.div`
 flex
 flex-col
 items-center
-space-y-4
+lg:space-y-4
 `;
 
 const Title = tw.h1`
@@ -88,7 +88,7 @@ lg:mb-6
 `;
 
 const ButtonContainer = tw.div`
-h-72
+lg:h-72
 flex
 flex-col
 space-y-4
