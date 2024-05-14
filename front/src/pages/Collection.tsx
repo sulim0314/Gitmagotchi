@@ -1,7 +1,7 @@
 import tw from "tailwind-styled-components";
-import TotalImg from "@/assets/images/collectionTotal.png";
-import LaurelImg from "@/assets/images/collectionLaurel.png";
-import DeathImg from "@/assets/images/collectionDeath.png";
+import TotalImg from "@/assets/images/user.svg";
+import LaurelImg from "@/assets/images/laurel.svg";
+import DeathImg from "@/assets/images/skull.svg";
 import { useEffect, useState } from "react";
 import CollectionItem from "@/components/common/CollectionItem";
 import { searchCollection } from "@/api/collection";

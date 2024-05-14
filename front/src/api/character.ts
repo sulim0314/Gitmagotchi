@@ -1,7 +1,9 @@
 import { ICharacter, InteractType } from "@/models";
 import { seoulInstance, usInstance } from ".";
 
-export const createCharacter = async (params: { body: string }): Promise<ICharacter> => {
+export const createCharacter = async (params: {
+  body: string;
+}): Promise<{ characterId: number }> => {
   return seoulInstance.post("/characters", params);
 };
 
@@ -11,6 +13,10 @@ export const getCharacter = async (params: { characterId: number }): Promise<ICh
 
 export const modifyCharacter = async (params: { body: string }): Promise<any> => {
   return seoulInstance.patch("/characters", params);
+};
+
+export const deleteCharacter = async (): Promise<any> => {
+  return seoulInstance.delete("/characters");
 };
 
 export const searchCharacter = async (params: { name: string }): Promise<string> => {

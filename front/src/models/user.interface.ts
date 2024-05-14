@@ -1,4 +1,6 @@
-export interface IUser {
+import { IBaseEntity } from "@/models";
+
+export interface IUser extends IBaseEntity {
   id: number;
   githubToken: string;
   githubUsername: string;

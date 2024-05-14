@@ -3,7 +3,7 @@ import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import CommonMenuItem from "@/components/common/CommonMenuItem";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { expHandler, statusHandler } from "@/util/value";
@@ -122,7 +122,11 @@ export default function CharacterMenu() {
           <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
           <CommonMenuItem text={"캐릭터 성형"} onClick={onClickLink("/character/change")} />
           <DeleteText>
-            캐릭터를 방출하시려면 <DeleteLink>여기</DeleteLink>를 눌러주세요.
+            캐릭터를 방출하시려면{" "}
+            <Link to="/character/delete">
+              <DeleteLink>여기</DeleteLink>
+            </Link>
+            를 눌러주세요.
           </DeleteText>
         </MenuContainer>
       </OtherContainer>

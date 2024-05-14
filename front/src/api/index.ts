@@ -1,3 +1,5 @@
+import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { Auth } from "aws-amplify";
 import axios from "axios";
 
 export const usInstance = axios.create({
@@ -14,6 +16,19 @@ export const seoulInstance = axios.create({
   },
 });
 
+usInstance.interceptors.request.use(
+  async (config) => {
+    const session: CognitoUserSession = await Auth.currentSession();
+    const idToken = session.getIdToken();
+    config.headers["Authorization"] = idToken.getJwtToken();
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
 usInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
@@ -24,6 +39,19 @@ usInstance.interceptors.response.use(
     return Promise.reject(body);
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+seoulInstance.interceptors.request.use(
+  async (config) => {
+    const session: CognitoUserSession = await Auth.currentSession();
+    const idToken = session.getIdToken();
+    config.headers["Authorization"] = idToken.getJwtToken();
+    return config;
+  },
+  (error) => {
+    console.log(error);
     return Promise.reject(error);
   }
 );

@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import LaurelImg from "@/assets/images/collectionLaurel.png";
+import LaurelImg from "@/assets/images/laurel.svg";
 import { HiChevronDown } from "react-icons/hi";
 import CollectionItem from "@/components/common/CollectionItem";
 import { useQuery } from "@tanstack/react-query";

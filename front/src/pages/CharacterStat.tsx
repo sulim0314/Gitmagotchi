@@ -1,5 +1,4 @@
 import tw from "tailwind-styled-components";
-import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import CommonButton from "@/components/common/CommonButton";
 import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
@@ -25,7 +24,7 @@ export default function CharacterStat() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
+          <img src={characterData?.faceUrl} className="w-36 lg:w-72" />
           <Name>{characterData?.name}</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>

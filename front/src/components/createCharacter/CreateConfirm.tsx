@@ -2,7 +2,6 @@ import tw from "tailwind-styled-components";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
 import { UseMutateFunction } from "@tanstack/react-query";
-import { ICharacter } from "@/models";
 import { useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
 
@@ -11,7 +10,7 @@ interface IProps {
   faceUrl: string;
   createdName: string;
   setCreatedName: React.Dispatch<React.SetStateAction<string>>;
-  createCharacter: UseMutateFunction<ICharacter, Error, { body: string }, unknown>;
+  createCharacter: UseMutateFunction<{ characterId: number }, Error, { body: string }, unknown>;
 }
 
 export default function CreateConfirm({
@@ -29,7 +28,7 @@ export default function CreateConfirm({
   const handleCreateCharacter = () => {
     if (!userData) return;
     createCharacter({
-      body: JSON.stringify({ userId: userData.id, faceUrl, name: createdName }),
+      body: JSON.stringify({ faceUrl, name: createdName }),
     });
   };
 

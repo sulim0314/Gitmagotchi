@@ -1,5 +1,6 @@
 import tw from "tailwind-styled-components";
-import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
+import BabyImgFrame from "@/assets/images/baby.svg";
+import sampleFace2Image from "@/assets/images/sampleFace2.png";
 import { FaGithub } from "react-icons/fa";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router";
@@ -27,7 +28,17 @@ export default function Login() {
 
   return (
     <Wrapper>
-      <img src={SampleStartCharacterImage} className="w-60" />
+      <ImgContainer>
+        <img
+          src={BabyImgFrame}
+          className="h-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        />
+        <img
+          src={sampleFace2Image}
+          className="h-[10.2rem] absolute left-40
+           top-9 -translate-x-1/2"
+        />
+      </ImgContainer>
       <Content>
         <Title>깃마고치</Title>
         <Description>생성형 AI를 통해</Description>
@@ -52,7 +63,15 @@ justify-center
 items-center
 `;
 
+const ImgContainer = tw.div`
+relative
+w-80
+h-80
+-rotate-[30deg]
+`;
+
 const Content = tw.div`
+pt-4
 flex
 flex-col
 items-center

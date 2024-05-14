@@ -15,21 +15,20 @@ import CharacterMenu from "@/pages/CharacterMenu";
 import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharacterRename";
+import Minigame from "@/pages/Minigame";
+import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
-import Minigame from "@/pages/Minigame";
 import { authDataAtom } from "@/store/auth";
 import { useRecoilState } from "recoil";
 import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
 import { Auth } from "aws-amplify";
-import { getUser } from "./api/user";
-import { getCharacter } from "./api/character";
+import { getUser } from "@/api/user";
+import { getCharacter } from "@/api/character";
 import EditProfile from "@/pages/EditProfile";
-import { seoulInstance, usInstance } from "@/api";
 import { IAuth } from "@/models";
-import { CognitoUserSession } from "amazon-cognito-identity-js";
 
 export default function App() {
   const location = useLocation();
@@ -59,35 +58,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!userData) return;
+    bgRef.current.src = userData.backgroundUrl;
+    bgRef.current.onload = () => {
+      setBgLoaded(true);
+    };
+  }, [userData]);
+
+  useEffect(() => {
     setLoading(true);
     const fetchCognitoUser = async () => {
       const cognitoUser: IAuth = await Auth.currentUserInfo();
       if (cognitoUser) {
-        const session: CognitoUserSession = await Auth.currentSession();
-        const idToken = session.getIdToken();
         setAuthData(cognitoUser);
-        usInstance.interceptors.request.clear();
-        usInstance.interceptors.request.use(
-          (config) => {
-            config.headers["Authorization"] = idToken.getJwtToken();
-            return config;
-          },
-          (error) => {
-            console.log(error);
-            return Promise.reject(error);
-          }
-        );
-        seoulInstance.interceptors.request.clear();
-        seoulInstance.interceptors.request.use(
-          (config) => {
-            config.headers["Authorization"] = idToken.getJwtToken();
-            return config;
-          },
-          (error) => {
-            console.log(error);
-            return Promise.reject(error);
-          }
-        );
       } else {
         setLoading(false);
         navigate("/login", { replace: true });
@@ -95,9 +78,7 @@ export default function App() {
     };
 
     const fetchUser = async () => {
-      const user = await getUser({
-        userId: authData!.username.slice(7),
-      });
+      const user = await getUser();
       if (user) {
         setUserData(user);
       } else {
@@ -130,10 +111,6 @@ export default function App() {
     } else if (!characterData) {
       fetchCharacter();
     } else {
-      bgRef.current.src = userData.backgroundUrl;
-      bgRef.current.onload = () => {
-        setBgLoaded(true);
-      };
       setLoading(false);
     }
 
@@ -145,7 +122,7 @@ export default function App() {
   }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
   useEffect(() => {
-    if (characterData) {
+    if (characterData?.characterId) {
       intervalId.current = setInterval(() => {}, 3_600_000);
     }
     return () => {
@@ -195,6 +172,7 @@ export default function App() {
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/change" element={null} />
+            <Route path="/character/delete" element={<DeleteCharacterConfirm />} />
             <Route path="/background/create" element={<CreateBg />} />
           </Routes>
         </Content>

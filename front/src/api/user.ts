@@ -1,8 +1,8 @@
 import { IBackground, IUser } from "@/models";
 import { seoulInstance } from ".";
 
-export const getUser = async (params: { userId: string }): Promise<IUser> => {
-  return seoulInstance.get("/users/me", { params });
+export const getUser = async (): Promise<IUser> => {
+  return seoulInstance.get("/users/me");
 };
 
 export const modifyUser = async (params: {

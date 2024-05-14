@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import DefaultImage from "@/assets/images/defaultImage.png";
+import DefaultImage from "@/assets/images/defaultImage.svg";
 import CommonButton from "@/components/common/CommonButton";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";

@@ -1,4 +1,6 @@
-export interface ICharacter {
+import { IBaseEntity } from "@/models";
+
+export interface ICharacter extends IBaseEntity {
   characterId: number;
   userId: number;
   name: string;

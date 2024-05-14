@@ -10,6 +10,12 @@ export interface IResponse {
   body: string;
 }
 
+export interface IBaseEntity {
+  createdAt: string;
+  updatedAt: string;
+  isDeleted?: boolean;
+}
+
 export interface Pageable<T> {
   pageable: {
     totalPages: number;

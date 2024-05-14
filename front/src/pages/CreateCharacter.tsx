@@ -4,19 +4,29 @@ import CreateMethod from "@/components/createCharacter/CreateMethod";
 import CreateByAi from "@/components/createCharacter/CreateByAi";
 import CreateConfirm from "@/components/createCharacter/CreateConfirm";
 import CreateResult from "@/components/createCharacter/CreateResult";
-import sampleFace2 from "@/assets/images/sampleFace2.png";
 import { useMutation } from "@tanstack/react-query";
 import { createCharacter } from "@/api/character";
+import { useSetRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 export default function CreateCharacter() {
+  const setUserData = useSetRecoilState(userDataAtom);
   const [process, setProcess] = useState<number>(0);
-  const [createdUrl, setCreatedUrl] = useState<string>(sampleFace2);
+  const [createdUrl, setCreatedUrl] = useState<string>(
+    "https://gitmagotchi-generated.s3.amazonaws.com/face.png"
+  );
   const [createdName, setCreatedName] = useState<string>("");
 
   const mutation = useMutation({
     mutationFn: createCharacter,
     onSuccess: (data) => {
-      console.log(data);
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          characterId: data.characterId,
+        };
+      });
       setProcess(3);
     },
     onError: (err) => console.log(err),

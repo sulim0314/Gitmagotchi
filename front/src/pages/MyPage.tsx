@@ -7,7 +7,6 @@ import { userDataAtom } from "@/store/user";
 import { useNavigate } from "react-router-dom";
 import { characterDataAtom } from "@/store/character";
 import { messageDataAtom } from "@/store/message";
-import { seoulInstance, usInstance } from "@/api";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -22,8 +21,6 @@ export default function MyPage() {
     setCharacterData(null);
     setMessageData([]);
     setUserData(null);
-    usInstance.interceptors.request.clear();
-    seoulInstance.interceptors.request.clear();
     await Auth.signOut();
   };
 

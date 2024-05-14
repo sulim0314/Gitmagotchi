@@ -35,7 +35,9 @@ export default function CollectionItem({ collection, award }: IProps) {
         </NameContainer>
         {award && <Username>{collection.userId}</Username>}
         {collection.ending !== "INDEPENDENT" && (
-          <DeathType>{formatEnding(collection.ending)}</DeathType>
+          <div className="text-border">
+            <DeathType>{formatEnding(collection.ending)}</DeathType>
+          </div>
         )}
       </Container>
     </Wrapper>
@@ -116,7 +118,7 @@ left-1/2
 -translate-x-1/2
 -translate-y-1/2
 text-red-500
-font-extrabold
+font-bold
 text-2xl
 z-10
 `;
