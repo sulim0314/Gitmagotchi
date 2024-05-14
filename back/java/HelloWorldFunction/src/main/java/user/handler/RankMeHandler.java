@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.*;
@@ -21,7 +22,14 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
 
             Map<String, String> queryParams = Optional.ofNullable(request.getQueryStringParameters()).orElse(Collections.emptyMap());
             String type = queryParams.getOrDefault("type", "BEST");
-            String userId = queryParams.getOrDefault("userId", "");
+
+            JSONObject requestObj = new JSONObject(request);
+            JSONObject requestContext = requestObj.getJSONObject("requestContext");
+            JSONObject authorizer = requestContext.getJSONObject("authorizer");
+            JSONObject claims = authorizer.getJSONObject("claims");
+            // username: github_125880884
+            String username = claims.getString("cognito:username");
+            String userId = username.replace("github_", "");
 
             String queryStr;
             if ("BEST".equals(type)) {
@@ -45,12 +53,16 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
 
             Map<String, Object> responseMap = new HashMap<>();
             Object[] selectedUser = null;
+
+            int a = 0;
+
             for (Object[] result : results) {
                 System.out.println("#################");
                 System.out.println("result: " + result[0] + ", userId: " + userId);
                 if (result[0] instanceof Integer) {  // result[0]이 Integer 인스턴스인지 확인
-                    Integer resultId = (Integer) result[0];  // 안전하게 Integer로 캐스팅
-                    if (resultId.equals(userIdInt)) {  // Integer 간의 비교
+                    int resultId = (Integer) result[0];  // 안전하게 Integer로 캐스팅
+                    a = resultId;
+                    if (resultId == userIdInt) {  // Integer 간의 비교
                         selectedUser = result;
                         break;
                     }
