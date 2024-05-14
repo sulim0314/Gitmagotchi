@@ -40,6 +40,10 @@ export default function Minigame() {
       const y = this.row * blockSize.current;
       ctx.current!.drawImage(
         faceRef.current,
+        150,
+        150,
+        665,
+        665,
         x - blockSize.current,
         y - blockSize.current,
         blockSize.current * 3,
@@ -64,7 +68,7 @@ export default function Minigame() {
 
     draw() {
       for (const block of this.segments) {
-        block.drawSquare("Blue");
+        block.drawSquare("#eee");
       }
 
       this.segments[0].drawImage();
@@ -194,15 +198,15 @@ export default function Minigame() {
           width.current = canvas.width;
           height.current = canvas.height;
 
-          blockSize.current = 10;
+          blockSize.current = 20;
           widthInBlocks.current = width.current / blockSize.current;
           heightInBlocks.current = height.current / blockSize.current;
 
           if (!ctx.current) return;
           ctx.current.clearRect(0, 0, width.current, height.current);
-          ctx.current.drawImage(faceRef.current, 100, 100, 200, 200);
-          drawText("스네이크 게임", 50, 200, 30);
-          drawText("획득한 점수만큼 골드를 획득할 수 있어요", 20, 200, 330);
+          ctx.current.drawImage(faceRef.current, 150, 150, 665, 665, 200, 200, 400, 400);
+          drawText("스네이크 게임", 100, 400, 60);
+          drawText("획득한 점수만큼 골드를 획득할 수 있어요", 40, 400, 660);
         }
       };
     }
@@ -217,7 +221,7 @@ export default function Minigame() {
 
   const drawScore = function () {
     if (!ctx.current) return;
-    ctx.current.font = "20px NanumBarunpen";
+    ctx.current.font = "40px NanumBarunpen";
     ctx.current.fillStyle = "White";
     ctx.current.textAlign = "left";
     ctx.current.textBaseline = "top";
@@ -267,8 +271,8 @@ export default function Minigame() {
       clearInterval(intervalId.current);
       if (!ctx.current) return;
       ctx.current.clearRect(0, 0, width.current, height.current);
-      drawText("GAME OVER", 50, 200, 100);
-      drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 20, 200, 300);
+      drawText("GAME OVER", 100, 400, 200);
+      drawText(`점수: ${score.current}점 / 획득 골드: ${score.current}`, 40, 400, 600);
       removeEventListener("keydown", handleKeydown);
       if (score.current > 0) {
         mutation.mutate({ userId: userData!.id, value: score.current });
@@ -294,8 +298,12 @@ export default function Minigame() {
   return (
     <Wrapper>
       <GameContainer>
-        <GameAreaContainer>
-          <GameArea ref={canvasRef} width={400} height={400} />
+        <GameAreaContainer
+          style={{
+            backgroundImage: `url(${userData?.backgroundUrl})`,
+          }}
+        >
+          <GameArea ref={canvasRef} width={800} height={800} />
         </GameAreaContainer>
 
         {gameStatus === "GAME" ? (
@@ -372,6 +380,9 @@ h-80
 lg:w-[30rem]
 lg:h-[30rem]
 border-slate-800
+bg-cover
+bg-no-repeat
+bg-center
 `;
 
 const GameArea = tw.canvas`
@@ -379,7 +390,7 @@ w-80
 h-80
 lg:w-[30rem]
 lg:h-[30rem]
-bg-slate-600
+bg-slate-600/50
 relative
 `;
 

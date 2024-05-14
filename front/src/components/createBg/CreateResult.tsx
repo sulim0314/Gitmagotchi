@@ -9,10 +9,7 @@ interface IProps {
 export default function CreateResult({ bgUrl }: IProps) {
   return (
     <Wrapper>
-      <img
-        src={bgUrl}
-        className="w-60 h-60 shadow-md rounded-xl border border-slate-800 cursor-pointer"
-      />
+      <CreatedImg src={bgUrl} />
       <Content>
         <DesktopTitle>
           <Title>배경화면이 생성되었어요.</Title>
@@ -37,6 +34,16 @@ lg:flex-row
 lg:space-x-32
 justify-center
 items-center
+`;
+
+const CreatedImg = tw.img`
+w-60
+h-60
+shadow-md
+rounded-xl
+border
+border-slate-800
+cursor-pointer
 `;
 
 const Content = tw.div`

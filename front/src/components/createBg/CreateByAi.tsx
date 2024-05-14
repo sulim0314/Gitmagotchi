@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import AiImage from "@/assets/images/ai.png";
+import AiImage from "@/assets/images/ai.svg";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
 import { useState } from "react";
@@ -41,7 +41,7 @@ export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
         <DesktopTitle>
           <Title>생성할 배경 이미지를 적어주세요.</Title>
           <Description>AI가 생성할 배경에 대해 구체적으로 작성해주세요.</Description>
-          <Description>구체적일수록 정확하게 생성되요.</Description>
+          <Description>구체적일수록 정확하게 생성돼요.</Description>
         </DesktopTitle>
         <ButtonContainer onSubmit={generate}>
           <PromptContainer>

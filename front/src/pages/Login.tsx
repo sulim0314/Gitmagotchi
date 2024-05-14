@@ -29,15 +29,8 @@ export default function Login() {
   return (
     <Wrapper>
       <ImgContainer>
-        <img
-          src={BabyImgFrame}
-          className="h-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        />
-        <img
-          src={sampleFace2Image}
-          className="h-[10.2rem] absolute left-40
-           top-9 -translate-x-1/2"
-        />
+        <BabyImg src={BabyImgFrame} />
+        <FaceImg src={sampleFace2Image} />
       </ImgContainer>
       <Content>
         <Title>깃마고치</Title>
@@ -68,6 +61,23 @@ relative
 w-80
 h-80
 -rotate-[30deg]
+`;
+
+const BabyImg = tw.img`
+h-full
+absolute
+left-1/2
+top-1/2
+-translate-x-1/2
+-translate-y-1/2
+`;
+
+const FaceImg = tw.img`
+h-[10.2rem]
+absolute
+left-40
+top-9
+-translate-x-1/2
 `;
 
 const Content = tw.div`

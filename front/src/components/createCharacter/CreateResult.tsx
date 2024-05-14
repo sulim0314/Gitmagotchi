@@ -1,25 +1,40 @@
 import tw from "tailwind-styled-components";
 import CommonButton from "@/components/common/CommonButton";
-import { Link } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 interface IProps {
-  faceUrl: string;
+  createdId: number | null;
   createdName: string;
+  faceUrl: string;
 }
 
-export default function CreateResult({ faceUrl, createdName }: IProps) {
+export default function CreateResult({ createdId, createdName, faceUrl }: IProps) {
+  const setUserData = useSetRecoilState(userDataAtom);
+
+  const resultConfirm = () => {
+    if (!createdId) return;
+    setUserData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        characterId: createdId,
+      };
+    });
+  };
+
   return (
     <Wrapper>
-      <img src={faceUrl} className="w-60" />
+      <ImgContainer>
+        <CreatedImg src={faceUrl} />
+      </ImgContainer>
       <Content>
         <DesktopTitle>
           <Title>{`${createdName} 캐릭터가`}</Title>
           <Title>생성되었어요.</Title>
         </DesktopTitle>
         <ButtonContainer>
-          <Link to={"/"}>
-            <CommonButton title={"확인"} />
-          </Link>
+          <CommonButton title={"확인"} onClick={resultConfirm} />
         </ButtonContainer>
       </Content>
     </Wrapper>
@@ -37,13 +52,25 @@ justify-center
 items-center
 `;
 
+const ImgContainer = tw.div`
+w-60
+h-60
+`;
+
+const CreatedImg = tw.img`
+scale-125
+translate-y-1
+w-60
+h-60
+`;
+
 const Content = tw.div`
 flex
 flex-col
 justify-center
 items-center
 space-y-4
-h-80
+lg:h-80
 `;
 
 const DesktopTitle = tw.div`

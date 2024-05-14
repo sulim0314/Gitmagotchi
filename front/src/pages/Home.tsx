@@ -211,10 +211,9 @@ export default function Home() {
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img
-                src={characterData?.faceUrl}
-                className="w-16 h-16 group-hover:scale-110 transition-all"
-              />
+              <FaceContainer>
+                <FaceImg src={characterData?.faceUrl} />
+              </FaceContainer>
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
@@ -297,7 +296,7 @@ export default function Home() {
           <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
         </LeftHeader>
         <RightHeader>
-          <PropertyList>
+          <PropertyList className="text-border">
             <PropertyContainer>
               <img src={CoinImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>{userData?.gold}</PropertyNumber>
@@ -466,6 +465,20 @@ space-x-2
 items-start
 `;
 
+const FaceContainer = tw.div`
+w-16
+h-16
+group-hover:scale-110
+transition-all
+`;
+
+const FaceImg = tw.img`
+w-16
+h-16
+scale-125
+translate-y-1
+`;
+
 const CharacterInfo = tw.div`
 h-full
 w-20
@@ -546,7 +559,8 @@ font-semibold
 `;
 
 const RightHeader = tw.div`
-w-20
+w-24
+lg:w-28
 h-34
 pt-4
 flex
@@ -570,12 +584,16 @@ const PropertyNumber = tw.h2`
 font-semibold
 text-base
 lg:text-xl
+text-slate-100
 `;
 
 const RefreshIcon = tw(VscRefresh)`
-w-6
-h-6
+w-8
+h-8
+lg:w-10
+lg:h-10
 text-slate-500
+stroke-1
 cursor-pointer
 `;
 

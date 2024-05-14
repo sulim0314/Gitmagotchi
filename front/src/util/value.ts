@@ -99,25 +99,25 @@ export const statusHandler = (level: number, intimacyLevel: number) => {
   }
 
   if (intimacyLevel === 1) {
-    intimacyMax += 10;
+    intimacyMax += 0;
   } else if (intimacyLevel === 2) {
-    intimacyMax += 15;
+    intimacyMax += 5;
   } else if (intimacyLevel === 3) {
-    intimacyMax += 20;
+    intimacyMax += 10;
   } else if (intimacyLevel === 4) {
-    intimacyMax += 25;
+    intimacyMax += 15;
   } else if (intimacyLevel === 5) {
-    intimacyMax += 30;
+    intimacyMax += 20;
   } else if (intimacyLevel === 6) {
-    intimacyMax += 35;
+    intimacyMax += 25;
   } else if (intimacyLevel === 7) {
-    intimacyMax += 40;
+    intimacyMax += 30;
   } else if (intimacyLevel === 8) {
-    intimacyMax += 50;
+    intimacyMax += 40;
   } else if (intimacyLevel === 9) {
-    intimacyMax += 70;
+    intimacyMax += 50;
   } else if (intimacyLevel === 10) {
-    intimacyMax += 100;
+    intimacyMax += 70;
   }
   return { fullnessMax, intimacyMax, cleannessMax };
 };

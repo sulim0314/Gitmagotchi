@@ -101,6 +101,7 @@ export default function App() {
             characterId: character.characterId,
           };
         });
+        navigate("/", { replace: true });
       }
     };
 

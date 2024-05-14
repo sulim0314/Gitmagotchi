@@ -27,7 +27,7 @@ export const getChatResponse = async (params: { body: string }): Promise<string>
   return usInstance.post("/character/chat", params);
 };
 export const getTestResponse = async (params: { body: string }): Promise<string> => {
-  return usInstance.post("/character/test", params);
+  return usInstance.post("character/chat/chat-java", params);
 };
 
 export const getChatSentiment = async (params: { body: string }): Promise<string> => {
