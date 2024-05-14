@@ -56,8 +56,8 @@ public class BedrockRuntimeUsageDemo {
         System.out.printf("Success: The generated image has been saved to %s%n", imagePath);
     }
 
-    public static void textToImage() throws IOException {
-        String imagePrompt = "Think of the border circle as a face and draw only the eyes, nose, and mouth of the cat character image. "
+    public static void textToImage(String userInput) throws IOException {
+        String imagePrompt = "Think of the border circle as a face and draw only the eyes, nose, and mouth of the " + userInput + " character image. "
         + "Remember, you are not drawing a face in a circle, the circle is a face.";
 
         BedrockRuntimeUsageDemo.invoke(TITAN_IMAGE, imagePrompt);
