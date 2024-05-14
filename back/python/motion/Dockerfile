@@ -8,7 +8,7 @@ RUN mkdir -p ${FUNCTION_DIR}
 RUN mkdir -p /tmp/out
 COPY requirements.txt ${FUNCTION_DIR}/
 COPY AnimatedDrawings ${FUNCTION_DIR}/
-COPY make_templates.py ${FUNCTION_DIR}/
+COPY assign_character_motion.py ${FUNCTION_DIR}/
 
 RUN apt-get clean
 RUN apt-get update && \
@@ -28,4 +28,4 @@ RUN python3.8 -m pip install -U pip && \
 
 
 ENTRYPOINT [ "/usr/bin/python3.8", "-m", "awslambdaric" ]
-CMD ["make_templates.handler" ]
+CMD ["assign_character_motion.handler" ]

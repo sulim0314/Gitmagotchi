@@ -1,6 +1,6 @@
-filepath: gitmagotchi/bvh/fair1/jumping.bvh
-start_frame_idx: 250
-end_frame_idx: 654
+filepath: gitmagotchi/bvh/rokoko/jumping.bvh
+start_frame_idx: 1300
+end_frame_idx: 1600
 frame_time: 0.0333333
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
@@ -9,4 +9,4 @@ forward_perp_joint_vectors:
   - - LeftUpLeg
     - RightUpLeg
 scale: 0.025
-up: +z
+up: +y

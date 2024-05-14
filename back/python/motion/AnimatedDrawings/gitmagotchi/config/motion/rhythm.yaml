@@ -1,6 +1,6 @@
-filepath: gitmagotchi/bvh/fair1/zombie.bvh
-start_frame_idx: 20
-end_frame_idx: 400
+filepath: gitmagotchi/bvh/rokoko/jumping.bvh
+start_frame_idx: 10
+end_frame_idx: 200
 frame_time: 0.0333333
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
@@ -9,4 +9,4 @@ forward_perp_joint_vectors:
   - - LeftUpLeg
     - RightUpLeg
 scale: 0.025
-up: +z
+up: +y
