@@ -21,4 +21,5 @@ public class UserResponseDto {
     private Integer meal = 0;
     private Integer backgroundId;
     private Integer characterId;
+    private Long collectionCount = 0L;
 }
