@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.*;
@@ -30,7 +31,13 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             String isIndependent = queryParams.getOrDefault("isIndependent", "");
             String orderBy = queryParams.getOrDefault("orderBy", "LATEST");
 
-            String userId = queryParams.getOrDefault("userId", "");
+            JSONObject requestObj = new JSONObject(request);
+            JSONObject requestContext = requestObj.getJSONObject("requestContext");
+            JSONObject authorizer = requestContext.getJSONObject("authorizer");
+            JSONObject claims = authorizer.getJSONObject("claims");
+            // username: github_125880884
+            String username = claims.getString("cognito:username");
+            String userId = username.replace("github_", "");
 
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
             String countQueryStr = "SELECT COUNT(c) FROM Collection c WHERE 1 = 1";  // 전체 항목 수를 계산하는 쿼리
