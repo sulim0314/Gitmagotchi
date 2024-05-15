@@ -38,6 +38,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             // username: github_125880884
             String username = claims.getString("cognito:username");
             String userId = username.replace("github_", "");
+            // String userId = "111184269";
 
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
             String countQueryStr = "SELECT COUNT(c) FROM Collection c WHERE 1 = 1";  // 전체 항목 수를 계산하는 쿼리

@@ -50,12 +50,15 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
         JsonElement fullnessElement = characterInfo.get("fullness");
         JsonElement intimacyElement = characterInfo.get("intimacy");
         JsonElement cleanlinessElement = characterInfo.get("cleanliness");
+        JsonElement intimacyMaxElement = characterInfo.get("intimacyMax");
+
 
         String name = nameElement.getAsString();
         int level = levelElement.getAsInt();
         int fullness = fullnessElement.getAsInt();
         int intimacy = intimacyElement.getAsInt();
         int cleanliness = cleanlinessElement.getAsInt();
+        int intimacyMax = intimacyMaxElement.getAsInt();
 
         System.out.println("Request: " + userInput);
         System.out.println(" ");
@@ -64,12 +67,12 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
         String languageType = " ";
         switch (level) {
             case 3:
-            case 4: languageType = "5글자 이내로 단어로만 답해줘";
+            case 4: languageType = "5글자 이내로 단어의 한국어로 답해줘";
                 break;
             case 5:
-            case 6: languageType = "20글자 이내로 문장으로 답해줘";
+            case 6: languageType = "20글자 이내로 문장의 한국어로 답해줘";
                 break;
-            default: languageType = "100글자 이내로 문장으로 답해줘";
+            default: languageType = "100글자 이내로 문장의 한국어로 답해줘";
                 break;
         }
 
@@ -84,14 +87,13 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
         String prompt = String.format("""
         너가 캐릭터가 되어 사용자 입력에 대해 %s. \n
         아래의 캐릭터 정보와 이전 채팅 내용에 대해서는 직접적으로 언급하지 말아줘. \n
-        프리픽스 붙이지 말아줘. \n
         한국어로 답해줘. 한국어로 답하는 거 명심해. \n
         
         [캐릭터 정보]
         이름 : %s
         레벨 : %d
         포만감 : %d/100
-        친밀도 : %d/100
+        친밀도 : %d/%d
         청결도 : %d/100
         \n
         [이전 대화 내용]
@@ -100,18 +102,14 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
         [사용자 입력 내용]
         %s
         \n
-        한국어로 답해줘.
-        """, languageType, name, level, fullness, intimacy, cleanliness, preChat, userInput);
+        
+        """, languageType, name, level, fullness, intimacy, intimacyMax, cleanliness, preChat, userInput);
 
         if(level >=3){
             requestAPI(prompt);
         }
 
         System.out.println("Response: " + response);
-
-//        if(response.isEmpty()){
-//            response = "안녕하세요! 날씨가 좋네요!🌞";
-//        }
 
         // 응답 구성
         APIGatewayProxyResponseEvent responseAPI = new APIGatewayProxyResponseEvent();

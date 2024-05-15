@@ -23,13 +23,14 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             Map<String, String> queryParams = Optional.ofNullable(request.getQueryStringParameters()).orElse(Collections.emptyMap());
             String type = queryParams.getOrDefault("type", "BEST");
 
-            JSONObject requestObj = new JSONObject(request);
-            JSONObject requestContext = requestObj.getJSONObject("requestContext");
-            JSONObject authorizer = requestContext.getJSONObject("authorizer");
-            JSONObject claims = authorizer.getJSONObject("claims");
-            // username: github_125880884
-            String username = claims.getString("cognito:username");
-            String userId = username.replace("github_", "");
+            // JSONObject requestObj = new JSONObject(request);
+            // JSONObject requestContext = requestObj.getJSONObject("requestContext");
+            // JSONObject authorizer = requestContext.getJSONObject("authorizer");
+            // JSONObject claims = authorizer.getJSONObject("claims");
+            // // username: github_125880884
+            // String username = claims.getString("cognito:username");
+            // String userId = username.replace("github_", "");
+            String userId = "111184269";
 
             String queryStr;
             if ("BEST".equals(type)) {
