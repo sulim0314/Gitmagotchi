@@ -361,21 +361,27 @@ export default function Home() {
             ]}
           />
           <EffectContainer>
-            {characterData && characterData.status.fullness < 50 && (
-              <FlyingFlyContainer>
-                <FlyingFly />
-              </FlyingFlyContainer>
-            )}
-            {characterData && characterData.status.intimacy < 50 && (
-              <BrokenHeartContainer>
-                <BrokenHeart />
-              </BrokenHeartContainer>
-            )}
-            {characterData && characterData.status.fullness < 50 && (
-              <HungryEffectContainer>
-                <HungryEffect />
-              </HungryEffectContainer>
-            )}
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.fullness < 50 && (
+                <FlyingFlyContainer>
+                  <FlyingFly />
+                </FlyingFlyContainer>
+              )}
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.intimacy < 50 && (
+                <BrokenHeartContainer>
+                  <BrokenHeart />
+                </BrokenHeartContainer>
+              )}
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.fullness < 50 && (
+                <HungryEffectContainer>
+                  <HungryEffect />
+                </HungryEffectContainer>
+              )}
             <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
           </EffectContainer>
         </CharacterCanvasContainer>

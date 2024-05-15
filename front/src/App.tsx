@@ -25,9 +25,10 @@ import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "@/api/user";
-import { getCharacter } from "@/api/character";
+import { applyCharacter, getCharacter } from "@/api/character";
 import EditProfile from "@/pages/EditProfile";
 import { IAuth } from "@/models";
+import CharacterEnding from "@/pages/CharacterEnding";
 
 export default function App() {
   const location = useLocation();
@@ -142,6 +143,26 @@ export default function App() {
     };
   }, [characterData?.characterId]);
 
+  useEffect(() => {
+    if (characterData) {
+      applyCharacter({
+        body: JSON.stringify({
+          exp: characterData.exp,
+          stat: characterData.stat,
+          status: characterData.status,
+        }),
+      });
+      if (
+        characterData.exp === 230 ||
+        characterData.status.cleanness === 0 ||
+        characterData.status.intimacy === 0 ||
+        characterData.status.fullness === 0
+      ) {
+        navigate("/character/ending");
+      }
+    }
+  }, [characterData, navigate]);
+
   if (loading || !frameLoaded || (userData && !bgLoaded))
     return <div>Loading...</div>;
 
@@ -182,6 +203,7 @@ export default function App() {
             <Route path="/character/stat" element={<CharacterStat />} />
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
+            <Route path="/character/ending" element={<CharacterEnding />} />
             <Route path="/background/create" element={<CreateBg />} />
           </Routes>
         </Content>

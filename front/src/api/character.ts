@@ -29,6 +29,12 @@ export const applyCharacter = async (params: {
   return seoulInstance.put("/characters/apply", params);
 };
 
+export const endingCharacter = async (params: {
+  body: string;
+}): Promise<{ message: string }> => {
+  return seoulInstance.put("/characters/ending", params);
+};
+
 // here
 
 export const searchCharacter = async (params: {
