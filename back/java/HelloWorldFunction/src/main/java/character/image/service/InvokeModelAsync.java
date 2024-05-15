@@ -40,6 +40,7 @@ public class InvokeModelAsync {
         var inPaintingParams = new JSONObject()
             .put("text", prompt)
             .put("image", base64Image)
+            .put("negativeText", "body, bad quality, face in a circle, low res, real picture, person, noise, real, ugly, disgusting, background, square, crack, lacuna")
             .put("maskImage", MaskImageBase64.getImageBase64());
 
         var imageGenerationConfig = new JSONObject()

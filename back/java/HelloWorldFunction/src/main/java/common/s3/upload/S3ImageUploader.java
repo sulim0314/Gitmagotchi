@@ -17,7 +17,7 @@ public class S3ImageUploader {
         this.s3client = AmazonS3ClientBuilder.standard().build();
     }
 
-    public void uploadImageToS3(String bucketName, String base64Image) {
+    public String uploadImageToS3(String bucketName, String base64Image) {
         try {
             // Base64 문자열을 바이트 배열로 디코딩
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
@@ -35,9 +35,15 @@ public class S3ImageUploader {
                     new ByteArrayInputStream(imageBytes), metadata);
             s3client.putObject(putRequest);
 
+            // S3 객체 URL 생성
+            String s3ObjectUrl = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fileName);
+
             System.out.println("Image uploaded successfully to bucket " + bucketName + " with name " + fileName);
+            System.out.println(s3ObjectUrl.toString());
+            return s3ObjectUrl.toString();
         } catch (Exception e) {
             System.err.println("Error uploading image to S3: " + e.getMessage());
+            return null;
         }
     }
 }

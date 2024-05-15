@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +20,23 @@ import java.util.List;
 @Table(name = "user")
 public class User extends BaseEntity {
     @Id
-    private Long id;
-    private String profile_img;
+    private Integer id;
+    @Column(name = "profile_img")
+    private String profileImg;
     private String nickname;
-    private String github_username;
+    @Column(name = "githubToken")
+    private String githubToken;
+    @Column(name = "github_username")
+    private String githubUsername;
     private Integer gold = 0;
     private Integer meal = 0;
-    private LocalDateTime last_time = LocalDateTime.now();
+    @Column(name = "last_time")
+    private LocalDateTime lastTime = LocalDateTime.now();
+
+    @Column(name = "background_id")
+    private Integer backgroundId = 1; //현재의 배경화면
+    @Column(name = "character_id")
+    private Integer characterId;  //현재의 캐릭터
 
     @OneToMany(mappedBy = "user")
     private List<Collection> collectionList = new ArrayList<>();
