@@ -11,12 +11,16 @@ import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class CharacterImageHandler implements RequestHandler<APIGatewayProxyRequestEvent, String> {
 
     @Override
     public String handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         try {
+            // String userInput = (String) request.get("userInput");
+
+
             String jsonBody = request.getBody();
 
             // JSON 객체로 변환
@@ -25,7 +29,7 @@ public class CharacterImageHandler implements RequestHandler<APIGatewayProxyRequ
 
             String userInput = obj.getAsJsonPrimitive("userInput").getAsString();
             BedrockRuntimeUsageDemo.textToImage(userInput);
-            return "Image generation successful";
+            return BedrockRuntimeUsageDemo.textToImage(userInput);
         } catch (IOException e) {
             context.getLogger().log("Error generating image: " + e.getMessage());
             return "Image generation failed";
