@@ -85,7 +85,7 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 
         // Define the user message to send.
         String prompt = String.format("""
-        너가 캐릭터가 되어 사용자 입력에 대해 %s. \n
+        너가 캐릭터가 되어 사용자 입력에 대해 추가적인 문구나 접두사 없이 %s. \n
         아래의 캐릭터 정보와 이전 채팅 내용에 대해서는 직접적으로 언급하지 말아줘. \n
         한국어로 답해줘. 한국어로 답하는 거 명심해. \n
         

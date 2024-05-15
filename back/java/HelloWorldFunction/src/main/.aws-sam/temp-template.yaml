@@ -4,7 +4,7 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: character.image.handler.CharacterImageHandler
+      Handler: chat.handler.ChatHandler
       CodeUri: C:\KHY\부트캠프\SSAFY\2학기\gitmagotchi\S10P31S205\back\java\HelloWorldFunction
       Runtime: java17
       Architectures:
