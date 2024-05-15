@@ -34,17 +34,14 @@ export default function Collection() {
         searchCollection({
           isCollection: true,
           isIndependent: null,
-          orderBy: "LATEST",
         }),
         searchCollection({
           isCollection: true,
           isIndependent: true,
-          orderBy: "LATEST",
         }),
         searchCollection({
           isCollection: true,
           isIndependent: false,
-          orderBy: "LATEST",
         }),
       ]);
       setCountTotal([
@@ -107,7 +104,11 @@ export default function Collection() {
       <CollectionContainer>
         <CharacterGrid>
           {collectionList.map((collection: ICollection) => (
-            <CollectionItem key={collection.id} collection={collection} award={false} />
+            <CollectionItem
+              key={collection.id}
+              collection={collection}
+              award={false}
+            />
           ))}
         </CharacterGrid>
       </CollectionContainer>

@@ -47,10 +47,18 @@ export default function Home() {
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
     onSuccess: (data) => {
-      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
+      if (
+        expHandler(data.exp || 0).level >
+        expHandler(characterData?.exp || 0).level
+      ) {
         levelUpEffect(expHandler(data.exp || 0).level);
       }
-      addMessage(interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)));
+      addMessage(
+        interactionMessage(
+          data.interactType,
+          data.exp - (characterData?.exp || 0)
+        )
+      );
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
@@ -113,7 +121,10 @@ export default function Home() {
     const d = new Date(date);
     const hour = d.getHours();
     const minute = d.getMinutes();
-    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0"
+    )}] `;
   };
 
   const playAnimation = () => {
@@ -217,7 +228,9 @@ export default function Home() {
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${
+                  expHandler(characterData?.exp || 0).level
+                }`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
@@ -231,7 +244,11 @@ export default function Home() {
           </InfoContianer>
           <ExpContainer className="text-border">
             <ExpBarContainer>
-              <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+              <ExpBar
+                style={{
+                  width: `${expHandler(characterData?.exp || 0).percentage}%`,
+                }}
+              />
               <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
                 expHandler(characterData?.exp || 0).maxExp
               }`}</ExpText>
@@ -304,7 +321,11 @@ export default function Home() {
             <PropertyContainer>
               <img src={MeatImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>{userData?.meal}</PropertyNumber>
-              <RefreshIcon />
+              <RefreshIcon
+                onClick={() => {
+                  levelUpEffect(1);
+                }}
+              />
             </PropertyContainer>
           </PropertyList>
         </RightHeader>
@@ -318,7 +339,7 @@ export default function Home() {
             heightFrame={1000}
             steps={339}
             fps={30}
-            autoplay={true}
+            autoplay={false}
             loop={false}
             direction="forward"
             backgroundSize={`cover`}
@@ -395,7 +416,9 @@ export default function Home() {
         <ModalMsgList>
           {messageData.map((msg, i) => (
             <ModalMsg key={msg.timestamp + i}>
-              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
+              <ModalMsgTimestamp>
+                {formatTimestamp(msg.timestamp)}
+              </ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}

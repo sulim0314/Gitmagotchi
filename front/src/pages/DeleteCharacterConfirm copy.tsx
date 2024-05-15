@@ -15,7 +15,7 @@ export default function DeleteCharacterConfirm() {
   const mutation = useMutation({
     mutationFn: deleteCharacter,
     onSuccess: (data) => {
-      console.log(data);
+      console.log(data.message);
       setCharacterData(null);
       setUserData((prev) => {
         if (!prev) return prev;

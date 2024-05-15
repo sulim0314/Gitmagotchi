@@ -16,7 +16,6 @@ import Chat from "@/pages/Chat";
 import CharacterStat from "@/pages/CharacterStat";
 import CharacterRename from "@/pages/CharacterRename";
 import Minigame from "@/pages/Minigame";
-import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import { authDataAtom } from "@/store/auth";
@@ -92,7 +91,9 @@ export default function App() {
         setLoading(false);
         navigate("/character/create", { replace: true });
       } else {
-        const character = await getCharacter({ characterId: userData?.characterId });
+        const character = await getCharacter({
+          characterId: userData?.characterId,
+        });
         setCharacterData(character);
         setUserData((prev) => {
           if (!prev) return prev;
@@ -120,7 +121,15 @@ export default function App() {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+  }, [
+    authData,
+    setAuthData,
+    userData,
+    setUserData,
+    characterData,
+    setCharacterData,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (characterData?.characterId) {
@@ -133,7 +142,8 @@ export default function App() {
     };
   }, [characterData?.characterId]);
 
-  if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
+  if (loading || !frameLoaded || (userData && !bgLoaded))
+    return <div>Loading...</div>;
 
   return (
     <>
@@ -154,7 +164,7 @@ export default function App() {
       )}
 
       <Wrapper>
-        <Navbar />
+        {userData ? <Navbar /> : <NavBarBlock />}
         <Content>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -172,8 +182,6 @@ export default function App() {
             <Route path="/character/stat" element={<CharacterStat />} />
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
-            <Route path="/character/change" element={null} />
-            <Route path="/character/delete" element={<DeleteCharacterConfirm />} />
             <Route path="/background/create" element={<CreateBg />} />
           </Routes>
         </Content>
@@ -192,6 +200,17 @@ bg-cover
 bg-no-repeat
 bg-center
 -z-20
+`;
+
+const NavBarBlock = tw.div`
+flex
+justify-between
+items-center
+h-24
+min-h-24
+w-full
+mx-auto
+px-4
 `;
 
 const BackgroundFrame = tw.div`

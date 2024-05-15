@@ -22,9 +22,15 @@ export default function CharacterMenu() {
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
+          <LevelText>{`LV.${
+            expHandler(characterData?.exp || 0).level
+          }`}</LevelText>
           <ExpBarContainer className="text-border">
-            <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+            <ExpBar
+              style={{
+                width: `${expHandler(characterData?.exp || 0).percentage}%`,
+              }}
+            />
             <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
               expHandler(characterData?.exp || 0).maxExp
             }`}</DataText>
@@ -62,7 +68,7 @@ export default function CharacterMenu() {
                 ).fullnessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.1</StatLabelText>
+            <StatLabelText>{`LV.${characterData?.stat.fullnessStat}`}</StatLabelText>
           </StatRow>
           <StatRow>
             <HeartIcon />
@@ -88,7 +94,7 @@ export default function CharacterMenu() {
                 ).intimacyMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.4</StatLabelText>
+            <StatLabelText>{`LV.${characterData?.stat.intimacyStat}`}</StatLabelText>
           </StatRow>
           <StatRow>
             <ShineIcon />
@@ -114,13 +120,18 @@ export default function CharacterMenu() {
                 ).cleannessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.6</StatLabelText>
+            <StatLabelText>{`LV.${characterData?.stat.cleannessStat}`}</StatLabelText>
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
-          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
-          <CommonMenuItem text={"캐릭터 성형"} onClick={onClickLink("/character/change")} />
+          <CommonMenuItem
+            text={"캐릭터 능력치"}
+            onClick={onClickLink("/character/stat")}
+          />
+          <CommonMenuItem
+            text={"캐릭터 이름 변경"}
+            onClick={onClickLink("/character/rename")}
+          />
           <DeleteText>
             캐릭터를 방출하시려면{" "}
             <Link to="/character/delete">

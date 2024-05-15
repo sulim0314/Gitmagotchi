@@ -1,3 +1,4 @@
+import { ICharacter } from "@/models";
 import { seoulInstance } from ".";
 
 export const getSearchList = async (params: any): Promise<any> => {
@@ -18,6 +19,8 @@ export const getUserSearchList = async (params: any): Promise<any> => {
   return seoulInstance.get("/users/search", { params });
 };
 
-export const getCharacterSearchList = async (params: any): Promise<any> => {
-  return seoulInstance.get("/characters/search", { params });
+export const getCharacterSearchList = async (params: {
+  name: string;
+}): Promise<ICharacter[]> => {
+  return seoulInstance.get("/characters", { params });
 };

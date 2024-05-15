@@ -13,17 +13,19 @@ export default function CharacterRename() {
   const navigate = useNavigate();
   const setUserData = useSetRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
-  const [newName, setNewName] = useState<string>(characterData ? characterData.name : "");
+  const [newName, setNewName] = useState<string>(
+    characterData ? characterData.name : ""
+  );
 
   const mutation = useMutation({
     mutationFn: modifyCharacter,
     onSuccess: (data) => {
+      console.log(data.message);
       setCharacterData((prev) => ({
         ...prev!,
         name: newName,
       }));
       // 골드 감소
-      console.log(data);
       setUserData((prev) => prev);
 
       navigate("/character", { replace: true });
@@ -54,7 +56,11 @@ export default function CharacterRename() {
         <ButtonContainer>
           <PromptContainer>
             <CommonInput
-              props={{ placeholder: "캐릭터 이름", onChange: onChangeNewName, value: newName }}
+              props={{
+                placeholder: "캐릭터 이름",
+                onChange: onChangeNewName,
+                value: newName,
+              }}
             />
           </PromptContainer>
           <CommonButton title={"확인 (💰100)"} onClick={rename} />
