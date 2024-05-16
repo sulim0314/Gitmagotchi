@@ -29,6 +29,7 @@ import EditProfile from "@/pages/EditProfile";
 import { IAuth } from "@/models";
 import CharacterEnding from "@/pages/CharacterEnding";
 import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
+import Background from "@/pages/Background";
 
 export default function App() {
   const location = useLocation();
@@ -162,7 +163,7 @@ export default function App() {
     <>
       {location.pathname === "/" && (
         <>
-          <Background
+          <UserBackground
             style={{
               backgroundImage: `url(${userData?.backgroundUrl || SampleBg})`,
             }}
@@ -205,7 +206,7 @@ export default function App() {
   );
 }
 
-const Background = tw.div`
+const UserBackground = tw.div`
 absolute
 top-0
 left-0
