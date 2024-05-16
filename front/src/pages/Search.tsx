@@ -87,7 +87,7 @@ export default function Search() {
               ) : (
                 <UserResultList>
                   {data?.map((u: IUser) => (
-                    <UserItem key={u.userId} user={u} />
+                    <UserItem key={u.id} user={u} />
                   ))}
                 </UserResultList>
               )}

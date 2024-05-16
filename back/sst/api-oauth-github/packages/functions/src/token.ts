@@ -30,7 +30,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }),
     QueueUrl:
       "https://sqs.ap-northeast-2.amazonaws.com/992382698264/token.fifo", // SQS 큐test URL
-    MessageGroupId: "GithubToken", // 메시지 그룹 ID
+    MessageGroupId: "GithubToken1", // 메시지 그룹 ID
   };
 
   // SQS 큐에 메시지 추가

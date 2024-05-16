@@ -4,8 +4,8 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: collection.handler.CollectionHandler
-      CodeUri: C:\KHY\S205\S10P31S205\back\java\HelloWorldFunction
+      Handler: user.handler.UserHandler
+      CodeUri: C:\Users\SSAFY\Desktop\Gitmagotchi\S10P31S205\back\java\HelloWorldFunction
       Runtime: java17
       Architectures:
         - x86_64

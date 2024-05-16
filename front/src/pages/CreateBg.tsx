@@ -14,11 +14,9 @@ export default function CreateBg() {
     if (process === 0) {
       return <CreateMethod setProcess={setProcess} />;
     } else if (process === 1) {
-      return (
-        <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} />
-      );
+      return <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} />;
     } else if (process === 2) {
-      return <CreateByUpload setProcess={setProcess} />;
+      return <CreateByUpload setProcess={setProcess} setCreatedUrl={setCreatedUrl} />;
     } else if (process === 3) {
       return <CreateResult bgUrl={createdUrl} />;
     }

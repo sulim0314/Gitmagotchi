@@ -5,19 +5,33 @@ import CollectionItem from "@/components/common/CollectionItem";
 import { useQuery } from "@tanstack/react-query";
 import { searchCollection } from "@/api/collection";
 import { ICollection } from "@/models";
+import { useEffect, useState } from "react";
 
 export default function Award() {
+  const [page, setPage] = useState<number>(1);
+  const [latest, setLatest] = useState<boolean>(true);
+  const [awardList, setAwardList] = useState<ICollection[]>([]);
+
   const { data } = useQuery({
-    queryKey: ["award"],
-    queryFn: async () => {
-      const response = await searchCollection({
+    queryKey: ["award", latest ? "LATEST" : "OLDEST", page],
+    queryFn: () =>
+      searchCollection({
         isCollection: false,
         isIndependent: true,
-        orderBy: "LATEST",
-      });
-      return JSON.parse(response.body);
-    },
+        orderBy: latest ? "LATEST" : "OLDEST",
+        page,
+        pageSize: 12,
+      }),
   });
+
+  useEffect(() => {
+    setPage(1);
+  }, []);
+
+  useEffect(() => {
+    if (!data?.content) return;
+    setAwardList(data.content);
+  }, [data]);
 
   return (
     <Wrapper>
@@ -27,12 +41,14 @@ export default function Award() {
         <Description>최고 레벨을 달성한 캐릭터들을 만나보세요.</Description>
         <SortOptionContainer>
           <SortOption>
-            <SortOptionText>최신순</SortOptionText>
+            <SortOptionText onClick={() => setLatest(!latest)}>
+              {latest ? "최신순" : "오래된순"}
+            </SortOptionText>
             <DownChevronIcon />
           </SortOption>
         </SortOptionContainer>
         <CharacterGrid>
-          {data?.map((collection: ICollection) => (
+          {awardList.map((collection: ICollection) => (
             <CollectionItem key={collection.id} collection={collection} award />
           ))}
         </CharacterGrid>

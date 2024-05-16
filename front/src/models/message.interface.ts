@@ -1,4 +1,4 @@
 export interface IMessage {
-  timestamp: Date;
+  timestamp: string;
   text: string;
 }

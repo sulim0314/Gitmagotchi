@@ -24,17 +24,58 @@ import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
+import { expHandler, statusHandler } from "@/util/value";
+import { statDataAtom } from "@/store/stat";
+import { statusDataAtom } from "@/store/status";
+import { useMutation } from "@tanstack/react-query";
+import { getInteractionResult } from "@/api/character";
+import { InteractType } from "@/models";
 
 export default function Home() {
   const navigate = useNavigate();
   const userData = useRecoilValue(userDataAtom);
-  const characterData = useRecoilValue(characterDataAtom);
+  const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const statData = useRecoilValue(statDataAtom);
+  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
   const levelupRef = useRef<HTMLDivElement>(null);
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
+
+  const interactionMution = useMutation({
+    mutationFn: getInteractionResult,
+    onSuccess: (data) => {
+      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
+        levelUpEffect(expHandler(data.exp || 0).level);
+      }
+      setMessageData((prev) => [
+        ...prev,
+        {
+          timestamp: new Date().toString(),
+          text: "상호작용",
+        },
+      ]);
+      setCharacterData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          exp: data.exp,
+        };
+      });
+      setStatusData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          cleanness: data.cleanness,
+          fullness: data.fullness,
+          intimacy: data.intimacy,
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
@@ -48,9 +89,10 @@ export default function Home() {
     setAnimModal(!animModal);
   };
 
-  const formatTimestamp = (date: Date) => {
-    const hour = date.getHours();
-    const minute = date.getMinutes();
+  const formatTimestamp = (date: string) => {
+    const d = new Date(date);
+    const hour = d.getHours();
+    const minute = d.getMinutes();
     return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
   };
 
@@ -63,11 +105,27 @@ export default function Home() {
     };
   };
 
-  const interactionEat = () => {
-    levelUpEffect();
+  const handleInteraction = (type: InteractType) => {
+    return () => {
+      interactionMution.mutate({
+        body: JSON.stringify({
+          exp: characterData?.exp,
+          interactType: type,
+          status: {
+            fullness: statusData?.fullness,
+            intimacy: statusData?.intimacy,
+            cleanness: statusData?.cleanness,
+          },
+          stat: {
+            fullnessStat: statData?.fullnessStat,
+            intimacyStat: statData?.intimacyStat,
+          },
+        }),
+      });
+    };
   };
 
-  const levelUpEffect = () => {
+  const levelUpEffect = (level: number) => {
     const keyframes: Keyframe[] = [
       { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
       { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
@@ -85,8 +143,8 @@ export default function Home() {
     setMessageData((prev) => [
       ...prev,
       {
-        timestamp: new Date(),
-        text: "레벨이 9로 올랐습니다.",
+        timestamp: new Date().toString(),
+        text: `레벨이 ${level}로 올랐습니다.`,
       },
     ]);
   };
@@ -97,13 +155,14 @@ export default function Home() {
         <LeftHeader>
           <InfoContianer>
             <Link to={"/character"}>
-              <img src={characterData?.faceUrl} className="w-16 h-16 group-hover:scale-110" />
+              <img
+                src={characterData?.faceUrl}
+                className="w-16 h-16 group-hover:scale-110 transition-all"
+              />
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${Math.floor(
-                  (characterData?.exp || 0) / 100
-                )}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
@@ -115,29 +174,67 @@ export default function Home() {
               </NameContainer>
             </CharacterInfo>
           </InfoContianer>
-          <ExpContainer>
+          <ExpContainer className="text-border">
             <ExpBarContainer>
-              <ExpBar style={{ width: `${(characterData?.exp || 0) % 100}%` }} />
-              <ExpText>{`${(characterData?.exp || 0) % 100} / 100`}</ExpText>
+              <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+              <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
+                expHandler(characterData?.exp || 0).maxExp
+              }`}</ExpText>
             </ExpBarContainer>
           </ExpContainer>
           <StatContainer>
             <StatRow>
               <BatteryIcon />
               <StatBarContainer className="bg-red-400/50">
-                <StatBar className="bg-red-500" />
+                <StatBar
+                  className="bg-red-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.fullness || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).fullnessMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <HeartIcon />
               <StatBarContainer className="bg-amber-400/50">
-                <StatBar className="bg-amber-500" />
+                <StatBar
+                  className="bg-amber-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.intimacy || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).intimacyMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
             <StatRow>
               <ShineIcon />
               <StatBarContainer className="bg-blue-400/50">
-                <StatBar className="bg-blue-500" />
+                <StatBar
+                  className="bg-blue-500"
+                  style={{
+                    width: `${(
+                      ((statusData?.cleanness || 0) /
+                        statusHandler(
+                          expHandler(characterData?.exp || 0).level,
+                          statData?.intimacyStat || 1
+                        ).cleannessMax) *
+                      100
+                    ).toFixed(2)}%`,
+                  }}
+                />
               </StatBarContainer>
             </StatRow>
           </StatContainer>
@@ -188,26 +285,32 @@ export default function Home() {
             ]}
           />
           <EffectContainer>
-            <FlyingFlyContainer>
-              <FlyingFly />
-            </FlyingFlyContainer>
-            <BrokenHeartContainer>
-              <BrokenHeart />
-            </BrokenHeartContainer>
-            <HungryEffectContainer>
-              <HungryEffect />
-            </HungryEffectContainer>
+            {statusData!.fullness < 50 && (
+              <FlyingFlyContainer>
+                <FlyingFly />
+              </FlyingFlyContainer>
+            )}
+            {statusData!.intimacy < 50 && (
+              <BrokenHeartContainer>
+                <BrokenHeart />
+              </BrokenHeartContainer>
+            )}
+            {statusData!.fullness < 50 && (
+              <HungryEffectContainer>
+                <HungryEffect />
+              </HungryEffectContainer>
+            )}
             <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
           </EffectContainer>
         </CharacterCanvasContainer>
         <InteractionContainer>
-          <InteractionButton onClick={interactionEat}>
+          <InteractionButton onClick={handleInteraction("EAT")}>
             <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
-          <InteractionButton>
+          <InteractionButton onClick={handleInteraction("WALK")}>
             <img src={interactionRunImage} className="h-10 bg-cover" />
           </InteractionButton>
-          <InteractionButton>
+          <InteractionButton onClick={handleInteraction("SHOWER")}>
             <img src={interactionShowerImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton onClick={() => navigate("/character/game")}>
@@ -235,8 +338,8 @@ export default function Home() {
           <ModalCloseButton onClick={toggleMsgModal} />
         </ModalTitleContainer>
         <ModalMsgList>
-          {messageData.map((msg) => (
-            <ModalMsg key={msg.timestamp.toString()}>
+          {messageData.map((msg, i) => (
+            <ModalMsg key={msg.timestamp + i}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
@@ -336,6 +439,7 @@ border-slate-800
 cursor-pointer
 hover:saturate-200
 hover:scale-125
+transition-all
 `;
 
 const CharacterName = tw.h1`
@@ -374,6 +478,8 @@ left-0
 bg-green-500
 h-full
 rounded-lg
+transition-all
+duration-1000
 `;
 
 const ExpText = tw.p`
@@ -446,6 +552,7 @@ h-14
 bg-purple-50
 hover:bg-purple-100
 hover:scale-125
+transition-all
 border-2
 border-slate-800
 shadow-xl
@@ -477,6 +584,8 @@ justify-between
 items-center
 px-4
 bg-gray-900/30
+hover:bg-gray-900/50
+transition-all
 `;
 
 const ServerMsg = tw.p`
@@ -525,9 +634,10 @@ const StatBar = tw.div`
 absolute
 top-0
 left-0
-w-3/5
 h-full
 rounded-lg
+transition-all
+duration-1000
 `;
 
 const BatteryIcon = tw(LuBatteryFull)`
