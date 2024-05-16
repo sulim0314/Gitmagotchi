@@ -2,22 +2,31 @@ import CommonButton from "@/components/common/CommonButton";
 import tw from "tailwind-styled-components";
 import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IBackground } from "@/models";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { changeBackground, getBackgroundList } from "@/api/user";
 import { useRecoilState } from "recoil";
 import { userDataAtom } from "@/store/user";
+import { deleteBackground } from "@/api/background";
 
-export default function ChangeBg() {
-  const [selected, setSelected] = useState<IBackground | null>(null);
+export default function Background() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useRecoilState(userDataAtom);
+  const [selected, setSelected] = useState<IBackground>({
+    id: 1,
+    imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+  });
+  const [backgroundList, setBackgroundList] = useState<IBackground[]>([
+    { id: 1, imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg" },
+  ]);
 
   const { data } = useQuery({
     queryKey: ["background"],
     queryFn: () => getBackgroundList({ userId: 1 }),
   });
+
   const mutation = useMutation({
     mutationFn: changeBackground,
     onSuccess: (data) => {
@@ -29,9 +38,27 @@ export default function ChangeBg() {
           backgroundUrl: selected?.imageUrl || prev.backgroundUrl,
         };
       });
+      navigate("/");
     },
     onError: (err) => console.log(err),
   });
+  const deleteMutation = useMutation({
+    mutationFn: deleteBackground,
+    onSuccess: (data) => {
+      console.log(data);
+      setBackgroundList((prev) => prev.filter((bg) => bg.id));
+      navigate("/");
+    },
+    onError: (err) => console.log(err),
+  });
+  useEffect(() => {
+    if (data) {
+      setBackgroundList([
+        { id: 1, imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg" },
+        ...data.backgrounds,
+      ]);
+    }
+  }, [data]);
 
   const handleChangeBg = () => {
     mutation.mutate({
@@ -40,6 +67,14 @@ export default function ChangeBg() {
         backgroundId: selected?.id,
       }),
     });
+  };
+
+  const handleDeleteBg = (id: number) => {
+    return () => {
+      deleteMutation.mutate({
+        backgroundId: id,
+      });
+    };
   };
 
   return (
@@ -61,7 +96,7 @@ export default function ChangeBg() {
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>
-          {data?.backgrounds?.map((bg: IBackground) => (
+          {backgroundList.map((bg: IBackground) => (
             <BgItem
               key={bg.id}
               style={{
@@ -69,7 +104,7 @@ export default function ChangeBg() {
               }}
               onClick={() => setSelected(bg)}
             >
-              <TrashIcon />
+              {bg.id !== 1 && <TrashIcon onClick={handleDeleteBg(bg.id)} />}
               {selected && selected.id === bg.id && (
                 <SelectedContainer>
                   <CheckIcon />

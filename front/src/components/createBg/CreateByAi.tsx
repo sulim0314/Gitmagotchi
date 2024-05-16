@@ -2,22 +2,28 @@ import tw from "tailwind-styled-components";
 import AiImage from "@/assets/images/ai.svg";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { generateBackground } from "@/api/background";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
   setCreatedUrl: React.Dispatch<React.SetStateAction<string>>;
+  createdRef: React.MutableRefObject<HTMLImageElement>;
 }
 
-export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
+export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IProps) {
+  const aiRef = useRef<HTMLImageElement>(null);
+  const animationRef = useRef<Animation>(new Animation());
   const [prompt, setPrompt] = useState<string>("");
   const mutation = useMutation({
     mutationFn: generateBackground,
     onSuccess: (data) => {
-      setCreatedUrl(data.imageUrl);
-      setProcess(3);
+      createdRef.current.src = data.imageUrl;
+      createdRef.current.onload = () => {
+        setCreatedUrl(data.imageUrl);
+        setProcess(3);
+      };
     },
     onError: (err) => console.log(err),
   });
@@ -34,25 +40,76 @@ export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
     setPrompt(e.target.value);
   };
 
+  useEffect(() => {
+    if (mutation.isPending) {
+      const keyframes: Keyframe[] = [
+        // { transform: "translate3d(0px, 0, 0)" },
+        { transform: "translate3d(-1px, 0, 0)" },
+        { transform: "translate3d(2px, 0, 0)" },
+        { transform: "translate3d(-4px, 0, 0)" },
+        { transform: "translate3d(4px, 0, 0)" },
+        { transform: "translate3d(-4px, 0, 0)" },
+        { transform: "translate3d(4px, 0, 0)" },
+        { transform: "translate3d(-4px, 0, 0)" },
+        { transform: "translate3d(2px, 0, 0)" },
+        { transform: "translate3d(-1px, 0, 0)" },
+        // { transform: "translate3d(0px, 0, 0)" },
+      ];
+      const options: KeyframeAnimationOptions = {
+        delay: 2000,
+        duration: 820,
+        easing: "cubic-bezier(.36,.07,.19,.97)",
+        fill: "both",
+        iterations: Infinity,
+      };
+
+      animationRef.current = aiRef.current?.animate(keyframes, options) || new Animation();
+    } else {
+      animationRef.current.cancel();
+    }
+  }, [mutation.isPending]);
+
   return (
-    <Wrapper>
-      <img src={AiImage} className="w-60" />
-      <Content>
-        <DesktopTitle>
-          <Title>생성할 배경 이미지를 적어주세요.</Title>
-          <Description>AI가 생성할 배경에 대해 구체적으로 작성해주세요.</Description>
-          <Description>구체적일수록 정확하게 생성돼요.</Description>
-        </DesktopTitle>
-        <ButtonContainer onSubmit={generate}>
-          <PromptContainer>
-            <CommonInput
-              props={{ placeholder: "EX) 푸른 초원", value: prompt, onChange: onChangePrompt }}
-            />
-          </PromptContainer>
-          <CommonButton title={"생성 (💰100)"} />
-        </ButtonContainer>
-      </Content>
-    </Wrapper>
+    <>
+      {mutation.isPending || mutation.isSuccess ? (
+        <Wrapper>
+          <img src={AiImage} ref={aiRef} className="w-60" />
+          <Content>
+            <DesktopTitle>
+              <Title>AI가 캐릭터를 생성하고 있어요.</Title>
+              <Description>20초 정도 소요됩니다.</Description>
+            </DesktopTitle>
+          </Content>
+        </Wrapper>
+      ) : (
+        <Wrapper>
+          <img src={AiImage} className="w-60" />
+          <Content>
+            {mutation.isError ? (
+              <DesktopTitle>
+                <Title className="text-red-600">생성하는데 문제가 생겼어요.</Title>
+                <Description>AI 정책에 위반되는 단어가 포함되었을 수 있어요.</Description>
+                <Description>다시 한 번 생성할 배경을 적어주세요.</Description>
+              </DesktopTitle>
+            ) : (
+              <DesktopTitle>
+                <Title>생성할 배경 이미지를 적어주세요.</Title>
+                <Description>AI가 생성할 배경에 대해 구체적으로 작성해주세요.</Description>
+                <Description>구체적일수록 정확하게 생성돼요.</Description>
+              </DesktopTitle>
+            )}
+            <ButtonContainer onSubmit={generate}>
+              <PromptContainer>
+                <CommonInput
+                  props={{ placeholder: "EX) 푸른 초원", value: prompt, onChange: onChangePrompt }}
+                />
+              </PromptContainer>
+              <CommonButton title={"생성 (💰100)"} />
+            </ButtonContainer>
+          </Content>
+        </Wrapper>
+      )}
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import CreateMethod from "@/components/createBg/CreateMethod";
 import CreateByAi from "@/components/createBg/CreateByAi";
 import CreateResult from "@/components/createBg/CreateResult";
@@ -9,12 +9,15 @@ import sampleBgImage from "@/assets/images/sampleBg.jpg";
 export default function CreateBg() {
   const [process, setProcess] = useState<number>(0);
   const [createdUrl, setCreatedUrl] = useState<string>(sampleBgImage);
+  const createdRef = useRef<HTMLImageElement>(new Image());
 
   const renderProcess = () => {
     if (process === 0) {
       return <CreateMethod setProcess={setProcess} />;
     } else if (process === 1) {
-      return <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} />;
+      return (
+        <CreateByAi setProcess={setProcess} setCreatedUrl={setCreatedUrl} createdRef={createdRef} />
+      );
     } else if (process === 2) {
       return <CreateByUpload setProcess={setProcess} setCreatedUrl={setCreatedUrl} />;
     } else if (process === 3) {

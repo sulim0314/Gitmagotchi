@@ -1,4 +1,4 @@
-import { InteractType } from "@/models";
+import { ICharacter, InteractType } from "@/models";
 
 export const expHandler = (exp: number) => {
   const LEVEL_EXP = [0, 10, 25, 45, 65, 90, 120, 150, 190, 230];
@@ -51,7 +51,10 @@ export const expHandler = (exp: number) => {
   return { level, curExp, maxExp, percentage: ((100 * curExp) / maxExp).toFixed(2) };
 };
 
-export const statusHandler = (level: number, intimacyLevel: number) => {
+export const statusHandler = (characterData: ICharacter | null) => {
+  if (!characterData) return { fullnessMax: 0, intimacyMax: 0, cleannessMax: 0 };
+  const level = expHandler(characterData.exp).level;
+  const intimacyLevel = characterData.stat.intimacyStat;
   let fullnessMax = 0;
   let intimacyMax = 0;
   let cleannessMax = 0;

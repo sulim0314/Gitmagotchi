@@ -1,6 +1,4 @@
-import { IBaseEntity } from "@/models";
-
-export interface IBackground extends IBaseEntity {
+export interface IBackground {
   id: number;
   imageUrl: string;
 }

@@ -30,7 +30,7 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
     { id: 1, text: "캐릭터 도감", url: "/collection" },
     { id: 2, text: "명예의 전당", url: "/award" },
     { id: 3, text: "사용자 랭킹", url: "/ranking" },
-    { id: 4, text: "배경화면", url: "/changebg" },
+    { id: 4, text: "배경화면", url: "/background" },
     { id: 5, text: "통합검색", url: "/search" },
   ];
 

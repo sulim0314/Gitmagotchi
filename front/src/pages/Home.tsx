@@ -17,7 +17,7 @@ import { LuBatteryFull } from "react-icons/lu";
 import { BsStars } from "react-icons/bs";
 import Spritesheet from "react-responsive-spritesheet";
 import Modal from "react-modal";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
 import { messageDataAtom } from "@/store/message";
@@ -28,10 +28,11 @@ import { expHandler, interactionMessage, statusHandler } from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
 import { getInteractionResult } from "@/api/character";
 import { InteractType } from "@/models";
+import { getMeal } from "@/api/user";
 
 export default function Home() {
   const navigate = useNavigate();
-  const userData = useRecoilValue(userDataAtom);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
   const [messageData, setMessageData] = useRecoilState(messageDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
@@ -47,18 +48,11 @@ export default function Home() {
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
     onSuccess: (data) => {
-      if (
-        expHandler(data.exp || 0).level >
-        expHandler(characterData?.exp || 0).level
-      ) {
+      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
         levelUpEffect(expHandler(data.exp || 0).level);
+        // getCharacterMotion()
       }
-      addMessage(
-        interactionMessage(
-          data.interactType,
-          data.exp - (characterData?.exp || 0)
-        )
-      );
+      addMessage(interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)));
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
@@ -69,6 +63,24 @@ export default function Home() {
             fullness: data.fullness,
             intimacy: data.intimacy,
           },
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
+
+  const mealMutation = useMutation({
+    mutationFn: getMeal,
+    onSuccess: (data) => {
+      console.log(data.message);
+      addMessage(
+        `${userData?.githubUsername}의 깃허브에서 ${data.value}개의 커밋을 가져와 밥을 지었습니다.`
+      );
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          meal: prev.meal + data.value,
         };
       });
     },
@@ -121,10 +133,7 @@ export default function Home() {
     const d = new Date(date);
     const hour = d.getHours();
     const minute = d.getMinutes();
-    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(
-      2,
-      "0"
-    )}] `;
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
   };
 
   const playAnimation = () => {
@@ -140,33 +149,21 @@ export default function Home() {
     return () => {
       if (
         type === "EAT" &&
-        (characterData?.status.fullness || 0) ===
-          statusHandler(
-            expHandler(characterData?.exp || 0).level,
-            characterData?.stat.intimacyStat || 1
-          ).fullnessMax
+        (characterData?.status.fullness || 0) === statusHandler(characterData).fullnessMax
       ) {
         addMessage("배가 불러 더이상 밥을 먹을 수 없습니다.");
         return;
       }
       if (
         type === "WALK" &&
-        (characterData?.status.intimacy || 0) ===
-          statusHandler(
-            expHandler(characterData?.exp || 0).level,
-            characterData?.stat.intimacyStat || 1
-          ).intimacyMax
+        (characterData?.status.intimacy || 0) === statusHandler(characterData).intimacyMax
       ) {
         addMessage("이미 친밀도가 최대치라서 산책하고 싶지 않아 합니다.");
         return;
       }
       if (
         type === "SHOWER" &&
-        (characterData?.status.cleanness || 0) ===
-          statusHandler(
-            expHandler(characterData?.exp || 0).level,
-            characterData?.stat.intimacyStat || 1
-          ).cleannessMax
+        (characterData?.status.cleanness || 0) === statusHandler(characterData).cleannessMax
       ) {
         addMessage("이미 깨끗해 샤워하고 싶지 않아 합니다.");
         return;
@@ -220,7 +217,7 @@ export default function Home() {
     <Wrapper>
       <Header>
         <LeftHeader>
-          <InfoContianer>
+          <InfoContianer className="text-border">
             <Link to={"/character"}>
               <FaceContainer>
                 <FaceImg src={characterData?.faceUrl} />
@@ -228,15 +225,13 @@ export default function Home() {
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${
-                  expHandler(characterData?.exp || 0).level
-                }`}</CharacterLevel>
+                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
                   <CharacterName>{characterData?.name}</CharacterName>
                 </Link>
-                <Link to={"/character/chat"}>
+                <Link to={"/character/chat"} className="bg-[#f2f2f2] rounded-full p-2 ">
                   <ChatIcon />
                 </Link>
               </NameContainer>
@@ -263,10 +258,7 @@ export default function Home() {
                   style={{
                     width: `${(
                       ((characterData?.status.fullness || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          characterData?.stat.intimacyStat || 1
-                        ).fullnessMax) *
+                        statusHandler(characterData).fullnessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -281,10 +273,7 @@ export default function Home() {
                   style={{
                     width: `${(
                       ((characterData?.status.intimacy || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          characterData?.stat.intimacyStat || 1
-                        ).intimacyMax) *
+                        statusHandler(characterData).intimacyMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -299,10 +288,7 @@ export default function Home() {
                   style={{
                     width: `${(
                       ((characterData?.status.cleanness || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          characterData?.stat.intimacyStat || 1
-                        ).cleannessMax) *
+                        statusHandler(characterData).cleannessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -321,11 +307,7 @@ export default function Home() {
             <PropertyContainer>
               <img src={MeatImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>{userData?.meal}</PropertyNumber>
-              <RefreshIcon
-                onClick={() => {
-                  levelUpEffect(1);
-                }}
-              />
+              <RefreshIcon onClick={() => mealMutation.mutate()} />
             </PropertyContainer>
           </PropertyList>
         </RightHeader>
@@ -360,24 +342,24 @@ export default function Home() {
               },
             ]}
           />
-          <EffectContainer>
+          <EffectContainer className="text-border">
             {characterData &&
               spriteLoaded &&
-              characterData.status.fullness < 50 && (
+              characterData.status.cleanness < statusHandler(characterData).cleannessMax && (
                 <FlyingFlyContainer>
                   <FlyingFly />
                 </FlyingFlyContainer>
               )}
             {characterData &&
               spriteLoaded &&
-              characterData.status.intimacy < 50 && (
+              characterData.status.intimacy < statusHandler(characterData).intimacyMax && (
                 <BrokenHeartContainer>
                   <BrokenHeart />
                 </BrokenHeartContainer>
               )}
             {characterData &&
               spriteLoaded &&
-              characterData.status.fullness < 50 && (
+              characterData.status.fullness < statusHandler(characterData).fullnessMax && (
                 <HungryEffectContainer>
                   <HungryEffect />
                 </HungryEffectContainer>
@@ -422,9 +404,7 @@ export default function Home() {
         <ModalMsgList>
           {messageData.map((msg, i) => (
             <ModalMsg key={msg.timestamp + i}>
-              <ModalMsgTimestamp>
-                {formatTimestamp(msg.timestamp)}
-              </ModalMsgTimestamp>
+              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
               {msg.text}
             </ModalMsg>
           ))}
@@ -520,6 +500,7 @@ flex-grow
 
 const CharacterLevel = tw.h3`
 text-sm
+text-slate-100
 `;
 
 const NameContainer = tw.div`
@@ -542,6 +523,7 @@ transition-all
 
 const CharacterName = tw.h1`
 text-xl
+text-slate-100
 `;
 
 const ChatIcon = tw(FaRegCommentDots)`

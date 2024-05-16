@@ -27,3 +27,7 @@ export const gainGold = async (params: {
 export const changeBackground = async (params: { body: string }): Promise<{ message: string }> => {
   return seoulInstance.patch("/users/background", params);
 };
+
+export const getMeal = async (): Promise<{ message: string; value: number }> => {
+  return seoulInstance.patch("/users/meal");
+};

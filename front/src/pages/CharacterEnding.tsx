@@ -30,18 +30,51 @@ export default function CharacterEnding() {
   const endingText = () => {
     if (!characterData) return;
     if (characterData.exp === 230) {
-      return "최고 레벨을 달성해 명예의 전당에 등록됩니다.";
+      return (
+        <DesktopTitle>
+          <Title>{`${characterData?.name} 캐릭터가`}</Title>
+          <Title>최고 레벨을 달성해</Title>
+          <Title>명예의 전당에 등록됩니다.</Title>
+        </DesktopTitle>
+      );
     } else if (characterData.status.cleanness === 0) {
-      return "청결도가 0이 되어 병사했습니다.";
+      return (
+        <DesktopTitle>
+          <Title>{`${characterData?.name} 캐릭터가`}</Title>
+          <Title>청결도가 0이 되어</Title>
+          <Title>병사했습니다.</Title>
+        </DesktopTitle>
+      );
     } else if (characterData.status.fullness === 0) {
-      return "포만감이 0이 되어 아사했습니다.";
+      return (
+        <DesktopTitle>
+          <Title>{`${characterData?.name} 캐릭터가`}</Title>
+          <Title>포만감이 0이 되어</Title>
+          <Title>아사했습니다.</Title>
+        </DesktopTitle>
+      );
     } else if (characterData.status.intimacy === 0) {
-      return "친밀도가 0이 되어 가출했습니다.";
+      return (
+        <DesktopTitle>
+          <Title>{`${characterData?.name} 캐릭터가`}</Title>
+          <Title>친밀도이 0이 되어</Title>
+          <Title>가출했습니다.</Title>
+        </DesktopTitle>
+      );
     }
   };
 
   const endingConfirm = () => {
-    mutation.mutate({ body: JSON.stringify({}) });
+    if (!characterData) return;
+    if (characterData.exp === 230) {
+      mutation.mutate({ body: JSON.stringify({ endingType: "INDEPENDENT" }) });
+    } else if (characterData.status.cleanness === 0) {
+      mutation.mutate({ body: JSON.stringify({ endingType: "SICK" }) });
+    } else if (characterData.status.fullness === 0) {
+      mutation.mutate({ body: JSON.stringify({ endingType: "HUNGRY" }) });
+    } else if (characterData.status.intimacy === 0) {
+      mutation.mutate({ body: JSON.stringify({ endingType: "RUNAWAY" }) });
+    }
   };
 
   return (
@@ -50,10 +83,7 @@ export default function CharacterEnding() {
         <CharacterImg src={characterData?.faceUrl} />
       </ImgContainer>
       <Content>
-        <DesktopTitle>
-          <Title>{`${characterData?.name} 캐릭터가`}</Title>
-          <Title>{endingText()}</Title>
-        </DesktopTitle>
+        {endingText()}
         <ButtonContainer>
           <CommonButton title={"확인"} onClick={endingConfirm} />
         </ButtonContainer>

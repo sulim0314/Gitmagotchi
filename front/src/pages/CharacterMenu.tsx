@@ -22,9 +22,7 @@ export default function CharacterMenu() {
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>{`LV.${
-            expHandler(characterData?.exp || 0).level
-          }`}</LevelText>
+          <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
           <ExpBarContainer className="text-border">
             <ExpBar
               style={{
@@ -53,19 +51,13 @@ export default function CharacterMenu() {
                 style={{
                   width: `${(
                     ((characterData?.status.fullness || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        characterData?.stat.intimacyStat || 1
-                      ).fullnessMax) *
+                      statusHandler(characterData).fullnessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
               <DataText>{`${characterData?.status.fullness || 0} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  characterData?.stat.intimacyStat || 1
-                ).fullnessMax
+                statusHandler(characterData).fullnessMax
               }`}</DataText>
             </StatBarContainer>
             <StatLabelText>{`LV.${characterData?.stat.fullnessStat}`}</StatLabelText>
@@ -79,19 +71,13 @@ export default function CharacterMenu() {
                 style={{
                   width: `${(
                     ((characterData?.status.intimacy || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        characterData?.stat.intimacyStat || 1
-                      ).intimacyMax) *
+                      statusHandler(characterData).intimacyMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
               <DataText>{`${characterData?.status.intimacy || 0} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  characterData?.stat.intimacyStat || 1
-                ).intimacyMax
+                statusHandler(characterData).intimacyMax
               }`}</DataText>
             </StatBarContainer>
             <StatLabelText>{`LV.${characterData?.stat.intimacyStat}`}</StatLabelText>
@@ -105,33 +91,21 @@ export default function CharacterMenu() {
                 style={{
                   width: `${(
                     ((characterData?.status.cleanness || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        characterData?.stat.intimacyStat || 1
-                      ).cleannessMax) *
+                      statusHandler(characterData).cleannessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
               <DataText>{`${characterData?.status.cleanness || 1} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  characterData?.stat.intimacyStat || 1
-                ).cleannessMax
+                statusHandler(characterData).cleannessMax
               }`}</DataText>
             </StatBarContainer>
             <StatLabelText>{`LV.${characterData?.stat.cleannessStat}`}</StatLabelText>
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem
-            text={"캐릭터 능력치"}
-            onClick={onClickLink("/character/stat")}
-          />
-          <CommonMenuItem
-            text={"캐릭터 이름 변경"}
-            onClick={onClickLink("/character/rename")}
-          />
+          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
+          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
           <DeleteText>
             캐릭터를 방출하시려면{" "}
             <Link to="/character/delete">

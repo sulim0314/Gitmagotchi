@@ -120,10 +120,9 @@ export default function Chat() {
           fullness: 70,
           intimacy: 80,
           cleanliness: 60,
-          intimacyMax: statusHandler(
-            expHandler(characterData?.exp || 0).level,
-            characterData?.stat.intimacyStat || 1
-          ).intimacyMax,
+          intimacyMax: statusHandler(characterData).intimacyMax,
+          fullnessMax: statusHandler(characterData).fullnessMax,
+          cleannessMax: statusHandler(characterData).cleannessMax,
         },
         userInput: chatMsg,
         chat: chatList
@@ -135,9 +134,7 @@ export default function Chat() {
   };
 
   const getMessage = (data: string) => {
-    const answer = data.startsWith(`${characterData?.name}:`)
-      ? data.split(":")[1]
-      : data;
+    const answer = data.startsWith(`${characterData?.name}:`) ? data.split(":")[1] : data;
     setChatList((prev) => [
       ...prev,
       {
@@ -200,11 +197,7 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
-        <ChatInput
-          placeholder="메시지를 입력하세요."
-          onChange={onChangeMsg}
-          value={chatMsg}
-        />
+        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} value={chatMsg} />
         <button>
           <SendIcon />
         </button>

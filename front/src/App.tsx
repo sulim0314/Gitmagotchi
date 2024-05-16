@@ -6,7 +6,6 @@ import Navbar from "@/components/common/Navber";
 import Collection from "@/pages/Collection";
 import Award from "@/pages/Award";
 import Ranking from "@/pages/Ranking";
-import ChangeBg from "@/pages/ChangeBg";
 import Search from "@/pages/Search";
 import MyPage from "@/pages/MyPage";
 import CreateCharacter from "@/pages/CreateCharacter";
@@ -29,6 +28,7 @@ import { applyCharacter, getCharacter } from "@/api/character";
 import EditProfile from "@/pages/EditProfile";
 import { IAuth } from "@/models";
 import CharacterEnding from "@/pages/CharacterEnding";
+import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 
 export default function App() {
   const location = useLocation();
@@ -122,15 +122,7 @@ export default function App() {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [
-    authData,
-    setAuthData,
-    userData,
-    setUserData,
-    characterData,
-    setCharacterData,
-    navigate,
-  ]);
+  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
 
   useEffect(() => {
     if (characterData?.characterId) {
@@ -145,6 +137,7 @@ export default function App() {
 
   useEffect(() => {
     if (characterData) {
+      console.log(characterData);
       applyCharacter({
         body: JSON.stringify({
           exp: characterData.exp,
@@ -163,8 +156,7 @@ export default function App() {
     }
   }, [characterData, navigate]);
 
-  if (loading || !frameLoaded || (userData && !bgLoaded))
-    return <div>Loading...</div>;
+  if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
 
   return (
     <>
@@ -194,7 +186,6 @@ export default function App() {
             <Route path="/collection" element={<Collection />} />
             <Route path="/award" element={<Award />} />
             <Route path="/ranking" element={<Ranking />} />
-            <Route path="/changebg" element={<ChangeBg />} />
             <Route path="/search" element={<Search />} />
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/editProfile" element={<EditProfile />} />
@@ -204,6 +195,8 @@ export default function App() {
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/ending" element={<CharacterEnding />} />
+            <Route path="/character/delete" element={<DeleteCharacterConfirm />} />
+            <Route path="/background" element={<Background />} />
             <Route path="/background/create" element={<CreateBg />} />
           </Routes>
         </Content>
