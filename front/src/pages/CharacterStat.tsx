@@ -86,7 +86,11 @@ export default function CharacterStat() {
 
   const resetPoint = () => {
     if (!characterData) return;
-    if (characterData.stat.unusedStat > 0) {
+    if (
+      characterData.stat.fullnessStat > 1 ||
+      characterData.stat.intimacyStat > 1 ||
+      characterData.stat.cleannessStat > 1
+    ) {
       mutation.mutate();
     }
   };
