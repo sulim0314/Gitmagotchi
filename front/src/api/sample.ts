@@ -3,7 +3,7 @@ import sampleProfileImage from "@/assets/images/sampleProfile.png";
 import sampleBgImage from "@/assets/images/sampleBg.jpg";
 import sampleFaceImage from "@/assets/images/sampleFace.png";
 import sampleFace2Image from "@/assets/images/sampleFace2.png";
-import { ICharacter, ICollection, IUser } from "@/models";
+import { ICharacter, ICharacterStat, ICharacterStatus, ICollection, IUser } from "@/models";
 
 export const sampleUser = {
   userId: 47638660,
@@ -19,9 +19,29 @@ export const sampleCharacter = {
   id: 1,
   userId: 47638660,
   name: "싸피취준생",
-  exp: 943,
+  exp: 210,
   faceUrl: sampleFace2Image,
   characterUrl: sampleCollectionImage,
+};
+
+export const sampleStat: ICharacterStat = {
+  characterId: 1,
+  userId: 1,
+  fullnessStat: 1,
+  intimacyStat: 7,
+  cleannessStat: 3,
+  unusedStat: 1,
+};
+
+export const sampleStatus: ICharacterStatus = {
+  characterId: 1,
+  userId: 1,
+  fullness: 60,
+  intimacy: 85,
+  cleanness: 50,
+  lastUpdatedFullness: new Date().toString(),
+  lastUpdatedIntimacy: new Date().toString(),
+  lastUpdatedCleanness: new Date().toString(),
 };
 
 export const sampleAward = [
@@ -448,7 +468,7 @@ export const sampleBackground = [
 
 export const sampleUserList: IUser[] = [
   {
-    userId: 1,
+    id: 1,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "코드몽키",
@@ -457,7 +477,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 2,
+    id: 2,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "송윤재",
@@ -466,7 +486,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 3,
+    id: 3,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "고수림",
@@ -475,7 +495,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 4,
+    id: 4,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "권송아",
@@ -484,7 +504,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 5,
+    id: 5,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "김희연",
@@ -493,7 +513,7 @@ export const sampleUserList: IUser[] = [
     lastTime: "",
   },
   {
-    userId: 6,
+    id: 6,
     githubUsername: "tama1001",
     profileImg: sampleProfileImage,
     nickname: "이유로",

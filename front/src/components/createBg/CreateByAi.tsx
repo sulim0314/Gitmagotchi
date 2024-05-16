@@ -16,8 +16,7 @@ export default function CreateByAi({ setProcess, setCreatedUrl }: IProps) {
   const mutation = useMutation({
     mutationFn: generateBackground,
     onSuccess: (data) => {
-      const body = JSON.parse(data.body);
-      setCreatedUrl(body.imageUrl);
+      setCreatedUrl(data.imageUrl);
       setProcess(3);
     },
     onError: (err) => console.log(err),

@@ -91,6 +91,7 @@ public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("content", responseDtos);
             responseMap.put("pageable", paginationInfo);
+            responseMap.put("Access-Control-Allow-Origin", "*");
 
             String jsonResponse = gson.toJson(responseMap);
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();

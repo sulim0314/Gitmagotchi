@@ -19,8 +19,6 @@ public class CharacterImageHandler implements RequestHandler<APIGatewayProxyRequ
     public String handleRequest(APIGatewayProxyRequestEvent request, Context context) {
         try {
             // String userInput = (String) request.get("userInput");
-
-
             String jsonBody = request.getBody();
 
             // JSON 객체로 변환
