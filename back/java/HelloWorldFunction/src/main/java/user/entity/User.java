@@ -24,7 +24,7 @@ public class User extends BaseEntity {
     @Column(name = "profile_img")
     private String profileImg;
     private String nickname;
-    @Column(name = "githubToken")
+    @Column(name = "github_token")
     private String githubToken;
     @Column(name = "github_username")
     private String githubUsername;

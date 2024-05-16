@@ -1,11 +1,14 @@
 export interface IUser {
-  userId: number;
+  id: number;
   profileImg: string;
   nickname: string;
   githubUsername: string;
   gold: number;
   meal: number;
   lastTime: string;
+  backgroundId?: number;
+  characterId?: number;
+  githubToken?: string;
 }
 
 export interface IRanking {

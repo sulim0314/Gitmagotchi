@@ -4,16 +4,16 @@ import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getBackgroundList } from "@/api/background";
 import { IBackground } from "@/models";
 import { useState } from "react";
+import { getBackgroundList } from "@/api/user";
 
 export default function ChangeBg() {
   const [selected, setSelected] = useState<IBackground | null>(null);
 
   const { data } = useQuery({
     queryKey: ["background"],
-    queryFn: getBackgroundList,
+    queryFn: () => getBackgroundList({ userId: 1 }),
   });
 
   return (
@@ -35,7 +35,7 @@ export default function ChangeBg() {
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>
-          {data?.map((bg: IBackground) => (
+          {data?.backgrounds?.map((bg: IBackground) => (
             <BgItem
               key={bg.id}
               style={{

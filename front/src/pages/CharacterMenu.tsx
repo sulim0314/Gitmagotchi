@@ -7,10 +7,15 @@ import CommonMenuItem from "@/components/common/CommonMenuItem";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
+import { expHandler, statusHandler } from "@/util/value";
+import { statDataAtom } from "@/store/stat";
+import { statusDataAtom } from "@/store/status";
 
 export default function CharacterMenu() {
   const navigate = useNavigate();
   const characterData = useRecoilValue(characterDataAtom);
+  const statData = useRecoilValue(statDataAtom);
+  const statusData = useRecoilValue(statusDataAtom);
 
   const onClickLink = (url: string) => {
     return () => {
@@ -22,10 +27,12 @@ export default function CharacterMenu() {
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>{`LV.${Math.floor((characterData?.exp || 0) / 100)}`}</LevelText>
-          <ExpBarContainer>
-            <ExpBar style={{ width: `${(characterData?.exp || 0) % 100}%` }} />
-            <DataText>{`${(characterData?.exp || 0) % 100} / 100`}</DataText>
+          <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
+          <ExpBarContainer className="text-border">
+            <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
+            <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
+              expHandler(characterData?.exp || 0).maxExp
+            }`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
@@ -39,27 +46,78 @@ export default function CharacterMenu() {
           <StatRow>
             <BatteryIcon />
             <StatLabelText>포만감</StatLabelText>
-            <StatBarContainer className="bg-red-400/50">
-              <StatBar className="bg-red-500" />
-              <DataText>60 / 100</DataText>
+            <StatBarContainer className="bg-red-400/50 text-border">
+              <StatBar
+                className="bg-red-500"
+                style={{
+                  width: `${(
+                    ((statusData?.fullness || 0) /
+                      statusHandler(
+                        expHandler(characterData?.exp || 0).level,
+                        statData?.intimacyStat || 1
+                      ).fullnessMax) *
+                    100
+                  ).toFixed(2)}%`,
+                }}
+              />
+              <DataText>{`${statusData?.fullness || 1} / ${
+                statusHandler(
+                  expHandler(characterData?.exp || 0).level,
+                  statData?.intimacyStat || 1
+                ).fullnessMax
+              }`}</DataText>
             </StatBarContainer>
             <StatLabelText>LV.1</StatLabelText>
           </StatRow>
           <StatRow>
             <HeartIcon />
             <StatLabelText>친밀도</StatLabelText>
-            <StatBarContainer className="bg-amber-400/50">
-              <StatBar className="bg-amber-500" />
-              <DataText>60 / 100</DataText>
+            <StatBarContainer className="bg-amber-400/50 text-border">
+              <StatBar
+                className="bg-amber-500"
+                style={{
+                  width: `${(
+                    ((statusData?.intimacy || 0) /
+                      statusHandler(
+                        expHandler(characterData?.exp || 0).level,
+                        statData?.intimacyStat || 1
+                      ).intimacyMax) *
+                    100
+                  ).toFixed(2)}%`,
+                }}
+              />
+              <DataText>{`${statusData?.intimacy || 1} / ${
+                statusHandler(
+                  expHandler(characterData?.exp || 0).level,
+                  statData?.intimacyStat || 1
+                ).intimacyMax
+              }`}</DataText>
             </StatBarContainer>
             <StatLabelText>LV.4</StatLabelText>
           </StatRow>
           <StatRow>
             <ShineIcon />
             <StatLabelText>청결도</StatLabelText>
-            <StatBarContainer className="bg-blue-400/50">
-              <StatBar className="bg-blue-500" />
-              <DataText>60 / 100</DataText>
+            <StatBarContainer className="bg-blue-400/50 text-border">
+              <StatBar
+                className="bg-blue-500"
+                style={{
+                  width: `${(
+                    ((statusData?.cleanness || 0) /
+                      statusHandler(
+                        expHandler(characterData?.exp || 0).level,
+                        statData?.intimacyStat || 1
+                      ).cleannessMax) *
+                    100
+                  ).toFixed(2)}%`,
+                }}
+              />
+              <DataText>{`${statusData?.cleanness || 1} / ${
+                statusHandler(
+                  expHandler(characterData?.exp || 0).level,
+                  statData?.intimacyStat || 1
+                ).cleannessMax
+              }`}</DataText>
             </StatBarContainer>
             <StatLabelText>LV.6</StatLabelText>
           </StatRow>
@@ -79,11 +137,13 @@ export default function CharacterMenu() {
 
 const Wrapper = tw.div`
 w-full
-h-full
+h-20
+flex-grow
 flex
 flex-col
 lg:flex-row
 items-center
+overflow-y-scroll
 `;
 
 const CharacterContainer = tw.div`
@@ -215,7 +275,6 @@ const StatBar = tw.div`
 absolute
 top-0
 left-0
-w-3/5
 h-full
 rounded-lg
 `;
