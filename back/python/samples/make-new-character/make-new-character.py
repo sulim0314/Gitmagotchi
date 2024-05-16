@@ -55,7 +55,6 @@ def remove_bg(texture: np.ndarray, mask: np.ndarray, save_path: Path):
     default character 생성하기
 '''
 def add_face(texture: np.ndarray , face: np.ndarray, offset_face: list):
-    face_shape = face.shape
     # RGB인 경우, RGBA로 변환
     if face.shape[2] == 3:
         print("Invalid Format!")
@@ -73,10 +72,11 @@ def add_face(texture: np.ndarray , face: np.ndarray, offset_face: list):
 
     # 붙일 얼굴 resize
     face_resized = cv2.resize(face, dsize=(0,0), fx=0.5, fy=0.5)
-    
+
     # 붙일 얼굴 시작점 crop
     start_y, start_x = get_start_idx(face_resized)
-    face_cropped = face_resized[start_y:,start_x:]
+    face_cropped = face_resized[start_y:,start_x:face_resized.shape[1]-50]
+
     # cv2.imshow("debug", face_cropped)
     # cv2.waitKey(0)
 
@@ -88,7 +88,6 @@ def add_face(texture: np.ndarray , face: np.ndarray, offset_face: list):
     #     pass
     # if offset_l:offset_l+face_cropped.shape[1] > texture.shape[1]-1:
     #     pass
-
     face_moved[offset_t:offset_t+face_cropped.shape[0], offset_l:offset_l+face_cropped.shape[1]] = face_cropped
     # mask 생성
     face_mask = face_moved[:,:,-1]
@@ -112,8 +111,8 @@ if __name__ == "__main__":
     load_image(template_path)
 
     # 1-1. texture 배경제거가 필요한 경우 배경제거
-    # texture = remove_bg(texture, mask, save_path)
+    texture = remove_bg(texture, mask, save_path)
 
     # 2. 배경제거 된 texture에 얼굴 합치기
-    texture = add_face(texture, new_face, [134,4])
+    # texture = add_face(texture, new_face, [71,4])
 
