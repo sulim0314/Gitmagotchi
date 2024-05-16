@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.bedrockruntime.model.ThrottlingException;
 
 import java.util.HashMap;
 
-public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class Llama3Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     static String response;
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
@@ -67,12 +67,12 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
         String languageType = " ";
         switch (level) {
             case 3:
-            case 4: languageType = "5글자 이내로 단어의 한국어로 답해줘";
+            case 4: languageType = "5글자 이내의 단어를 한국어로 답해줘";
                 break;
             case 5:
-            case 6: languageType = "20글자 이내로 문장의 한국어로 답해줘";
+            case 6: languageType = "20글자 이내의 문장을 한국어로 답해줘";
                 break;
-            default: languageType = "100글자 이내로 문장의 한국어로 답해줘";
+            default: languageType = "100글자 이내의 문장을 한국어로 답해줘";
                 break;
         }
 
@@ -85,9 +85,11 @@ public class ChatHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 
         // Define the user message to send.
         String prompt = String.format("""
-        너가 캐릭터가 되어 사용자 입력에 대해 추가적인 문구나 접두사 없이 %s. \n
+        너는 지금부터 캐릭터가 되어 챗봇처럼 사용자와 대화를 하는 거야.
+        챗봇처럼 사용자 입력에 대해 %s.
         아래의 캐릭터 정보와 이전 채팅 내용에 대해서는 직접적으로 언급하지 말아줘. \n
         한국어로 답해줘. 한국어로 답하는 거 명심해. \n
+        대화 이외의 나머지 단어 및 문장들은 다 제거해줘.
         
         [캐릭터 정보]
         이름 : %s
