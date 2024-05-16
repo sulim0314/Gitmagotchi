@@ -91,38 +91,51 @@ def save(character_id: int, adult_or_child: str, img_file_name: str, img_bytes: 
 '''
 def merge_face_with_body(char_anno_dir: str, usr_assets_dir: str, face_img_url:str, pos_face: list, offset_face: list):
     body_template_path = str(Path(char_anno_dir, "texture.png").resolve())
-    mask_template_path = str(Path(char_anno_dir, "face-mask.png").resolve())
     body_path = str(Path(usr_assets_dir, "texture.png").resolve())
     
-    full_img = cv2.imread(body_template_path, cv2.IMREAD_UNCHANGED)
-    mask = np.array(cv2.imread(mask_template_path, cv2.IMREAD_UNCHANGED))
-    face_img = Image.open(BytesIO(request.urlopen(face_img_url).read()))
-    face_img = cv2.cvtColor(np.array(face_img), cv2.COLOR_RGBA2BGRA)
+    texture = cv2.imread(body_template_path, cv2.IMREAD_UNCHANGED)
+    face = Image.open(BytesIO(request.urlopen(face_img_url).read()))
+    face = cv2.cvtColor(np.array(face), cv2.COLOR_RGBA2BGRA)
 
-    # RGB -> RGBA로 변환
-    if face_img.shape[2] == 3:
-        alpha_channel = np.ones((face_img.shape[0], face_img.shape[1]), dtype=np.uint8) * 255
-        face_img = cv2.merge((face_img, alpha_channel))
+    # RGB인 경우, RGBA로 변환
+    if face.shape[2] == 3:
+        print("Invalid Format!")
+        return
 
-    # 얼굴 이미지 자르기
-    b,t,l,r=758,185,222,734
-    length_x, length_y = 254, 282
-    face_img_cropped = face_img[t:b, l:r]
-    face_img_resized = cv2.resize(face_img_cropped, (length_x, length_y))
+    def get_start_idx(face: np.ndarray):
+        startIdx = np.argmax(face[:,:,-1])
+        startIdx = np.unravel_index(startIdx, (face.shape[0], face.shape[1]))
+        y = startIdx[0]
 
-    # 얼굴 이미지 몸 위치로 이동
-    face_img_moved = np.array(Image.new("RGBA", (pos_face[1], pos_face[0]), (255,255,255,255)))
-    offset_t, offset_l = offset_face[0], offset_face[1]
-    face_img_moved[offset_t:offset_t+length_y, offset_l:offset_l+length_x] = face_img_resized
-    
-    # 몸 + 얼굴 이미지
-    full_img[mask > 0] = face_img_moved[mask > 0]
-    
-    # 확인
-    # cv2.imshow("Image", full_img)
+        startIdx = np.argmax(np.rot90(face[:,:,-1]))
+        startIdx = np.unravel_index(startIdx, (face.shape[0], face.shape[1]))
+        x = startIdx[0]-6
+        return y, x
+
+    # 붙일 얼굴 resize
+    face_resized = cv2.resize(face, dsize=(0,0), fx=0.5, fy=0.5)
+
+    # 붙일 얼굴 시작점 crop
+    start_y, start_x = get_start_idx(face_resized)
+    face_cropped = face_resized[start_y:,start_x:face_resized.shape[1]-50]
+    # cv2.imshow("debug", face_cropped)
     # cv2.waitKey(0)
-    cv2.imwrite(body_path, full_img)
-    return full_img
+
+    # 붙일 얼굴 위치 지정
+    face_moved = np.zeros(texture.shape)
+    offset_l, offset_t = offset_face[0], offset_face[1]
+
+    face_moved[offset_t:offset_t+face_cropped.shape[0], offset_l:offset_l+face_cropped.shape[1]] = face_cropped
+    face_mask = face_moved[:,:,-1]
+    texture[face_mask>0] = face_moved[face_mask>0]
+
+    save_charcater_path = str(Path(body_path,  "texture.png").resolve())
+    cv2.imwrite(save_charcater_path, texture)
+
+    # mask[face_mask > 0] = face_mask[face_mask > 0]
+    # save_mask_path = str(Path(save_path / "mask.png").resolve())
+    # cv2.imwrite(save_mask_path, mask)
+    return texture
 
 '''
     새 캐릭터 생성
@@ -146,8 +159,8 @@ def make_new_character(character_id: int, level: int, char_anno_dir: str, usr_as
     adult_usr_dir = Path(usr_assets_dir, "adult")
     child_usr_dir = Path(usr_assets_dir, "child")
     
-    adult_img = merge_face_with_body(adult_anno_dir, adult_usr_dir, face_img_url, [798-112, 782-208], [6,138])
-    child_img = merge_face_with_body(child_anno_dir, child_usr_dir, face_img_url, [496, 419], [6,75])
+    adult_img = merge_face_with_body(adult_anno_dir, adult_usr_dir, face_img_url, [798-112, 782-208], [134,4])
+    child_img = merge_face_with_body(child_anno_dir, child_usr_dir, face_img_url, [496, 419], [71,4])
 
     # s3 & mysql 저장
     success = save_character_img(character_id, adult_img, "character_adult_url")

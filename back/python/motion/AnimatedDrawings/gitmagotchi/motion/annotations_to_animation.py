@@ -5,6 +5,8 @@
 import animated_drawings.render
 from pathlib import Path
 
+import numpy as np
+import cv2
 
 
 def annotations_to_animation(char_anno_dir: str, usr_assets_dir: str, motion_cfg_fn: str, retarget_cfg_fn: str):
@@ -22,6 +24,19 @@ def annotations_to_animation(char_anno_dir: str, usr_assets_dir: str, motion_cfg
             'MODE': 'video_render',
             'OUTPUT_VIDEO_PATH': motion_output_path}
     }
+
+    # mask 부여
+    
+    texture_path = str(Path(usr_assets_dir , "texture.png").resolve())
+    mask_path = str(Path(usr_assets_dir , "mask.png").resolve())
+    
+    if not Path(mask_path).exists():
+        texture = cv2.imread(texture_path, cv2.IMREAD_UNCHANGED)
+        mask = texture[:, :, -1]
+        cv2.imwrite(mask_path, mask)
+
+        texture = cv2.cvtColor(texture, cv2.COLOR_RGBA2RGB)
+        cv2.imwrite(texture_path, texture)
 
     # 모션 부여
     animated_drawings.render.start(mvc_cfg)

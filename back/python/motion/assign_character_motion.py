@@ -1,24 +1,28 @@
 
-from gitmagotchi.motion.image_to_animation import image_to_animation
+from gitmagotchi.motion.image_to_animation import image_to_animation, check_motion
 from gitmagotchi.face.new_character import make_new_character
 from pathlib import Path
 import os
 import json
 
 motion_name_by_lv = dict()
-motion_name_by_lv[0] = "wave_hello.yaml"
-motion_name_by_lv[1] = "basic.yaml" 
 
 # level
-motion_name_by_lv[2] = "rhythm.yaml" # 리듬타기
-motion_name_by_lv[3] = "zombie.yaml" # 걸음마
-motion_name_by_lv[4] = "kick.yaml" # 발차기
-motion_name_by_lv[5] = "stretching.yaml" # 스트레칭
-motion_name_by_lv[6] = "jumping.yaml" 
-motion_name_by_lv[7] = "shuffle.yaml" # 셔플댄스
-motion_name_by_lv[8] = "dab.yaml" # 댑
-motion_name_by_lv[9] = "hype_boy.yaml" # 춤
+motion_name_by_lv[202] = "rhythm.yaml" # 리듬타기
+motion_name_by_lv[203] = "zombie.yaml" # 걸음마
+motion_name_by_lv[204] = "kick.yaml" # 발차기
+motion_name_by_lv[205] = "stretching.yaml" # 스트레칭
+motion_name_by_lv[206] = "jumping.yaml" 
+motion_name_by_lv[207] = "shuffle.yaml" # 셔플댄스
+motion_name_by_lv[208] = "dab.yaml" # 댑
+motion_name_by_lv[209] = "hype_boy.yaml" # 춤
 
+# interaction
+motion_name_by_lv[100] = "walking.yaml" # 산책하기
+motion_name_by_lv[101] = "shower.yaml" # 샤워하기
+motion_name_by_lv[102] = "full.yaml"   # 밥먹기
+motion_name_by_lv[103] = "wave_hello.yaml" # 안녕
+motion_name_by_lv[104] = "basic.yaml" 
 
 def start(event: dict):
 
@@ -34,7 +38,7 @@ def start(event: dict):
 
     character_id = event["characterId"]
     level = event["requiredLevel"]
-    # character_id = 2
+    # character_id = 54
     # level = 8
 
     # tmp에 characterId 폴더를 생성함
@@ -49,8 +53,12 @@ def start(event: dict):
     if level > 9:
         return json.dumps({'statusCode': 400, 'body': 'Exceeded Maxium Level'})
     
-    # user_id=2
-    level += 1
+    level += 201
+    # 해당 레벨 모션이 이미 만들어져있는지 체크하기
+    success = check_motion(character_id, level)
+    if not success:
+        return {'statusCode': 200, 'body': 'Ready!'}
+
     # 레벨 별 모션 생성
     motion_cfg_fn = str(Path(motion_cfg_dir, motion_name_by_lv[level]).resolve())
     adult_anno_dir = str(Path(char_anno_dir, "adult").resolve())
@@ -62,18 +70,18 @@ def start(event: dict):
     if not success:
         return json.dumps({'statusCode': 500,
                 'body': 'Motion assignment failed.'})
-    if level == 2:
-        success = image_to_animation(character_id, user_id, "adult", 0, adult_anno_dir, adult_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
-        if not success:
-            return json.dumps({'statusCode': 500,
-                    'body': 'Motion assignment failed.'})
-        success = image_to_animation(character_id, user_id, "adult", 1, adult_anno_dir, adult_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
-        if not success:
-            return json.dumps({'statusCode': 500,
-                    'body': 'Motion assignment failed.'})
+    if level == 205:
+        level_list = [100, 101, 102, 103, 104]
+        for lv in level_list:
+            motion_cfg_fn = str(Path(motion_cfg_dir, motion_name_by_lv[lv]).resolve())
+            success = image_to_animation(character_id, user_id, "adult", lv, adult_anno_dir, adult_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
+            if not success:
+                return json.dumps({'statusCode': 500,
+                        'body': 'Motion assignment failed.'})
         
     # 어린이 모션도 추가 생성
-    if level<5:
+    if level<205:
+        motion_cfg_fn = str(Path(motion_cfg_dir, motion_name_by_lv[level]).resolve())
         child_anno_dir = str(Path(char_anno_dir, "child").resolve())
         child_usr_assets_path = os.path.join(usr_assets_path, "child")
         if not os.path.exists(child_usr_assets_path):
@@ -83,15 +91,14 @@ def start(event: dict):
         if not success:
             return json.dumps({'statusCode': 500,
                     'body': 'Motion assignment failed.'})
-        if level == 2:
-            success = image_to_animation(character_id, user_id, "child", 0, child_anno_dir, child_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
-            if not success:
-                return json.dumps({'statusCode': 500,
-                        'body': 'Motion assignment failed.'})
-            success = image_to_animation(character_id, user_id, "child", 1, child_anno_dir, child_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
-            if not success:
-                return json.dumps({'statusCode': 500,
-                        'body': 'Motion assignment failed.'})
+        if level == 202:
+            level_list = [100, 101, 102, 103, 104]
+            for lv in level_list:
+                motion_cfg_fn = str(Path(motion_cfg_dir, motion_name_by_lv[lv]).resolve())
+                success = image_to_animation(character_id, user_id, "child", lv, child_anno_dir, child_usr_assets_path, motion_cfg_fn, retarget_cfg_fn)
+                if not success:
+                    return json.dumps({'statusCode': 500,
+                            'body': 'Motion assignment failed.'})
 
     return json.dumps({'statusCode': 200, 'body': 'Ready!'})
 
