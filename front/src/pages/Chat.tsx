@@ -134,7 +134,7 @@ export default function Chat() {
   };
 
   const getMessage = (data: string) => {
-    const answer = data.startsWith(`${characterData?.name}:`) ? data.split(":")[1] : data;
+    const answer = filterAnswer(data);
     setChatList((prev) => [
       ...prev,
       {
@@ -145,6 +145,29 @@ export default function Chat() {
         text: answer,
       },
     ]);
+  };
+
+  const filterAnswer = (data: string) => {
+    let answer = data;
+    const filters = [
+      `${characterData?.name}:`,
+      "다마고치:",
+      "캐릭터 답글",
+      "답글",
+      "response =",
+      "[응답]",
+      "[답변]",
+      "[대화 내용]",
+      "[챗봇 응답]",
+      "캐릭터",
+      "The response is:",
+      "[챗봇 답]",
+    ];
+
+    for (const filter of filters) {
+      answer = answer.startsWith(filter) ? answer.split(filter)[1] : answer;
+    }
+    return answer;
   };
 
   // const unicodeToChar = (text: string) => {

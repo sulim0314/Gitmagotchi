@@ -2,6 +2,7 @@ import tw from "tailwind-styled-components";
 import CommonButton from "@/components/common/CommonButton";
 import { useSetRecoilState } from "recoil";
 import { userDataAtom } from "@/store/user";
+import { createAnimation } from "@/api/character";
 
 interface IProps {
   createdId: number | null;
@@ -14,6 +15,10 @@ export default function CreateResult({ createdId, createdName, faceUrl }: IProps
 
   const resultConfirm = () => {
     if (!createdId) return;
+    createAnimation({
+      characterId: createdId,
+      requiredLevel: 1,
+    });
     setUserData((prev) => {
       if (!prev) return prev;
       return {

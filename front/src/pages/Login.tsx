@@ -1,6 +1,5 @@
 import tw from "tailwind-styled-components";
 import BabyImgFrame from "@/assets/images/baby.svg";
-import sampleFace2Image from "@/assets/images/sampleFace2.png";
 import { FaGithub } from "react-icons/fa";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router";
@@ -30,7 +29,7 @@ export default function Login() {
     <Wrapper>
       <ImgContainer>
         <BabyImg src={BabyImgFrame} />
-        <FaceImg src={sampleFace2Image} />
+        <FaceImg src={"https://gitmagotchi-generated.s3.amazonaws.com/face.png"} />
       </ImgContainer>
       <Content>
         <Title>깃마고치</Title>
@@ -78,6 +77,7 @@ absolute
 left-40
 top-9
 -translate-x-1/2
+scale-[163%]
 `;
 
 const Content = tw.div`

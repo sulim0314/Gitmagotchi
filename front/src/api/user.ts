@@ -31,3 +31,7 @@ export const changeBackground = async (params: { body: string }): Promise<{ mess
 export const getMeal = async (): Promise<{ message: string; value: number }> => {
   return seoulInstance.patch("/users/meal");
 };
+
+export const eatMeal = async (): Promise<{ id: number; meal: number }> => {
+  return seoulInstance.patch("/users/eat");
+};

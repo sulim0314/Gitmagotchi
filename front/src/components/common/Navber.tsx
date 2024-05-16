@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CommonMenuItem from "./CommonMenuItem";
 import { useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
+import defaultUserImg from "@/assets/images/defaultUser.svg";
 
 interface IProps {
   pageTitle?: string;
@@ -53,7 +54,7 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
           </DesktopMenuItem>
         ))}
         <DesktopUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={userData?.profileImg || ""} />
+          <UserImg src={userData?.profileImg || defaultUserImg} />
           <UserNickname>{userData?.nickname}</UserNickname>
         </DesktopUserContainer>
       </DesktopMenu>

@@ -46,11 +46,25 @@ export default function Background() {
     mutationFn: deleteBackground,
     onSuccess: (data) => {
       console.log(data);
-      setBackgroundList((prev) => prev.filter((bg) => bg.id));
+      if (userData?.backgroundUrl === selected.imageUrl) {
+        setUserData((prev) => {
+          if (!prev) return prev;
+          setSelected({
+            id: 1,
+            imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+          });
+          return {
+            ...prev,
+            backgroundUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+          };
+        });
+      }
+      setBackgroundList((prev) => prev.filter((bg) => bg.id !== selected.id));
       navigate("/");
     },
     onError: (err) => console.log(err),
   });
+
   useEffect(() => {
     if (data) {
       setBackgroundList([
@@ -59,6 +73,14 @@ export default function Background() {
       ]);
     }
   }, [data]);
+
+  useEffect(() => {
+    backgroundList.map((bg) => {
+      if (bg.imageUrl === userData?.backgroundUrl) {
+        setSelected(bg);
+      }
+    });
+  }, [backgroundList, userData?.backgroundUrl]);
 
   const handleChangeBg = () => {
     mutation.mutate({

@@ -1,4 +1,4 @@
-import { usInstance } from ".";
+import { seoulInstance, usInstance } from ".";
 
 export const generateBackground = async (params: {
   body: string;
@@ -13,5 +13,5 @@ export const uploadBackground = async (params: { body: string }): Promise<{ imag
 export const deleteBackground = async (params: {
   backgroundId: number;
 }): Promise<{ message: string }> => {
-  return usInstance.delete("/background", { params });
+  return seoulInstance.delete("/users/background", { params });
 };

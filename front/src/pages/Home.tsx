@@ -10,7 +10,6 @@ import interactionRunImage from "@/assets/images/walk.svg";
 import interactionShowerImage from "@/assets/images/shower.svg";
 import interactionGameImage from "@/assets/images/game.svg";
 import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
-import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
 import { IoMdClose, IoIosLock } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
@@ -26,9 +25,11 @@ import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
 import { expHandler, interactionMessage, statusHandler } from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
-import { getInteractionResult } from "@/api/character";
+import { createAnimation, getInteractionResult } from "@/api/character";
 import { InteractType } from "@/models";
-import { getMeal } from "@/api/user";
+import BabyImgFrame from "@/assets/images/baby.svg";
+import RefreshImage from "@/assets/images/refresh.svg";
+import { eatMeal, getMeal } from "@/api/user";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -42,22 +43,37 @@ export default function Home() {
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
 
+  const mealRef = useRef<HTMLImageElement>(null);
+  const mealAnimationRef = useRef<Animation>(new Animation());
+
   const spriteRef = useRef<HTMLImageElement>(new Image());
   const [spriteLoaded, setSpriteLoaded] = useState<boolean>(false);
+  // const [spriteList, setSpriteList] = useState<string[]>([]);
 
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
     onSuccess: (data) => {
-      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
+      if (!characterData) return;
+      if (expHandler(data.exp || 0).level > expHandler(characterData.exp).level) {
         levelUpEffect(expHandler(data.exp || 0).level);
-        // getCharacterMotion()
+        createAnimation({
+          characterId: characterData.characterId,
+          requiredLevel: expHandler(data.exp || 0).level,
+        });
       }
-      addMessage(interactionMessage(data.interactType, data.exp - (characterData?.exp || 0)));
+      addMessage(interactionMessage(data.interactType, data.exp - characterData.exp));
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
           ...prev,
           exp: data.exp,
+          stat: {
+            ...prev.stat,
+            unusedStat:
+              expHandler(data.exp || 0).level > expHandler(characterData.exp).level
+                ? prev.stat.unusedStat + 1
+                : prev.stat.unusedStat,
+          },
           status: {
             cleanness: data.cleanness,
             fullness: data.fullness,
@@ -66,7 +82,7 @@ export default function Home() {
         };
       });
     },
-    onError: (err) => console.log(err),
+    onError: () => addMessage("캐릭터와 상호작용 하는데에 문제가 생겼습니다."),
   });
 
   const mealMutation = useMutation({
@@ -84,7 +100,20 @@ export default function Home() {
         };
       });
     },
-    onError: (err) => console.log(err),
+    onError: () => addMessage("지금은 밥을 지을 수 없습니다."),
+  });
+
+  const eatMutation = useMutation({
+    mutationFn: eatMeal,
+    onSuccess: (data) => {
+      console.log(data);
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return { ...prev, meal: data.meal };
+      });
+      handleInteraction("EAT")();
+    },
+    onError: () => addMessage("밥이 없어 밥을 먹을 수 없습니다."),
   });
 
   useEffect(() => {
@@ -211,7 +240,28 @@ export default function Home() {
     ]);
   };
 
-  if (!spriteLoaded) return null;
+  useEffect(() => {
+    if (mealMutation.isPending) {
+      const keyframes: Keyframe[] = [
+        { transform: "rotate(0deg)" },
+        { transform: "rotate(90deg)" },
+        { transform: "rotate(180deg)" },
+      ];
+      const options: KeyframeAnimationOptions = {
+        delay: 2000,
+        duration: 820,
+        easing: "ease-in-out",
+        fill: "both",
+        iterations: Infinity,
+      };
+
+      mealAnimationRef.current = mealRef.current?.animate(keyframes, options) || new Animation();
+    } else {
+      mealAnimationRef.current.cancel();
+    }
+  }, [mealMutation.isPending]);
+
+  if (!characterData || !userData || !spriteLoaded) return null;
 
   return (
     <Wrapper>
@@ -220,18 +270,21 @@ export default function Home() {
           <InfoContianer className="text-border">
             <Link to={"/character"}>
               <FaceContainer>
-                <FaceImg src={characterData?.faceUrl} />
+                <FaceImg src={characterData.faceUrl} />
               </FaceContainer>
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${expHandler(characterData.exp).level}`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
-                  <CharacterName>{characterData?.name}</CharacterName>
+                  <CharacterName>{characterData.name}</CharacterName>
                 </Link>
-                <Link to={"/character/chat"} className="bg-[#f2f2f2] rounded-full p-2 ">
+                <Link
+                  to={"/character/chat"}
+                  className="bg-[#f2f2f2] rounded-full p-2 border-2 border-slate-800"
+                >
                   <ChatIcon />
                 </Link>
               </NameContainer>
@@ -241,11 +294,11 @@ export default function Home() {
             <ExpBarContainer>
               <ExpBar
                 style={{
-                  width: `${expHandler(characterData?.exp || 0).percentage}%`,
+                  width: `${expHandler(characterData.exp).percentage}%`,
                 }}
               />
-              <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
-                expHandler(characterData?.exp || 0).maxExp
+              <ExpText>{`${expHandler(characterData.exp).curExp} / ${
+                expHandler(characterData.exp).maxExp
               }`}</ExpText>
             </ExpBarContainer>
           </ExpContainer>
@@ -257,8 +310,7 @@ export default function Home() {
                   className="bg-red-500"
                   style={{
                     width: `${(
-                      ((characterData?.status.fullness || 0) /
-                        statusHandler(characterData).fullnessMax) *
+                      (characterData.status.fullness / statusHandler(characterData).fullnessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -272,8 +324,7 @@ export default function Home() {
                   className="bg-amber-500"
                   style={{
                     width: `${(
-                      ((characterData?.status.intimacy || 0) /
-                        statusHandler(characterData).intimacyMax) *
+                      (characterData.status.intimacy / statusHandler(characterData).intimacyMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -287,8 +338,7 @@ export default function Home() {
                   className="bg-blue-500"
                   style={{
                     width: `${(
-                      ((characterData?.status.cleanness || 0) /
-                        statusHandler(characterData).cleannessMax) *
+                      (characterData.status.cleanness / statusHandler(characterData).cleannessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -302,12 +352,16 @@ export default function Home() {
           <PropertyList className="text-border">
             <PropertyContainer>
               <img src={CoinImage} className="w-8 h-8 bg-center" />
-              <PropertyNumber>{userData?.gold}</PropertyNumber>
+              <PropertyNumber>{userData.gold}</PropertyNumber>
             </PropertyContainer>
             <PropertyContainer>
               <img src={MeatImage} className="w-8 h-8 bg-center" />
-              <PropertyNumber>{userData?.meal}</PropertyNumber>
-              <RefreshIcon onClick={() => mealMutation.mutate()} />
+              <PropertyNumber>{userData.meal}</PropertyNumber>
+              {mealMutation.isPending ? (
+                <RefreshIcon src={RefreshImage} className="cursor-default" ref={mealRef} />
+              ) : (
+                <RefreshIcon src={RefreshImage} onClick={() => mealMutation.mutate()} />
+              )}
             </PropertyContainer>
           </PropertyList>
         </RightHeader>
@@ -315,51 +369,58 @@ export default function Home() {
 
       <MainContainer>
         <CharacterCanvasContainer>
-          <CharacterCanvas
-            image={sampleSpritesheetImage}
-            widthFrame={1000}
-            heightFrame={1000}
-            steps={339}
-            fps={30}
-            autoplay={false}
-            loop={false}
-            direction="forward"
-            backgroundSize={`cover`}
-            backgroundRepeat={`no-repeat`}
-            backgroundPosition={`center center`}
-            isResponsive={true}
-            getInstance={(s) => {
-              spritesheet.current = s;
-            }}
-            onEnterFrame={[
-              {
-                frame: 338,
-                callback: () => {
-                  if (spritesheet.current) {
-                    spritesheet.current.goToAndPause(1);
-                  }
+          {expHandler(characterData.exp).level === 1 ? (
+            <ImgContainer>
+              <BabyImg src={BabyImgFrame} />
+              <BabyFaceImg src={characterData?.faceUrl} />
+            </ImgContainer>
+          ) : (
+            <CharacterCanvas
+              image={sampleSpritesheetImage}
+              widthFrame={1000}
+              heightFrame={1000}
+              steps={339}
+              fps={30}
+              autoplay={false}
+              loop={false}
+              direction="forward"
+              backgroundSize={`cover`}
+              backgroundRepeat={`no-repeat`}
+              backgroundPosition={`center center`}
+              isResponsive={true}
+              getInstance={(s) => {
+                spritesheet.current = s;
+              }}
+              onEnterFrame={[
+                {
+                  frame: 338,
+                  callback: () => {
+                    if (spritesheet.current) {
+                      spritesheet.current.goToAndPause(1);
+                    }
+                  },
                 },
-              },
-            ]}
-          />
+              ]}
+            />
+          )}
           <EffectContainer className="text-border">
             {characterData &&
               spriteLoaded &&
-              characterData.status.cleanness < statusHandler(characterData).cleannessMax && (
+              characterData.status.cleanness < statusHandler(characterData).cleannessMax / 2 && (
                 <FlyingFlyContainer>
                   <FlyingFly />
                 </FlyingFlyContainer>
               )}
             {characterData &&
               spriteLoaded &&
-              characterData.status.intimacy < statusHandler(characterData).intimacyMax && (
+              characterData.status.intimacy < statusHandler(characterData).intimacyMax / 2 && (
                 <BrokenHeartContainer>
                   <BrokenHeart />
                 </BrokenHeartContainer>
               )}
             {characterData &&
               spriteLoaded &&
-              characterData.status.fullness < statusHandler(characterData).fullnessMax && (
+              characterData.status.fullness < statusHandler(characterData).fullnessMax / 2 && (
                 <HungryEffectContainer>
                   <HungryEffect />
                 </HungryEffectContainer>
@@ -368,7 +429,7 @@ export default function Home() {
           </EffectContainer>
         </CharacterCanvasContainer>
         <InteractionContainer>
-          <InteractionButton onClick={handleInteraction("EAT")}>
+          <InteractionButton onClick={() => eatMutation.mutate()}>
             <img src={interactionEatImage} className="h-10 bg-cover" />
           </InteractionButton>
           <InteractionButton onClick={handleInteraction("WALK")}>
@@ -405,7 +466,7 @@ export default function Home() {
           {messageData.map((msg, i) => (
             <ModalMsg key={msg.timestamp + i}>
               <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
-              {msg.text}
+              <ModalMsgText>{msg.text}</ModalMsgText>
             </ModalMsg>
           ))}
           <div ref={modalBottomRef} />
@@ -527,8 +588,8 @@ text-slate-100
 `;
 
 const ChatIcon = tw(FaRegCommentDots)`
-w-6
-h-6
+w-5
+h-5
 cursor-pointer
 `;
 
@@ -598,13 +659,11 @@ lg:text-xl
 text-slate-100
 `;
 
-const RefreshIcon = tw(VscRefresh)`
+const RefreshIcon = tw.img`
 w-8
-h-8
+h-6
 lg:w-10
-lg:h-10
-text-slate-500
-stroke-1
+lg:h-8
 cursor-pointer
 `;
 
@@ -676,11 +735,17 @@ transition-all
 const ServerMsg = tw.p`
 text-slate-200
 text-sm
+overflow-clip
+overflow-ellipsis
+break-words
+line-clamp-1
 `;
 
 const PlusIcon = tw(HiPlusCircle)`
 w-4
 h-4
+min-w-4
+min-h-4
 text-slate-200
 cursor-pointer
 `;
@@ -745,6 +810,7 @@ max-w-full
 max-h-full
 absolute
 aspect-square
+translate-y-24
 `;
 
 const EffectContainer = tw.div`
@@ -835,16 +901,22 @@ overflow-y-scroll
 p-4
 `;
 
-const ModalMsg = tw.p`
+const ModalMsg = tw.div`
+flex
 p-2
-text-xs
-lg:text-base
+space-x-2
 `;
 
-const ModalMsgTimestamp = tw.span`
+const ModalMsgTimestamp = tw.p`
+text-sm
+lg:text-base
 font-bold
 text-slate-500
-mr-4
+`;
+
+const ModalMsgText = tw.p`
+text-sm
+lg:text-base
 `;
 
 const ModalCloseButton = tw(IoMdClose)`
@@ -897,6 +969,34 @@ h-10
 text-slate-400
 `;
 
+const ImgContainer = tw.div`
+relative
+w-80
+h-80
+scale-75
+rotate-[60deg]
+translate-y-1
+translate-x-8
+`;
+
+const BabyImg = tw.img`
+h-full
+absolute
+left-1/2
+top-1/2
+-translate-x-1/2
+-translate-y-1/2
+`;
+
+const BabyFaceImg = tw.img`
+h-[10.2rem]
+absolute
+left-40
+top-9
+-translate-x-1/2
+scale-[163%]
+`;
+
 const customModalStyles: ReactModal.Styles = {
   overlay: {
     backgroundColor: " rgba(0, 0, 0, 0.4)",
@@ -906,5 +1006,10 @@ const customModalStyles: ReactModal.Styles = {
     position: "fixed",
     top: "0",
     left: "0",
+  },
+  content: {
+    border: "3px solid black",
+    overflow: "hidden",
+    outline: "none",
   },
 };

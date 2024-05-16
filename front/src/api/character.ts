@@ -1,4 +1,4 @@
-import { ICharacter, InteractType } from "@/models";
+import { ICharacter, IMotion, InteractType } from "@/models";
 import { seoulInstance, usInstance } from ".";
 
 export const createCharacter = async (params: {
@@ -35,21 +35,11 @@ export const getCharacterMotion = async (params: {
   return seoulInstance.post("/characters/image", params);
 };
 
-// here
-
-export const searchCharacter = async (params: { name: string }): Promise<string> => {
-  return seoulInstance.get("/characters", { params });
-};
-
-export const getChatResponse = async (params: { body: string }): Promise<string> => {
-  return usInstance.post("/character/chat", params);
-};
-export const getTestResponse = async (params: { body: string }): Promise<string> => {
-  return usInstance.post("character/chat/chat-java", params);
-};
-
-export const getChatSentiment = async (params: { body: string }): Promise<string> => {
-  return usInstance.post("/character/chat/sentiment", params);
+export const createAnimation = async (params: {
+  characterId: number;
+  requiredLevel: number;
+}): Promise<string> => {
+  return seoulInstance.post("/characters/motion", params);
 };
 
 export const generateFace = async (params: { body: string }): Promise<{ imageUrl: string }> => {
@@ -66,4 +56,39 @@ export const getInteractionResult = async (params: {
   interactType: InteractType;
 }> => {
   return seoulInstance.post("/characters/interaction", params);
+};
+
+export const getMotion = async (params: {
+  characterId: number;
+  requiredLevel: number;
+  characterExp: number;
+}): Promise<IMotion> => {
+  return seoulInstance.post("/characters/image", params);
+};
+
+export const getChatSentiment = async (params: { body: string }): Promise<string> => {
+  return usInstance.post("/character/chat/sentiment", params);
+};
+
+// here
+
+export const searchCharacter = async (params: { name: string }): Promise<string> => {
+  return seoulInstance.get("/characters", { params });
+};
+
+export const resetStatPoint = async (): Promise<{
+  message: string;
+  unusedStat: number;
+  gold: number;
+}> => {
+  return seoulInstance.patch("/characters/stat/reset");
+};
+
+// chat
+
+export const getChatResponse = async (params: { body: string }): Promise<string> => {
+  return usInstance.post("/character/chat", params);
+};
+export const getTestResponse = async (params: { body: string }): Promise<string> => {
+  return usInstance.post("character/chat/claude3", params);
 };

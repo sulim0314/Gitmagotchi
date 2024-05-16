@@ -18,25 +18,27 @@ export default function CharacterMenu() {
     };
   };
 
+  if (!characterData) return null;
+
   return (
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
+          <LevelText>{`LV.${expHandler(characterData.exp).level}`}</LevelText>
           <ExpBarContainer className="text-border">
             <ExpBar
               style={{
-                width: `${expHandler(characterData?.exp || 0).percentage}%`,
+                width: `${expHandler(characterData.exp).percentage}%`,
               }}
             />
-            <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
-              expHandler(characterData?.exp || 0).maxExp
+            <DataText>{`${expHandler(characterData.exp).curExp} / ${
+              expHandler(characterData.exp).maxExp
             }`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData?.faceUrl} className="w-36 lg:w-72" />
-          <Name>{characterData?.name}</Name>
+          <img src={characterData.faceUrl} className="w-36 lg:w-72" />
+          <Name>{characterData.name}</Name>
           <BirthDate>2024.04.15. 출생</BirthDate>
         </NameContainer>
       </CharacterContainer>
@@ -50,17 +52,16 @@ export default function CharacterMenu() {
                 className="bg-red-500"
                 style={{
                   width: `${(
-                    ((characterData?.status.fullness || 0) /
-                      statusHandler(characterData).fullnessMax) *
+                    (characterData.status.fullness / statusHandler(characterData).fullnessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${characterData?.status.fullness || 0} / ${
+              <DataText>{`${characterData.status.fullness} / ${
                 statusHandler(characterData).fullnessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>{`LV.${characterData?.stat.fullnessStat}`}</StatLabelText>
+            <StatLabelText>{`LV.${characterData.stat.fullnessStat}`}</StatLabelText>
           </StatRow>
           <StatRow>
             <HeartIcon />
@@ -70,13 +71,12 @@ export default function CharacterMenu() {
                 className="bg-amber-500"
                 style={{
                   width: `${(
-                    ((characterData?.status.intimacy || 0) /
-                      statusHandler(characterData).intimacyMax) *
+                    (characterData.status.intimacy / statusHandler(characterData).intimacyMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${characterData?.status.intimacy || 0} / ${
+              <DataText>{`${characterData.status.intimacy} / ${
                 statusHandler(characterData).intimacyMax
               }`}</DataText>
             </StatBarContainer>
@@ -90,17 +90,16 @@ export default function CharacterMenu() {
                 className="bg-blue-500"
                 style={{
                   width: `${(
-                    ((characterData?.status.cleanness || 0) /
-                      statusHandler(characterData).cleannessMax) *
+                    (characterData.status.cleanness / statusHandler(characterData).cleannessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${characterData?.status.cleanness || 1} / ${
+              <DataText>{`${characterData.status.cleanness} / ${
                 statusHandler(characterData).cleannessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>{`LV.${characterData?.stat.cleannessStat}`}</StatLabelText>
+            <StatLabelText>{`LV.${characterData.stat.cleannessStat}`}</StatLabelText>
           </StatRow>
         </StatContainer>
         <MenuContainer>

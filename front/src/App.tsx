@@ -18,24 +18,28 @@ import Minigame from "@/pages/Minigame";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import { authDataAtom } from "@/store/auth";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "@/api/user";
-import { applyCharacter, getCharacter } from "@/api/character";
+import { applyCharacter, getCharacter, getMotion } from "@/api/character";
 import EditProfile from "@/pages/EditProfile";
 import { IAuth } from "@/models";
 import CharacterEnding from "@/pages/CharacterEnding";
 import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 import Background from "@/pages/Background";
+import { useQuery } from "@tanstack/react-query";
+import { expHandler } from "./util/value";
+import { motionDataAtom } from "./store/motion";
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const setMotionData = useSetRecoilState(motionDataAtom);
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -47,6 +51,22 @@ export default function App() {
   const [bgLoaded, setBgLoaded] = useState<boolean>(false);
 
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+
+  const { data } = useQuery({
+    queryKey: [
+      "motion",
+      characterData ? characterData.characterId : "",
+      characterData ? expHandler(characterData.exp).level : 0,
+    ],
+    queryFn: () => {
+      if (!characterData) return null;
+      return getMotion({
+        characterId: characterData.characterId,
+        requiredLevel: expHandler(characterData.exp).level,
+        characterExp: characterData.exp,
+      });
+    },
+  });
 
   useEffect(() => {
     frameRef.current.src = BackgroundImage;
@@ -138,7 +158,6 @@ export default function App() {
 
   useEffect(() => {
     if (characterData) {
-      console.log(characterData);
       applyCharacter({
         body: JSON.stringify({
           exp: characterData.exp,
@@ -156,6 +175,13 @@ export default function App() {
       }
     }
   }, [characterData, navigate]);
+
+  useEffect(() => {
+    console.log(data);
+    if (data) {
+      setMotionData(data);
+    }
+  }, [data, setMotionData]);
 
   if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
 

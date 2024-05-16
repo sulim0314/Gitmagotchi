@@ -4,36 +4,118 @@ import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { expHandler } from "@/util/value";
+import { useMutation } from "@tanstack/react-query";
+import { resetStatPoint } from "@/api/character";
+import { userDataAtom } from "@/store/user";
 
 export default function CharacterStat() {
-  const characterData = useRecoilValue(characterDataAtom);
+  const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
+  const setUserData = useSetRecoilState(userDataAtom);
+
+  const mutation = useMutation({
+    mutationFn: resetStatPoint,
+    onSuccess: (data) => {
+      console.log(data.message);
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          gold: data.gold,
+        };
+      });
+      setCharacterData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          stat: {
+            fullnessStat: 1,
+            intimacyStat: 1,
+            cleannessStat: 1,
+            unusedStat: data.unusedStat,
+          },
+        };
+      });
+    },
+    onError: (err) => console.log(err),
+  });
+
+  const upFullness = () => {
+    setCharacterData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        stat: {
+          ...prev.stat,
+          unusedStat: prev.stat.unusedStat - 1,
+          fullnessStat: prev.stat.fullnessStat + 1,
+        },
+      };
+    });
+  };
+
+  const upIntimacy = () => {
+    setCharacterData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        stat: {
+          ...prev.stat,
+          unusedStat: prev.stat.unusedStat - 1,
+          intimacyStat: prev.stat.intimacyStat + 1,
+        },
+      };
+    });
+  };
+
+  const upCleanness = () => {
+    setCharacterData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        stat: {
+          ...prev.stat,
+          unusedStat: prev.stat.unusedStat - 1,
+          cleannessStat: prev.stat.cleannessStat + 1,
+        },
+      };
+    });
+  };
+
+  const resetPoint = () => {
+    if (!characterData) return;
+    if (characterData.stat.unusedStat > 0) {
+      mutation.mutate();
+    }
+  };
+
+  if (!characterData) return null;
 
   return (
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>LV.9</LevelText>
+          <LevelText>{`LV.${expHandler(characterData.exp).level}`}</LevelText>
           <ExpBarContainer className="text-border">
-            <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
-            <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
-              expHandler(characterData?.exp || 0).maxExp
+            <ExpBar style={{ width: `${expHandler(characterData.exp).percentage}%` }} />
+            <DataText>{`${expHandler(characterData.exp).curExp} / ${
+              expHandler(characterData.exp).maxExp
             }`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData?.faceUrl} className="w-36 lg:w-72" />
-          <Name>{characterData?.name}</Name>
-          <BirthDate>2024.04.15. 출생</BirthDate>
+          <img src={characterData.faceUrl} className="w-36 lg:w-72" />
+          <Name>{characterData.name}</Name>
+          <BirthDate>{characterData.createdAt} 출생</BirthDate>
         </NameContainer>
       </CharacterContainer>
       <OtherContainer>
         <StatPointContainer>
           <StatPointText>스탯 포인트</StatPointText>
           <StatPointBox>
-            <StatPointNumber>{characterData?.stat.unusedStat}</StatPointNumber>
+            <StatPointNumber>{characterData.stat.unusedStat}</StatPointNumber>
           </StatPointBox>
         </StatPointContainer>
         <StatList>
@@ -43,13 +125,13 @@ export default function CharacterStat() {
                 <BatteryIcon />
                 <StatText>포만감</StatText>
               </StatTitle>
-              <StatText>{`LV.${characterData?.stat.fullnessStat}`}</StatText>
-              <LevelupButton>
+              <StatText>{`LV.${characterData.stat.fullnessStat}`}</StatText>
+              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upFullness}>
                 <UpIcon />
               </LevelupButton>
             </StatRow>
             <StatDescription>
-              포만감 스텟을 올릴 시 하락하는 포만감 양이 줄어듭니다.
+              포만감 스텟을 올릴 시 상승하는 포만감 양이 상승합니다.
             </StatDescription>
           </StatRowContainer>
           <StatRowContainer>
@@ -58,14 +140,12 @@ export default function CharacterStat() {
                 <HeartIcon />
                 <StatText>친밀도</StatText>
               </StatTitle>
-              <StatText>{`LV.${characterData?.stat.intimacyStat}`}</StatText>
-              <LevelupButton>
+              <StatText>{`LV.${characterData.stat.intimacyStat}`}</StatText>
+              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upIntimacy}>
                 <UpIcon />
               </LevelupButton>
             </StatRow>
-            <StatDescription>
-              친밀도 스텟을 올릴 시 상승하는 친밀도 양이 상승합니다.
-            </StatDescription>
+            <StatDescription>친밀도 스텟을 올릴 시 친밀도 최대치가 상승합니다.</StatDescription>
           </StatRowContainer>
           <StatRowContainer>
             <StatRow>
@@ -73,14 +153,14 @@ export default function CharacterStat() {
                 <ShineIcon />
                 <StatText>청결도</StatText>
               </StatTitle>
-              <StatText>{`LV.${characterData?.stat.cleannessStat}`}</StatText>
-              <LevelupButton>
+              <StatText>{`LV.${characterData.stat.cleannessStat}`}</StatText>
+              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upCleanness}>
                 <UpIcon />
               </LevelupButton>
             </StatRow>
-            <StatDescription>청결도 스텟을 올릴 시 청결도 최대치가 상승합니다.</StatDescription>
+            <StatDescription>청결도 스텟을 하락하는 청결도 양이 줄어듭니다.</StatDescription>
           </StatRowContainer>
-          <CommonButton title="스탯 초기화 (💰100)" />
+          <CommonButton title="스탯 초기화 (💰100)" onClick={resetPoint} />
         </StatList>
       </OtherContainer>
     </Wrapper>
@@ -284,6 +364,8 @@ justify-center
 items-center
 rounded-lg
 cursor-pointer
+disabled:cursor-default
+disabled:bg-purple-200
 `;
 
 const UpIcon = tw(FaArrowUp)`

@@ -76,7 +76,7 @@ export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IP
           <img src={AiImage} ref={aiRef} className="w-60" />
           <Content>
             <DesktopTitle>
-              <Title>AI가 캐릭터를 생성하고 있어요.</Title>
+              <Title>AI가 배경화면을 생성하고 있어요.</Title>
               <Description>20초 정도 소요됩니다.</Description>
             </DesktopTitle>
           </Content>
