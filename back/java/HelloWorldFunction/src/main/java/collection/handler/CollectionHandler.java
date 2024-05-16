@@ -38,6 +38,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             // username: github_125880884
             String username = claims.getString("cognito:username");
             String userId = username.replace("github_", "");
+            // String userId = "111184269";
 
             String queryStr = "SELECT c FROM Collection c WHERE 1 = 1";
             String countQueryStr = "SELECT COUNT(c) FROM Collection c WHERE 1 = 1";  // 전체 항목 수를 계산하는 쿼리
@@ -131,6 +132,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("content", responseDtos);
             responseMap.put("pageable", paginationInfo);
+            responseMap.put("Access-Control-Allow-Origin", "*");
 
             String jsonResponse = gson.toJson(responseMap);
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();

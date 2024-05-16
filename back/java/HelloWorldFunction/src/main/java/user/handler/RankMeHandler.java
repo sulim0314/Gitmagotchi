@@ -30,6 +30,14 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             // username: github_125880884
             String username = claims.getString("cognito:username");
             String userId = username.replace("github_", "");
+            // String userId = "111184269";
+
+            System.out.println("####################");
+            System.out.println("requestContext: " + requestContext);
+            System.out.println("authorizer: " + authorizer);
+            System.out.println("claims: " + claims);
+            System.out.println("username: " + username);
+            System.out.println("userId: " + userId);
 
             String queryStr;
             if ("BEST".equals(type)) {
