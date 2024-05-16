@@ -23,7 +23,7 @@ public class EatMealHandler implements
         }
     }
 
-    static Integer userId = 125880884; // TODO : userId를 어떻게 받아올까
+    static Integer userId = 125880884;
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request,
@@ -55,7 +55,7 @@ public class EatMealHandler implements
         Integer fullness = getFullness(entityManager, userId);
         updateFullness(entityManager, userId, fullness + 15);
 
-        // TODO : 하루 최대 +45
+        // TODO : 하루 최대 +45 ??
 
         context.getLogger().log("4444444444444444444444");
 
