@@ -23,7 +23,6 @@ public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
 
             Map<String, String> queryParams = Optional.ofNullable(request.getQueryStringParameters()).orElse(Collections.emptyMap());
             String type = queryParams.getOrDefault("type", "BEST");
-            String userId = queryParams.getOrDefault("userId", "");
 
             //페이징 처리
             String pageStr = queryParams.get("page");
@@ -41,7 +40,7 @@ public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             System.out.println("page: " + page);
             System.out.println("size: " + size);
 
-            String queryStr = "SELECT u FROM User u LEFT JOIN u.collectionList c ";
+            String queryStr = "SELECT u, COUNT(c) FROM User u LEFT JOIN u.collectionList c ";
             String countQueryStr = "SELECT COUNT(DISTINCT u) FROM User u LEFT JOIN u.collectionList c ";  // 전체 항목 수를 계산하는 쿼리
 
             if ("BEST".equals(type)) {
@@ -54,36 +53,31 @@ public class RankHandler implements RequestHandler<APIGatewayProxyRequestEvent, 
             queryStr += "GROUP BY u.id ORDER BY COUNT(c) DESC";
 
             Query countQuery = entityManager.createQuery(countQueryStr);
-            TypedQuery<User> query = entityManager.createQuery(queryStr, User.class);
+            // TypedQuery<User> query = entityManager.createQuery(queryStr, User.class);
+            Query query = entityManager.createQuery(queryStr);
             query.setFirstResult(page * size); // 설정: 첫번째 결과의 인덱스
             query.setMaxResults(size);         // 설정: 최대 결과 수
 
             long totalElements = (long) countQuery.getSingleResult();
-            List<User> users = query.getResultList();
+            //List<User> users = query.getResultList();
+            List<Object[]> resultData = query.getResultList();
 
-            List<UserResponseDto> responseDtos = users.stream().map(user ->
-                    UserResponseDto.builder()
-                            .id(user.getId())
-                            .profileImg(user.getProfileImg())
-                            .nickname(user.getNickname())
-                            .githubToken(user.getGithubToken())
-                            .githubUsername(user.getGithubUsername())
-                            .gold(user.getGold())
-                            .meal(user.getMeal())
-                            .lastTime(user.getLastTime())
-                            .backgroundId(user.getBackgroundId())
-                            .characterId(user.getCharacterId())
-                            .build()
-            ).toList();
-
-            //출력 테스트
-            StringBuilder sb = new StringBuilder();
-            for (User user : users) {
-                sb.append(user.getId()).append("\n");
-            }
-            System.out.println("#################");
-            System.out.println(sb);
-            System.out.println("totalElements: " + totalElements);
+            List<UserResponseDto> responseDtos = resultData.stream().map(data -> {
+            User user = (User) data[0];
+            Long collectionCount = (Long) data[1];
+            return UserResponseDto.builder()
+                        .id(user.getId())
+                        .profileImg(user.getProfileImg())
+                        .nickname(user.getNickname())
+                        .githubToken(user.getGithubToken())
+                        .githubUsername(user.getGithubUsername())
+                        .gold(user.getGold())
+                        .meal(user.getMeal())
+                        .backgroundId(user.getBackgroundId())
+                        .characterId(user.getCharacterId())
+                        .collectionCount(collectionCount)
+                        .build();
+            }).toList();
 
             entityManager.getTransaction().commit();
             entityManager.close();
