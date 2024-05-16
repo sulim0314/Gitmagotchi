@@ -24,8 +24,6 @@ public class Character extends BaseEntity {
 
     @Column(name = "face_url")
     private String faceUrl;
-    @Column(name = "character_url")
-    private String characterUrl;
     @Column(name = "character_child_url")
     private String characterChildUrl;
     @Column(name = "character_adult_url")
