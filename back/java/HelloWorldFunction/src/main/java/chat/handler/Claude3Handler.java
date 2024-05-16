@@ -89,6 +89,7 @@ public class Claude3Handler implements RequestHandler<APIGatewayProxyRequestEven
         - 사용자가 캐릭터에게 긍정적인 말을 하면 친밀도가 상승한다.
         - 사용자가 캐릭터에게 부정적인 말을 하면 친밀도가 감소한다.
         - 캐릭터는 샤워하기를 통해 청결도를 올릴 수 있다.
+        - 스네이크 게임을 통해 친밀도가 상승한다.
         
         [캐릭터 정보]
         이름 : %s
