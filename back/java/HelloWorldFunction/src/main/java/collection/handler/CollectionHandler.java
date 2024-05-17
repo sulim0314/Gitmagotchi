@@ -132,12 +132,19 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("content", responseDtos);
             responseMap.put("pageable", paginationInfo);
-            responseMap.put("Access-Control-Allow-Origin", "*");
+
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Access-Control-Allow-Origin", "*");
 
             String jsonResponse = gson.toJson(responseMap);
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
             response.setStatusCode(200);
-            response.setBody(jsonResponse);
+
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("statusCode", 200);
+            responseJson.put("body", jsonResponse);
+            response.setBody(responseJson.toString());
+            response.setHeaders(headers);
 
             return response;
         } finally {
