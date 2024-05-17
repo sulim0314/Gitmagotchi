@@ -286,12 +286,16 @@ w-full
 h-full
 grow-0
 overflow-y-scroll
+lg:px-40
+xl:px-80
 `;
 
 const ChatInputContainer = tw.form`
 w-full
 p-4
 relative
+lg:px-40
+xl:px-80
 `;
 
 const ChatInput = tw.input`

@@ -132,8 +132,11 @@ export default function Home() {
   useEffect(() => {
     if (!currentSprite || !spriteRef.current) return;
     if (spritesheet.current) {
-      spritesheet.current.goToAndPause(1);
+      spritesheet.current.setEndAt(currentSprite.frames);
     }
+    // if (spritesheet.current) {
+    //   spritesheet.current.goToAndPause(1);
+    // }
     spriteRef.current.src = currentSprite?.motion;
     spriteRef.current.onload = () => {
       setSpriteLoaded(true);
@@ -301,9 +304,11 @@ export default function Home() {
 
   const onPauseAnimation = () => {
     if (spritesheet.current && motionData) {
-      if (Math.random() > 0.2) {
+      if (Math.random() > 0.1) {
         if (currentSprite?.frames !== motionData.default.frames) {
           setCurrentSprite(motionData.default);
+        } else {
+          spritesheet.current.goToAndPlay(1);
         }
       } else {
         setCurrentSprite(
@@ -436,11 +441,13 @@ export default function Home() {
                   />
                 )}
               </PropertyContainer>
-              <MealMsg>
-                커밋을 가져와
-                <br />
-                밥을 지어요.
-              </MealMsg>
+              {!mealMutation.isPending && (
+                <MealMsg>
+                  커밋을 가져와
+                  <br />
+                  밥을 지어요.
+                </MealMsg>
+              )}
             </PropertyVertical>
           </PropertyList>
         </RightHeader>
@@ -466,8 +473,8 @@ export default function Home() {
                     steps={1000}
                     fps={30}
                     autoplay={true}
-                    loop={true}
-                    endAt={330}
+                    loop={false}
+                    endAt={currentSprite.frames}
                     direction="forward"
                     backgroundSize={`cover`}
                     backgroundRepeat={`no-repeat`}
@@ -477,7 +484,7 @@ export default function Home() {
                       spritesheet.current = s;
                     }}
                     onPlay={onPlayAnimation}
-                    onLoopComplete={onPauseAnimation}
+                    onPause={onPauseAnimation}
                   />
                 </motion.div>
               )}

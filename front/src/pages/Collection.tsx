@@ -2,7 +2,7 @@ import tw from "tailwind-styled-components";
 import TotalImg from "@/assets/images/user.svg";
 import LaurelImg from "@/assets/images/laurel.svg";
 import DeathImg from "@/assets/images/skull.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CollectionItem from "@/components/common/CollectionItem";
 import { searchCollection } from "@/api/collection";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ export default function Collection() {
   const [page, setPage] = useState<number>(1);
   const [collectionList, setCollectionList] = useState<ICollection[]>([]);
   const [countTotal, setCountTotal] = useState<number[]>([0, 0, 0]);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const { data } = useQuery({
     queryKey: ["collection", menu, page],
@@ -52,6 +53,31 @@ export default function Collection() {
     };
     fetchCountTotal();
   }, []);
+
+  const onScroll = () => {
+    if (listRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight;
+
+      if (isNearBottom) {
+        console.log("Reached bottom");
+        // DO SOMETHING HERE
+      }
+    }
+  };
+
+  useEffect(() => {
+    const listElement = listRef.current;
+
+    if (listElement) {
+      listElement.addEventListener("scroll", onScroll);
+
+      // Clean-up
+      return () => {
+        listElement.removeEventListener("scroll", onScroll);
+      };
+    }
+  }, [listRef]);
 
   useEffect(() => {
     if (!data?.content) return;
@@ -102,7 +128,7 @@ export default function Collection() {
         </MenuItem>
       </MenuContainer>
       <CollectionContainer>
-        <CharacterGrid>
+        <CharacterGrid ref={listRef}>
           {collectionList.map((collection: ICollection) => (
             <CollectionItem
               key={collection.id}
