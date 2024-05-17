@@ -26,7 +26,7 @@ public class Claude3Handler implements RequestHandler<APIGatewayProxyRequestEven
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
-        String jsonBody = request.getBody();  // 예시로 입력을 바로 사용합니다. 실제 상황에서는 필요에 따라 입력을 파싱하고 검증할 수 있습니다.
+        String jsonBody = request.getBody();
 
         if (jsonBody == null || jsonBody.isEmpty()) {
             // 입력 데이터의 body 부분이 null이거나 비어있는 경우 처리
