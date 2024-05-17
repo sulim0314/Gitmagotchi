@@ -2,7 +2,7 @@ import tw from "tailwind-styled-components";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import RankingItem from "@/components/ranking/RankingItem";
 import { useQuery } from "@tanstack/react-query";
-import { getRankingList } from "@/api/ranking";
+import { getMyRank, getRankingList } from "@/api/ranking";
 import { useEffect, useState } from "react";
 import { IRanking } from "@/models";
 
@@ -19,6 +19,10 @@ export default function Ranking() {
         page,
         pageSize: 10,
       }),
+  });
+  const { data: myRankData } = useQuery({
+    queryKey: ["myRank"],
+    queryFn: getMyRank,
   });
 
   useEffect(() => {
@@ -38,13 +42,21 @@ export default function Ranking() {
     }
   };
 
+  console.log(myRankData);
+
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem $selected={menu === "BEST"} onClick={() => setMenu("BEST")}>
+        <DesktopMenuItem
+          $selected={menu === "BEST"}
+          onClick={() => setMenu("BEST")}
+        >
           <DesktopMenuText>BEST 랭킹</DesktopMenuText>
         </DesktopMenuItem>
-        <DesktopMenuItem $selected={menu === "WORST"} onClick={() => setMenu("WORST")}>
+        <DesktopMenuItem
+          $selected={menu === "WORST"}
+          onClick={() => setMenu("WORST")}
+        >
           <DesktopMenuText>WORST 랭킹</DesktopMenuText>
         </DesktopMenuItem>
       </DesktopMenu>
@@ -56,11 +68,11 @@ export default function Ranking() {
             <RightIcon onClick={changeMenu} />
           </MobileRankingMenu>
         </MobileHeader>
-        <MyRank>내 등수: 50등</MyRank>
+        <MyRank>{`내 등수: ${myRankData}등`}</MyRank>
         <RankListContainer>
           <RankList>
-            {rankList.map((r: IRanking) => (
-              <RankingItem ranking={r} best={menu === "BEST"} />
+            {rankList.map((r: IRanking, i: number) => (
+              <RankingItem rank={i + 1} ranking={r} best={menu === "BEST"} />
             ))}
           </RankList>
         </RankListContainer>
@@ -90,7 +102,8 @@ space-y-2
 `;
 
 const DesktopMenuItem = tw.button<{ $selected: boolean }>`
-${(p) => (p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent")}
+${(p) =>
+  p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent"}
 border-2
 h-14
 w-full

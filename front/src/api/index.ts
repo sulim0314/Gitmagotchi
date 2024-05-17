@@ -32,6 +32,7 @@ usInstance.interceptors.request.use(
 usInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
+    if (!data.body) return null;
     const body = JSON.parse(data.body);
     if (data.statusCode === 200) {
       return body;
@@ -59,6 +60,7 @@ seoulInstance.interceptors.request.use(
 seoulInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
+    if (!data.body) return null;
     const body = JSON.parse(data.body);
     if (data.statusCode === 200) {
       return body;

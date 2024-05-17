@@ -12,7 +12,11 @@ interface IProps {
   createdRef: React.MutableRefObject<HTMLImageElement>;
 }
 
-export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IProps) {
+export default function CreateByAi({
+  setProcess,
+  setCreatedUrl,
+  createdRef,
+}: IProps) {
   const aiRef = useRef<HTMLImageElement>(null);
   const animationRef = useRef<Animation>(new Animation());
   const [prompt, setPrompt] = useState<string>("");
@@ -53,7 +57,8 @@ export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IP
         iterations: Infinity,
       };
 
-      animationRef.current = aiRef.current?.animate(keyframes, options) || new Animation();
+      animationRef.current =
+        aiRef.current?.animate(keyframes, options) || new Animation();
     } else {
       animationRef.current.cancel();
     }
@@ -88,14 +93,22 @@ export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IP
           <Content>
             {mutation.isError ? (
               <DesktopTitle>
-                <Title className="text-red-600">생성하는데 문제가 생겼어요.</Title>
-                <Description>AI 정책에 위반되는 단어가 포함되었을 수 있어요.</Description>
-                <Description>다시 한 번 생성할 캐릭터를 적어주세요.</Description>
+                <Title className="text-red-600">
+                  생성하는데 문제가 생겼어요.
+                </Title>
+                <Description>
+                  AI 정책에 위반되는 단어가 포함되었을 수 있어요.
+                </Description>
+                <Description>
+                  다시 한 번 생성할 캐릭터를 적어주세요.
+                </Description>
               </DesktopTitle>
             ) : (
               <DesktopTitle>
                 <Title>생성할 캐릭터를 적어주세요.</Title>
-                <Description>AI가 생성할 캐릭터에 대해 구체적으로 작성해주세요.</Description>
+                <Description>
+                  AI가 생성할 캐릭터에 대해 구체적으로 작성해주세요.
+                </Description>
                 <Description>구체적일수록 정확하게 생성되요.</Description>
               </DesktopTitle>
             )}
@@ -103,7 +116,7 @@ export default function CreateByAi({ setProcess, setCreatedUrl, createdRef }: IP
               <PromptContainer>
                 <CommonInput
                   props={{
-                    placeholder: "EX) 귀여운 오리",
+                    placeholder: "EX) 고양이",
                     value: prompt,
                     onChange: onChangePrompt,
                   }}

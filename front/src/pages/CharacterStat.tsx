@@ -103,7 +103,9 @@ export default function CharacterStat() {
         <ExpContainer>
           <LevelText>{`LV.${expHandler(characterData.exp).level}`}</LevelText>
           <ExpBarContainer className="text-border">
-            <ExpBar style={{ width: `${expHandler(characterData.exp).percentage}%` }} />
+            <ExpBar
+              style={{ width: `${expHandler(characterData.exp).percentage}%` }}
+            />
             <DataText>{`${expHandler(characterData.exp).curExp} / ${
               expHandler(characterData.exp).maxExp
             }`}</DataText>
@@ -112,7 +114,9 @@ export default function CharacterStat() {
         <NameContainer>
           <img src={characterData.faceUrl} className="w-36 lg:w-72" />
           <Name>{characterData.name}</Name>
-          <BirthDate>{characterData.createdAt} 출생</BirthDate>
+          <BirthDate>
+            {characterData.createdAt ? `${characterData.createdAt} 출생` : ""}
+          </BirthDate>
         </NameContainer>
       </CharacterContainer>
       <OtherContainer>
@@ -130,7 +134,10 @@ export default function CharacterStat() {
                 <StatText>포만감</StatText>
               </StatTitle>
               <StatText>{`LV.${characterData.stat.fullnessStat}`}</StatText>
-              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upFullness}>
+              <LevelupButton
+                disabled={characterData.stat.unusedStat === 0}
+                onClick={upFullness}
+              >
                 <UpIcon />
               </LevelupButton>
             </StatRow>
@@ -145,11 +152,16 @@ export default function CharacterStat() {
                 <StatText>친밀도</StatText>
               </StatTitle>
               <StatText>{`LV.${characterData.stat.intimacyStat}`}</StatText>
-              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upIntimacy}>
+              <LevelupButton
+                disabled={characterData.stat.unusedStat === 0}
+                onClick={upIntimacy}
+              >
                 <UpIcon />
               </LevelupButton>
             </StatRow>
-            <StatDescription>친밀도 스텟을 올릴 시 친밀도 최대치가 상승합니다.</StatDescription>
+            <StatDescription>
+              친밀도 스텟을 올릴 시 친밀도 최대치가 상승합니다.
+            </StatDescription>
           </StatRowContainer>
           <StatRowContainer>
             <StatRow>
@@ -158,11 +170,16 @@ export default function CharacterStat() {
                 <StatText>청결도</StatText>
               </StatTitle>
               <StatText>{`LV.${characterData.stat.cleannessStat}`}</StatText>
-              <LevelupButton disabled={characterData.stat.unusedStat === 0} onClick={upCleanness}>
+              <LevelupButton
+                disabled={characterData.stat.unusedStat === 0}
+                onClick={upCleanness}
+              >
                 <UpIcon />
               </LevelupButton>
             </StatRow>
-            <StatDescription>청결도 스텟을 하락하는 청결도 양이 줄어듭니다.</StatDescription>
+            <StatDescription>
+              청결도 스텟을 하락하는 청결도 양이 줄어듭니다.
+            </StatDescription>
           </StatRowContainer>
           <CommonButton title="스탯 초기화 (💰100)" onClick={resetPoint} />
         </StatList>

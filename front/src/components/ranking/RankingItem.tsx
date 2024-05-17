@@ -6,28 +6,29 @@ import { FaAward, FaSkull } from "react-icons/fa6";
 import { IRanking } from "@/models";
 
 interface IProps {
+  rank: number;
   ranking: IRanking;
   best: boolean;
 }
 
-export default function RankingItem({ best, ranking }: IProps) {
+export default function RankingItem({ rank, best, ranking }: IProps) {
   return (
     <Wrapper>
       <RankContainer>
-        <RankText>{ranking.rank}</RankText>
-        {ranking.rank === 1 && (
+        <RankText>{rank}</RankText>
+        {rank === 1 && (
           <img
             src={TrophyGoldImage}
             className="h-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           />
         )}
-        {ranking.rank === 2 && (
+        {rank === 2 && (
           <img
             src={TrophySilverImage}
             className="h-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           />
         )}
-        {ranking.rank === 3 && (
+        {rank === 3 && (
           <img
             src={TrophyBronzeImage}
             className="h-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -37,13 +38,13 @@ export default function RankingItem({ best, ranking }: IProps) {
       <UserContainer>
         <img src={ranking.profileImg} className="w-12 rounded-md shadow-md" />
         <UserDetailContainer>
-          <GitHubUsername>Tama1001</GitHubUsername>
-          <Nickname>코드몽키</Nickname>
+          <GitHubUsername>{ranking.githubUsername}</GitHubUsername>
+          <Nickname>{ranking.nickname}</Nickname>
         </UserDetailContainer>
       </UserContainer>
       <DetailContainer>
         {best ? <AwardIcon /> : <SkullIcon />}
-        <DetailText>{ranking.amount}</DetailText>
+        <DetailText>{ranking.collectionCount}</DetailText>
       </DetailContainer>
     </Wrapper>
   );

@@ -93,7 +93,7 @@ export default function Collection() {
         <MenuItem $selected={menu === "AWARD"} onClick={changeMenu("AWARD")}>
           <MenuImg src={LaurelImg} />
           <MenuCount>{countTotal[1]}</MenuCount>
-          <MenuDescription>명예의 전당</MenuDescription>
+          <MenuDescription>독립</MenuDescription>
         </MenuItem>
         <MenuItem $selected={menu === "DEATH"} onClick={changeMenu("DEATH")}>
           <MenuImg src={DeathImg} />

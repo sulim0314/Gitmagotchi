@@ -18,7 +18,7 @@ import Minigame from "@/pages/Minigame";
 import BackgroundImage from "@/assets/images/background.svg";
 import SampleBg from "@/assets/images/sampleBg2.jpg";
 import { authDataAtom } from "@/store/auth";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { useEffect, useRef, useState } from "react";
 import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
@@ -31,15 +31,15 @@ import CharacterEnding from "@/pages/CharacterEnding";
 import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 import Background from "@/pages/Background";
 import { useQuery } from "@tanstack/react-query";
-import { expHandler } from "./util/value";
-import { motionDataAtom } from "./store/motion";
+import { expHandler } from "@/util/value";
+import { motionDataAtom } from "@/store/motion";
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
-  const setMotionData = useSetRecoilState(motionDataAtom);
+  const [motionData, setMotionData] = useRecoilState(motionDataAtom);
   const [authData, setAuthData] = useRecoilState(authDataAtom);
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -50,7 +50,8 @@ export default function App() {
   const bgRef = useRef<HTMLImageElement>(new Image());
   const [bgLoaded, setBgLoaded] = useState<boolean>(false);
 
-  const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const statIntervalId = useRef<NodeJS.Timeout | null>(null);
+  const cleannessIntervalId = useRef<NodeJS.Timeout | null>(null);
 
   const { data } = useQuery({
     queryKey: [
@@ -143,18 +144,58 @@ export default function App() {
         clearTimeout(timeoutId.current);
       }
     };
-  }, [authData, setAuthData, userData, setUserData, characterData, setCharacterData, navigate]);
+  }, [
+    authData,
+    setAuthData,
+    userData,
+    setUserData,
+    characterData,
+    setCharacterData,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (characterData?.characterId) {
-      intervalId.current = setInterval(() => {}, 3_600_000);
+      const cleannessLevel = characterData.stat.cleannessStat;
+      statIntervalId.current = setInterval(() => {
+        setCharacterData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            status: {
+              ...prev.status,
+              fullness: prev.status.fullness - 1,
+              intimacy: prev.status.intimacy - 1,
+            },
+          };
+        });
+      }, 7_200_000);
+      cleannessIntervalId.current = setInterval(() => {
+        setCharacterData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            status: {
+              ...prev.status,
+              cleanness: prev.status.cleanness - 1,
+            },
+          };
+        });
+      }, (cleannessLevel + 1) * 3_600_000);
     }
     return () => {
-      if (intervalId.current) {
-        clearInterval(intervalId.current);
+      if (statIntervalId.current) {
+        clearInterval(statIntervalId.current);
+      }
+      if (cleannessIntervalId.current) {
+        clearInterval(cleannessIntervalId.current);
       }
     };
-  }, [characterData?.characterId]);
+  }, [
+    characterData?.characterId,
+    characterData?.stat.cleannessStat,
+    setCharacterData,
+  ]);
 
   useEffect(() => {
     if (characterData) {
@@ -166,10 +207,10 @@ export default function App() {
         }),
       });
       if (
-        characterData.exp === 230 ||
-        characterData.status.cleanness === 0 ||
-        characterData.status.intimacy === 0 ||
-        characterData.status.fullness === 0
+        characterData.exp >= 230 ||
+        characterData.status.cleanness <= 0 ||
+        characterData.status.intimacy <= 0 ||
+        characterData.status.fullness <= 0
       ) {
         navigate("/character/ending");
       }
@@ -177,13 +218,32 @@ export default function App() {
   }, [characterData, navigate]);
 
   useEffect(() => {
-    console.log(data);
     if (data) {
       setMotionData(data);
     }
   }, [data, setMotionData]);
 
-  if (loading || !frameLoaded || (userData && !bgLoaded)) return <div>Loading...</div>;
+  useEffect(() => {
+    function preloading(imageArray: string[]) {
+      imageArray.forEach((url) => {
+        const image = new Image();
+        image.src = url;
+      });
+    }
+    if (motionData && motionData.motion.length > 0) {
+      preloading([
+        motionData.hello.motion,
+        motionData.default.motion,
+        motionData.meal.motion,
+        motionData.shower.motion,
+        motionData.walk.motion,
+        ...motionData.motion.map((m) => m.motion),
+      ]);
+    }
+  }, [motionData]);
+
+  if (loading || !frameLoaded || (userData && !bgLoaded))
+    return <div>Loading...</div>;
 
   return (
     <>
@@ -222,7 +282,10 @@ export default function App() {
             <Route path="/character/rename" element={<CharacterRename />} />
             <Route path="/character/game" element={<Minigame />} />
             <Route path="/character/ending" element={<CharacterEnding />} />
-            <Route path="/character/delete" element={<DeleteCharacterConfirm />} />
+            <Route
+              path="/character/delete"
+              element={<DeleteCharacterConfirm />}
+            />
             <Route path="/background" element={<Background />} />
             <Route path="/background/create" element={<CreateBg />} />
           </Routes>

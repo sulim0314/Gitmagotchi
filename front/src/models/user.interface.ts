@@ -14,9 +14,15 @@ export interface IUser extends IBaseEntity {
 }
 
 export interface IRanking {
-  rank: number;
-  profileImg: string;
-  username: string;
+  id: number;
+  githubToken: string;
+  githubUsername: string;
+  gold: number;
+  lastTime: string;
+  meal: number;
   nickname: string;
-  amount: number;
+  profileImg: string;
+  characterId: number | null;
+  backgroundUrl: string;
+  collectionCount: number;
 }
