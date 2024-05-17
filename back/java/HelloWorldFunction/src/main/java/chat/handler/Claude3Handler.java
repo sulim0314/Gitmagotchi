@@ -26,7 +26,7 @@ public class Claude3Handler implements RequestHandler<APIGatewayProxyRequestEven
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
-        String jsonBody = request.getBody();  // 예시로 입력을 바로 사용합니다. 실제 상황에서는 필요에 따라 입력을 파싱하고 검증할 수 있습니다.
+        String jsonBody = request.getBody();
 
         if (jsonBody == null || jsonBody.isEmpty()) {
             // 입력 데이터의 body 부분이 null이거나 비어있는 경우 처리
@@ -46,29 +46,29 @@ public class Claude3Handler implements RequestHandler<APIGatewayProxyRequestEven
         JsonElement levelElement = characterInfo.get("level");
         JsonElement fullnessElement = characterInfo.get("fullness");
         JsonElement intimacyElement = characterInfo.get("intimacy");
-        JsonElement cleanlinessElement = characterInfo.get("cleanliness");
+        JsonElement cleannessElement = characterInfo.get("cleanness");
         JsonElement fullnessMaxElement = characterInfo.get("fullnessMax");
         JsonElement intimacyMaxElement = characterInfo.get("intimacyMax");
-        JsonElement cleanlinessMaxElement = characterInfo.get("cleanlinessMax");
+        JsonElement cleannessMaxElement = characterInfo.get("cleannessMax");
 
         String name = nameElement.getAsString();
         int level = levelElement.getAsInt();
         int fullness = fullnessElement.getAsInt();
         int intimacy = intimacyElement.getAsInt();
-        int cleanliness = cleanlinessElement.getAsInt();
+        int cleanness = cleannessElement.getAsInt();
         int fullnessMax = fullnessMaxElement.getAsInt();
         int intimacyMax = intimacyMaxElement.getAsInt();
-        int cleanlinessMax = cleanlinessMaxElement.getAsInt();
+        int cleannessMax = cleannessMaxElement.getAsInt();
 
         String languageType;
         switch (level) {
             case 3:
-            case 4: languageType = "4살 유치원생처럼 짧은 단어를 한국어로 답해줘. 10글자 이내로 답하는 거 명심해.";
+            case 4: languageType = "유치원생 수준의 짧은 단어를 한국어로 답해줘. 10글자 이내로 답하는 거 명심해.";
                 break;
             case 5:
-            case 6: languageType = "8살 초등학생처럼 20글자 이내의 문장을 한국어로 답해줘. 20글자 이내인 거 명심해.";
+            case 6: languageType = "초등학생 수준의 20글자 이내의 문장을 한국어로 답해줘. 20글자 이내인 거 명심해.";
                 break;
-            default: languageType = "20살 성인처럼 50글자 이내의 문장을 한국어로 답해줘. 50글자 이내인 거 명심해.";
+            default: languageType = "성인 수준의 50글자 이내의 문장을 한국어로 답해줘. 50글자 이내인 거 명심해.";
                 break;
         }
 
@@ -81,30 +81,31 @@ public class Claude3Handler implements RequestHandler<APIGatewayProxyRequestEven
         친근한 말투를 사용해주고, 상황에 맞는 이모티콘을 넣어도 돼. \n
         한국어로 답해줘. 한국어로 답하는 거 명심해. \n
         아래의 게임 설명, 캐릭터 정보, 이전 채팅 내용에 대해서는 참고만하고 직접적으로 언급하지 말아줘. \n
-        대화 이외의 나머지 단어 및 문장들은 다 제거해줘. \n
+        대화 이외의 나머지 단어 및 문장들은 다 제거해줘. \n\n
         
-        [게임 설명]
-        - 사용자는 커밋 기록으로 캐릭터에게 밥을 줄 수 있다.
-        - 캐릭터는 밥먹기를 통해 포만감이 상승한다.
-        - 사용자가 캐릭터에게 긍정적인 말을 하면 친밀도가 상승한다.
-        - 사용자가 캐릭터에게 부정적인 말을 하면 친밀도가 감소한다.
-        - 캐릭터는 샤워하기를 통해 청결도를 올릴 수 있다.
-        
-        [캐릭터 정보]
-        이름 : %s
-        레벨 : %d
-        포만감 : %d/%d
-        친밀도 : %d/%d
-        청결도 : %d/%d
+        [게임 설명] \n
+        - 사용자는 커밋 기록으로 캐릭터에게 밥을 줄 수 있다. \n
+        - 캐릭터는 밥먹기를 통해 포만감이 상승한다. \n
+        - 사용자가 캐릭터에게 긍정적인 말을 하면 친밀도가 상승한다. \n
+        - 사용자가 캐릭터에게 부정적인 말을 하면 친밀도가 감소한다. \n
+        - 캐릭터는 샤워하기를 통해 청결도를 올릴 수 있다. \n
+        - 스네이크 게임을 통해 친밀도가 상승한다. \n
         \n
-        [이전 대화 내용]
+        [캐릭터 정보] \n
+        이름 : %s \n
+        레벨 : %d \n
+        포만감 : %d/%d \n
+        친밀도 : %d/%d \n
+        청결도 : %d/%d \n
+        \n
+        [이전 대화 내용] \n
         %s
         \n
-        [사용자 입력 내용]
+        [사용자 입력 내용] \n
         %s
         \n
         
-        """, languageType, name, level, fullness, fullnessMax, intimacy, intimacyMax, cleanliness, cleanlinessMax, preChat, userInput);
+        """, languageType, name, level, fullness, fullnessMax, intimacy, intimacyMax, cleanness, cleannessMax, preChat, userInput);
 
         APIGatewayProxyResponseEvent responseAPI = new APIGatewayProxyResponseEvent();
         try {
