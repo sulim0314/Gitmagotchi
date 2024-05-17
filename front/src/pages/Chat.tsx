@@ -43,6 +43,7 @@ export default function Chat() {
     // onSuccess: (data) => getMessage(unicodeToChar(data)),
     onSuccess: (data) => getMessage(data),
     onError: (err) => console.log(err),
+    retry: 2,
   });
   const sentimentMutation = useMutation({
     mutationFn: getChatSentiment,
@@ -63,6 +64,7 @@ export default function Chat() {
       navigate("/");
     },
     onError: (err) => console.log(err),
+    retry: 2,
   });
 
   const [chatMsg, setChatMsg] = useState<string>("");

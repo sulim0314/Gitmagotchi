@@ -68,7 +68,7 @@ export default function Ranking() {
             <RightIcon onClick={changeMenu} />
           </MobileRankingMenu>
         </MobileHeader>
-        <MyRank>{`내 등수: ${myRankData?.rank}등`}</MyRank>
+        <MyRank>{myRankData && `내 등수: ${myRankData?.rank}등`}</MyRank>
         <RankListContainer>
           <RankList>
             {rankList.map((r: IRanking, i: number) => (

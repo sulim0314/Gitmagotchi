@@ -16,7 +16,7 @@ export default function CreateResult({ bgUrl }: IProps) {
           <Description>생성된 배경화면은 보관함에 저장되었어요.</Description>
         </DesktopTitle>
         <ButtonContainer>
-          <Link to={"/"}>
+          <Link to={"/background"}>
             <CommonButton title={"확인"} />
           </Link>
         </ButtonContainer>

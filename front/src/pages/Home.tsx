@@ -302,7 +302,9 @@ export default function Home() {
   const onPauseAnimation = () => {
     if (spritesheet.current && motionData) {
       if (Math.random() > 0.2) {
-        setCurrentSprite(motionData.default);
+        if (currentSprite?.frames !== motionData.default.frames) {
+          setCurrentSprite(motionData.default);
+        }
       } else {
         setCurrentSprite(
           motionData.motion[
@@ -417,22 +419,29 @@ export default function Home() {
               <img src={CoinImage} className="w-8 h-8 bg-center" />
               <PropertyNumber>{userData.gold}</PropertyNumber>
             </PropertyContainer>
-            <PropertyContainer>
-              <img src={MeatImage} className="w-8 h-8 bg-center" />
-              <PropertyNumber>{userData.meal}</PropertyNumber>
-              {mealMutation.isPending ? (
-                <RefreshIcon
-                  src={RefreshImage}
-                  className="cursor-default"
-                  ref={mealRef}
-                />
-              ) : (
-                <RefreshIcon
-                  src={RefreshImage}
-                  onClick={() => mealMutation.mutate()}
-                />
-              )}
-            </PropertyContainer>
+            <PropertyVertical>
+              <PropertyContainer>
+                <img src={MeatImage} className="w-8 h-8 bg-center" />
+                <PropertyNumber>{userData.meal}</PropertyNumber>
+                {mealMutation.isPending ? (
+                  <RefreshIcon
+                    src={RefreshImage}
+                    className="cursor-default"
+                    ref={mealRef}
+                  />
+                ) : (
+                  <RefreshIcon
+                    src={RefreshImage}
+                    onClick={() => mealMutation.mutate()}
+                  />
+                )}
+              </PropertyContainer>
+              <MealMsg>
+                커밋을 가져와
+                <br />
+                밥을 지어요.
+              </MealMsg>
+            </PropertyVertical>
           </PropertyList>
         </RightHeader>
       </Header>
@@ -443,7 +452,7 @@ export default function Home() {
             <AnimatePresence initial={false}>
               {motionData && currentSprite && spriteLoaded && (
                 <motion.div
-                  key={currentSprite.frames}
+                  key={currentSprite.frames + new Date().valueOf()}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -457,7 +466,7 @@ export default function Home() {
                     steps={1000}
                     fps={30}
                     autoplay={true}
-                    loop={false}
+                    loop={true}
                     endAt={330}
                     direction="forward"
                     backgroundSize={`cover`}
@@ -734,6 +743,29 @@ const PropertyList = tw.div`
 flex
 flex-col
 space-y-2
+group
+`;
+
+const PropertyVertical = tw.div`
+flex
+flex-col
+space-y-2
+relative
+`;
+
+const MealMsg = tw.div`
+hidden
+group-hover:block
+absolute
+top-10
+right-0
+p-2
+w-32
+text-white
+text-center
+bg-slate-400
+rounded-lg border-2
+border-slate-800
 `;
 
 const PropertyContainer = tw.div`
