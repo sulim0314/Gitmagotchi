@@ -21,8 +21,8 @@ export default function Ranking() {
       }),
   });
   const { data: myRankData } = useQuery({
-    queryKey: ["myRank"],
-    queryFn: getMyRank,
+    queryKey: ["myRank", menu],
+    queryFn: () => getMyRank({ type: menu }),
   });
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function Ranking() {
             <RightIcon onClick={changeMenu} />
           </MobileRankingMenu>
         </MobileHeader>
-        <MyRank>{`내 등수: ${myRankData}등`}</MyRank>
+        <MyRank>{`내 등수: ${myRankData?.rank}등`}</MyRank>
         <RankListContainer>
           <RankList>
             {rankList.map((r: IRanking, i: number) => (

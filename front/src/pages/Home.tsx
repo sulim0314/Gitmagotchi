@@ -50,9 +50,7 @@ export default function Home() {
 
   const spriteRef = useRef<HTMLImageElement>(new Image());
   const [spriteLoaded, setSpriteLoaded] = useState<boolean>(false);
-  const [currentSprite, setCurrentSprite] = useState<IAnimation | null>(
-    motionData?.hello || null
-  );
+  const [currentSprite, setCurrentSprite] = useState<IAnimation | null>(null);
 
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
@@ -126,12 +124,20 @@ export default function Home() {
   });
 
   useEffect(() => {
+    if (motionData) {
+      setCurrentSprite(motionData.hello);
+    }
+  }, [motionData]);
+
+  useEffect(() => {
     if (!currentSprite || !spriteRef.current) return;
+    if (spritesheet.current) {
+      spritesheet.current.goToAndPause(1);
+    }
     spriteRef.current.src = currentSprite?.motion;
     spriteRef.current.onload = () => {
       setSpriteLoaded(true);
       if (spritesheet.current) {
-        spritesheet.current.setEndAt(currentSprite.frames);
         spritesheet.current.goToAndPlay(1);
       }
     };
@@ -295,7 +301,7 @@ export default function Home() {
 
   const onPauseAnimation = () => {
     if (spritesheet.current && motionData) {
-      if (Math.random() > 0.5) {
+      if (Math.random() > 0.2) {
         setCurrentSprite(motionData.default);
       } else {
         setCurrentSprite(
@@ -304,6 +310,12 @@ export default function Home() {
           ]
         );
       }
+    }
+  };
+
+  const onPlayAnimation = () => {
+    if (spritesheet.current && currentSprite) {
+      spritesheet.current.setEndAt(currentSprite.frames);
     }
   };
 
@@ -428,14 +440,15 @@ export default function Home() {
       <MainContainer>
         <CharacterCanvasContainer>
           {motionData && motionData.motion.length > 0 ? (
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence initial={false}>
               {motionData && currentSprite && spriteLoaded && (
                 <motion.div
                   key={currentSprite.frames}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.7 }}
+                  className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 >
                   <CharacterCanvas
                     image={currentSprite.motion}
@@ -454,7 +467,8 @@ export default function Home() {
                     getInstance={(s) => {
                       spritesheet.current = s;
                     }}
-                    onPause={onPauseAnimation}
+                    onPlay={onPlayAnimation}
+                    onLoopComplete={onPauseAnimation}
                   />
                 </motion.div>
               )}
@@ -552,11 +566,18 @@ export default function Home() {
           <ModalCloseButton onClick={toggleAnimModal} />
         </ModalTitleContainer>
         <AnimGrid>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((name, i) => (
+          {[
+            "리듬타기",
+            "걸음마",
+            "발차기",
+            "스트레칭",
+            "점프",
+            "셔플댄스",
+            "댑",
+            "댄스",
+          ].map((name, i) => (
             <AnimContainer key={name}>
-              <AnimButton onClick={playAnimation(i)}>{`${
-                i + 1
-              }번모션`}</AnimButton>
+              <AnimButton onClick={playAnimation(i)}>{name}</AnimButton>
               {motionData && i >= motionData.motion.length && (
                 <AnimDisabled>
                   <LockIcon />
@@ -1011,7 +1032,6 @@ relative
 `;
 
 const AnimButton = tw.div`
-bg-orange-400
 w-full
 h-full
 flex

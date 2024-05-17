@@ -87,6 +87,7 @@ export default function Chat() {
   const sendMessage: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setChatMsg("");
+    if (!characterData) return;
 
     setChatList((prev) => [
       ...prev,
@@ -106,7 +107,7 @@ export default function Chat() {
     //       level: Math.floor((characterData?.exp || 0) / 100),
     //       fullness: 70,
     //       intimacy: 80,
-    //       cleanliness: 60,
+    //       cleanness: 60,
     //     },
     //     userInput: chatMsg,
     //   }),
@@ -115,11 +116,11 @@ export default function Chat() {
     chatMutation.mutate({
       body: JSON.stringify({
         characterInfo: {
-          name: characterData?.name,
-          level: expHandler(characterData?.exp || 0).level,
-          fullness: 70,
-          intimacy: 80,
-          cleanliness: 60,
+          name: characterData.name,
+          level: expHandler(characterData.exp).level,
+          fullness: characterData.status.fullness,
+          intimacy: characterData.status.intimacy,
+          cleanness: characterData.status.cleanness,
           intimacyMax: statusHandler(characterData).intimacyMax,
           fullnessMax: statusHandler(characterData).fullnessMax,
           cleannessMax: statusHandler(characterData).cleannessMax,
@@ -220,7 +221,11 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
-        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} value={chatMsg} />
+        <ChatInput
+          placeholder="메시지를 입력하세요."
+          onChange={onChangeMsg}
+          value={chatMsg}
+        />
         <button>
           <SendIcon />
         </button>

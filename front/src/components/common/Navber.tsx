@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CommonMenuItem from "./CommonMenuItem";
 import { useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
-import defaultUserImg from "@/assets/images/defaultUser.svg";
+import DefaultUserImage from "@/assets/images/defaultUser.svg";
 
 interface IProps {
   pageTitle?: string;
@@ -54,7 +54,7 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
           </DesktopMenuItem>
         ))}
         <DesktopUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={userData?.profileImg || defaultUserImg} />
+          <UserImg src={userData?.profileImg || DefaultUserImage} />
           <UserNickname>{userData?.nickname}</UserNickname>
         </DesktopUserContainer>
       </DesktopMenu>
@@ -62,9 +62,11 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
         {open ? <CloseIcon /> : <MenuIcon />}
       </MobileMenuButton>
       <MobileMenu $open={open}>
-        <MobileMenuTitle onClick={onClickLink("/")}>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
+        <MobileMenuTitle onClick={onClickLink("/")}>
+          {pageTitle || "GITMAGOTCHI"}
+        </MobileMenuTitle>
         <MobileUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={userData?.profileImg || ""} />
+          <UserImg src={userData?.profileImg || DefaultUserImage} />
           <UserInfo>
             <GithubUsername>{userData?.githubUsername}</GithubUsername>
             <UserNickname>{userData?.nickname}</UserNickname>
@@ -72,7 +74,11 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
         </MobileUserContainer>
         <MobileMenuList>
           {navItems.map((item) => (
-            <CommonMenuItem key={item.id} text={item.text} onClick={onClickLink(item.url)} />
+            <CommonMenuItem
+              key={item.id}
+              text={item.text}
+              onClick={onClickLink(item.url)}
+            />
           ))}
         </MobileMenuList>
       </MobileMenu>

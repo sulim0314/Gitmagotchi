@@ -4,6 +4,7 @@ import TrophySilverImage from "@/assets/images/trophySilver.png";
 import TrophyBronzeImage from "@/assets/images/trophyBronze.png";
 import { FaAward, FaSkull } from "react-icons/fa6";
 import { IRanking } from "@/models";
+import DefaultUserImage from "@/assets/images/defaultUser.svg";
 
 interface IProps {
   rank: number;
@@ -36,7 +37,10 @@ export default function RankingItem({ rank, best, ranking }: IProps) {
         )}
       </RankContainer>
       <UserContainer>
-        <img src={ranking.profileImg} className="w-12 rounded-md shadow-md" />
+        <img
+          src={ranking.profileImg || DefaultUserImage}
+          className="w-12 rounded-md shadow-md"
+        />
         <UserDetailContainer>
           <GitHubUsername>{ranking.githubUsername}</GitHubUsername>
           <Nickname>{ranking.nickname}</Nickname>
