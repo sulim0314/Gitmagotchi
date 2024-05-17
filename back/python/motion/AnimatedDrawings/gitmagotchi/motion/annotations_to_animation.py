@@ -7,6 +7,8 @@ from pathlib import Path
 
 import numpy as np
 import cv2
+import uuid
+
 
 
 def annotations_to_animation(char_anno_dir: str, usr_assets_dir: str, motion_cfg_fn: str, retarget_cfg_fn: str):
@@ -17,7 +19,7 @@ def annotations_to_animation(char_anno_dir: str, usr_assets_dir: str, motion_cfg
         'motion_cfg': str(Path(motion_cfg_fn).resolve()),
         'retarget_cfg': str(Path(retarget_cfg_fn).resolve())
     }
-    motion_output_path =  str(Path(usr_assets_dir, "sprite-sheet.png").resolve())
+    motion_output_path =  str(Path(usr_assets_dir, f"sprite-sheet.png").resolve())
     mvc_cfg = {
         'scene': {'ANIMATED_CHARACTERS': [animated_drawing_dict]}, 
         'controller': {
@@ -26,7 +28,6 @@ def annotations_to_animation(char_anno_dir: str, usr_assets_dir: str, motion_cfg
     }
 
     # mask 부여
-    
     texture_path = str(Path(usr_assets_dir , "texture.png").resolve())
     mask_path = str(Path(usr_assets_dir , "mask.png").resolve())
     

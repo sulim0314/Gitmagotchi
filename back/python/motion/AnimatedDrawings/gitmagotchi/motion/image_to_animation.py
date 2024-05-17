@@ -92,28 +92,7 @@ def load_character_img(usr_assets_dir: str, character_id: int, column_name: str)
 
     path = str(Path(usr_assets_dir, 'texture.png').resolve())
     cv2.imwrite(path, character_img)
-    # character_img = Image.open(BytesIO(request.urlopen(url).read())).convert("RGBA")
-    # file = requests.get(url)
-    # open(path, 'wb').write(file.content)
-
-'''
-    [mysql] character에 해당 level의 모션이 존재하는지
-'''
-def check_motion(character_id: int, level: int):
-    conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
-    sql = f"SELECT * FROM {db_name}.motion WHERE character_id=%s and required_level=%s"
-    result = None
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, (str(character_id), str(level)))
-            result = cur.fetchone()
-        conn.commit()
-    finally:
-        conn.close()
-
-    if result:
-        return False
-    return True
+    
 '''
     모션 부여
 '''

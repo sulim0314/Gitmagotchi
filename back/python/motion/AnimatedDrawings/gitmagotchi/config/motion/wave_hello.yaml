@@ -1,6 +1,6 @@
 filepath: gitmagotchi/bvh/fair1/wave_hello.bvh
 start_frame_idx: 420
-end_frame_idx: 839
+end_frame_idx: 750
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
   - - LeftShoulder
