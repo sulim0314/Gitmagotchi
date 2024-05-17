@@ -81,6 +81,7 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
                 responseMap.put("id", selectedUser[0]);
                 responseMap.put("collection_count", selectedUser[1]);
                 responseMap.put("rank", selectedUser[2]);
+                responseMap.put("Access-Control-Allow-Origin", "*");
             } else {
                 responseMap.put("message", "순위에 없음");
             }
