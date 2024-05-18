@@ -33,4 +33,6 @@ public class Collection extends BaseEntity {
     private Integer cleannessStat; //청결도
     @Column(name = "character_url")
     private String characterUrl;
+    @Column(name = "background_url")
+    private String backgroundUrl;
 }
