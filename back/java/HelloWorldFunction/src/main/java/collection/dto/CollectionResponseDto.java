@@ -19,4 +19,5 @@ public class CollectionResponseDto {
     private Integer intimacyStat;  //친밀도
     private Integer cleannessStat; //청결도
     private String characterUrl;
+    private String backgroundUrl;
 }
