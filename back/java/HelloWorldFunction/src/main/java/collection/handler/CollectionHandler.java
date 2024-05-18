@@ -117,6 +117,7 @@ public class CollectionHandler implements RequestHandler<APIGatewayProxyRequestE
                         .intimacyStat(collection.getIntimacyStat())
                         .cleannessStat(collection.getCleannessStat())
                         .characterUrl(collection.getCharacterUrl())
+                        .backgroundUrl(collection.getBackgroundUrl())
                         .build()
             ).collect(Collectors.toList());
 
