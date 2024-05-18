@@ -4,7 +4,7 @@ Resources:
     Properties:
       Timeout: 300
       MemorySize: 128
-      Handler: chat.handler.Claude3Handler
+      Handler: collection.handler.CollectionHandler
       CodeUri: Function
       Runtime: java17
       Architectures:

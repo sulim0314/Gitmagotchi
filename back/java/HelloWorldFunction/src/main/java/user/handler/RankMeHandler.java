@@ -60,6 +60,7 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             int userIdInt = Integer.valueOf(userId);
 
             Map<String, Object> responseMap = new HashMap<>();
+            Map<String, String> headers = new HashMap<>();
             Object[] selectedUser = null;
 
             int a = 0;
@@ -79,8 +80,9 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
 
             if (selectedUser != null) {
                 responseMap.put("id", selectedUser[0]);
-                responseMap.put("collection_count", selectedUser[1]);
+                responseMap.put("collectionCount", selectedUser[1]);
                 responseMap.put("rank", selectedUser[2]);
+                headers.put("Access-Control-Allow-Origin", "*");
             } else {
                 responseMap.put("message", "순위에 없음");
             }
@@ -88,7 +90,12 @@ public class RankMeHandler implements RequestHandler<APIGatewayProxyRequestEvent
             String jsonResponse = gson.toJson(responseMap);
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
             response.setStatusCode(200);
-            response.setBody(jsonResponse);
+
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("statusCode", 200);
+            responseJson.put("body", jsonResponse);
+            response.setBody(responseJson.toString());
+            response.setHeaders(headers);
 
             return response;
         } finally {

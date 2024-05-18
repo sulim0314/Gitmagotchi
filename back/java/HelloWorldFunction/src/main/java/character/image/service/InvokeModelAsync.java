@@ -8,6 +8,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeAsyncClient;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelRequest;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
+import software.amazon.awssdk.services.bedrockruntime.model.ValidationException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,29 +62,39 @@ public class InvokeModelAsync {
             .accept("application/json")
             .build();
 
-        CompletableFuture<InvokeModelResponse> completableFuture = client.invokeModel(request)
-            .whenComplete((response, exception) -> {
-                if (exception != null) {
-                    System.out.println("Model invocation failed: " + exception);
-                }
-            });
+        // CompletableFuture<InvokeModelResponse> completableFuture = client.invokeModel(request)
+        //     .handle((response, exception) -> {
+        //     if (exception != null) {
+        //         return createErrorResponse(400, "Content in the generated image(s) has been blocked due to AWS Responsible AI Policy.");
+        //     }
+        //         return response;
+        //     });
 
-        String base64ImageData = "";
         try {
-            InvokeModelResponse response = completableFuture.get();
+            InvokeModelResponse response = client.invokeModel(request).get();
             JSONObject responseBody = new JSONObject(response.body().asUtf8String());
-            base64ImageData = responseBody
-                .getJSONArray("images")
-                .getString(0);
+            String base64ImageData = responseBody.getJSONArray("images").getString(0);
+            return base64ImageData;
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.err.println(e.getMessage());
+            return createErrorResponse(500, "The operation was interrupted.");
         } catch (ExecutionException e) {
             System.err.println(e.getMessage());
+            Throwable cause = e.getCause();
+            if (cause instanceof ValidationException) {
+                return createErrorResponse(400, "Content in the generated image(s) has been blocked due to AWS Responsible AI Policy.");
+            }
+            return createErrorResponse(500, "Error processing the request: " + e.getMessage());
         }
+    }
 
-        return base64ImageData;
+    private static String createErrorResponse(int statusCode, String message) {
+        JSONObject errorResponse = new JSONObject();
+        errorResponse.put("statusCode", statusCode);
+        errorResponse.put("body", message);
+        return errorResponse.toString();
     }
 
     //Base64로 변환
