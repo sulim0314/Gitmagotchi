@@ -109,7 +109,7 @@ export default function CreateByAi({
                 <Description>
                   AI가 생성할 캐릭터에 대해 구체적으로 작성해주세요.
                 </Description>
-                <Description>구체적일수록 정확하게 생성되요.</Description>
+                <Description>구체적일수록 정확하게 생성돼요.</Description>
               </DesktopTitle>
             )}
             <ButtonContainer onSubmit={generate}>

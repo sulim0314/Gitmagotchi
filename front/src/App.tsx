@@ -36,7 +36,7 @@ import CharacterEnding from "@/pages/CharacterEnding";
 import DeleteCharacterConfirm from "@/pages/DeleteCharacterConfirm";
 import Background from "@/pages/Background";
 import { useQuery } from "@tanstack/react-query";
-import { expHandler } from "@/util/value";
+import { expHandler, validMotionData } from "@/util/value";
 import { motionDataAtom } from "@/store/motion";
 import Loading from "@/components/common/Loading";
 
@@ -86,7 +86,15 @@ export default function App() {
     };
 
     return () => {
-      offline();
+      if (characterData) {
+        applyCharacter({
+          body: JSON.stringify({
+            exp: characterData.exp,
+            stat: characterData.stat,
+            status: characterData.status,
+          }),
+        });
+      }
     };
   }, []);
 
@@ -125,6 +133,8 @@ export default function App() {
         setLoading(false);
         navigate("/character/create", { replace: true });
       } else {
+        const { message } = await offline();
+        console.log(message);
         const character = await getCharacter({
           characterId: userData?.characterId,
         });
@@ -241,7 +251,7 @@ export default function App() {
         image.src = url;
       });
     }
-    if (motionData && motionData.motion.length > 0) {
+    if (motionData && validMotionData(motionData)) {
       preloading([
         motionData.hello.motion,
         motionData.default.motion,

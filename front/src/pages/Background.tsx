@@ -124,7 +124,10 @@ export default function Background() {
               backgroundImage: `url(${selected?.imageUrl})`,
             }}
           >
-            <img src={characterData?.characterUrl} className="w-40 lg:w-60" />
+            <img
+              src={characterData?.characterUrl || characterData?.faceUrl}
+              className="w-40 lg:w-60"
+            />
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>

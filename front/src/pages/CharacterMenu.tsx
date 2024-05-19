@@ -38,7 +38,10 @@ export default function CharacterMenu() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData.characterUrl} className="w-36 lg:w-72" />
+          <img
+            src={characterData.characterUrl || characterData.faceUrl}
+            className="w-36 lg:w-72"
+          />
           <Name>{characterData.name}</Name>
           {/* <BirthDate>2024.04.15. 출생</BirthDate> */}
         </NameContainer>

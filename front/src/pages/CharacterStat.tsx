@@ -113,7 +113,10 @@ export default function CharacterStat() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData.characterUrl} className="w-36 lg:w-72" />
+          <img
+            src={characterData.characterUrl || characterData.faceUrl}
+            className="w-36 lg:w-72"
+          />
           <Name>{characterData.name}</Name>
           <BirthDate>
             {characterData.createdAt ? `${characterData.createdAt} 출생` : ""}

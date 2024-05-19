@@ -22,7 +22,12 @@ import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
-import { expHandler, interactionMessage, statusHandler } from "@/util/value";
+import {
+  expHandler,
+  interactionMessage,
+  statusHandler,
+  validMotionData,
+} from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
 import { createAnimation, getInteractionResult } from "@/api/character";
 import { IAnimation, InteractType } from "@/models";
@@ -72,6 +77,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
   const [animModal, setAnimModal] = useState<boolean>(false);
 
   const mealRef = useRef<HTMLImageElement>(null);
+  const frameRef = useRef<number>(0);
   const mealAnimationRef = useRef<Animation>(new Animation());
 
   const spriteRef = useRef<HTMLImageElement>(new Image());
@@ -93,11 +99,13 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           characterId: characterData.characterId,
           requiredLevel: expHandler(data.exp || 0).level,
         });
+      } else {
+        upEffect(data.interactType);
       }
       addMessage(
         interactionMessage(data.interactType, data.exp - characterData.exp)
       );
-      upEffect(data.interactType);
+
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
@@ -121,7 +129,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
     },
     onError: () => addMessage("캐릭터와 상호작용 하는데에 문제가 생겼습니다."),
     onSettled: () => {
-      if (!(motionData && motionData.motion.length > 0)) {
+      if (!(motionData && validMotionData(motionData))) {
         setIsEating(false);
         setIsWalking(false);
         setIsShowering(false);
@@ -168,17 +176,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
 
   useEffect(() => {
     if (!currentSprite || !spriteRef.current) return;
-
-    // if (spritesheet.current) {
-    //   spritesheet.current.goToAndPause(1);
-    // }
     spriteRef.current.src = currentSprite?.motion;
     spriteRef.current.onload = () => {
       setSpriteLoaded(true);
-      // if (spritesheet.current) {
-      //   spritesheet.current.setEndAt(currentSprite.frames);
-      //   spritesheet.current.goToAndPlay(1);
-      // }
     };
   }, [currentSprite]);
 
@@ -237,6 +237,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
 
   const handleInteraction = (type: InteractType) => {
     return () => {
+      if (!characterData) return;
       if (type === "EAT") {
         if (
           (characterData?.status.fullness || 0) ===
@@ -245,9 +246,31 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           addMessage("배가 불러 더이상 밥을 먹을 수 없습니다.");
           return;
         } else {
-          setIsEating(true);
-          if (motionData) {
-            setCurrentSprite(motionData.meal);
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsEating(true);
+            if (motionData) {
+              setCurrentSprite(motionData.meal);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "EAT",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
           }
         }
       }
@@ -259,9 +282,31 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           addMessage("이미 친밀도가 최대치라서 산책하고 싶지 않아 합니다.");
           return;
         } else {
-          setIsWalking(true);
-          if (motionData) {
-            setCurrentSprite(motionData.walk);
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsWalking(true);
+            if (motionData) {
+              setCurrentSprite(motionData.walk);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "WALK",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
           }
         }
       }
@@ -273,9 +318,31 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           addMessage("이미 깨끗해 샤워하고 싶지 않아 합니다.");
           return;
         } else {
-          setIsShowering(true);
-          if (motionData) {
-            setCurrentSprite(motionData.shower);
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsShowering(true);
+            if (motionData) {
+              setCurrentSprite(motionData.shower);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "SHOWER",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
           }
         }
       }
@@ -325,10 +392,17 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
     }
   }, [mealMutation.isPending]);
 
-  const onPauseAnimation = (spritesheet: Spritesheet) => {
-    if (spritesheet.getInfo("steps") === currentSprite?.frames) {
-      // console.log(spritesheet.getInfo("steps"), currentSprite?.frames);
-      if (motionData?.meal.frames === spritesheet.getInfo("steps")) {
+  useEffect(() => {
+    if (currentSprite) {
+      frameRef.current = currentSprite.frames;
+    }
+  }, [currentSprite]);
+
+  const onPauseAnimation = (frame: number, spritesheet: Spritesheet) => {
+    if (frameRef.current !== frame) return;
+    if (!currentSprite || !motionData) return;
+    if (frame === frameRef.current) {
+      if (frame === 357) {
         setIsEating(false);
         interactionMution.mutate({
           body: JSON.stringify({
@@ -346,7 +420,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           }),
         });
       }
-      if (motionData?.shower.frames === spritesheet.getInfo("steps")) {
+      if (frame === 324) {
         setIsShowering(false);
         interactionMution.mutate({
           body: JSON.stringify({
@@ -364,7 +438,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
           }),
         });
       }
-      if (motionData?.walk.frames === spritesheet.getInfo("steps")) {
+      if (frame === 400) {
         setIsWalking(false);
         interactionMution.mutate({
           body: JSON.stringify({
@@ -383,29 +457,21 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
         });
       }
 
-      if (motionData) {
-        if (Math.random() > 0.1) {
-          if (currentSprite?.frames !== motionData.default.frames) {
-            setCurrentSprite(motionData.default);
-          } else {
-            spritesheet.goToAndPlay(1);
-          }
+      if (Math.random() > 0.2) {
+        if (frameRef.current !== 45) {
+          setCurrentSprite(motionData.default);
         } else {
-          setCurrentSprite(
-            motionData.motion[
-              Math.floor(Math.random() * motionData.motion.length)
-            ]
-          );
+          spritesheet.goToAndPlay(1);
         }
+      } else {
+        setCurrentSprite(
+          motionData.motion[
+            Math.floor(Math.random() * motionData.motion.length)
+          ]
+        );
       }
     }
   };
-
-  // const onPlayAnimation = () => {
-  //   if (spritesheet.current && currentSprite) {
-  //     spritesheet.current.setEndAt(currentSprite.frames);
-  //   }
-  // };
 
   if (!characterData || !userData) return <Loading />;
 
@@ -538,7 +604,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
 
       <MainContainer>
         <CharacterCanvasContainer>
-          {motionData && motionData.motion.length > 0 ? (
+          {motionData &&
+          validMotionData(motionData) &&
+          expHandler(characterData.exp).level > 1 ? (
             <AnimatePresence initial={false}>
               {motionData &&
                 currentSprite?.frames === motionData.default.frames &&
@@ -556,6 +624,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       widthFrame={500}
                       heightFrame={500}
                       steps={motionData.default.frames}
+                      endAt={motionData.default.frames}
                       fps={30}
                       autoplay={true}
                       loop={false}
@@ -564,11 +633,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       backgroundRepeat={`no-repeat`}
                       backgroundPosition={`center center`}
                       isResponsive={true}
-                      getInstance={(s) => {
-                        spritesheet.current = s;
-                      }}
-                      // onPlay={onPlayAnimation}
-                      onPause={onPauseAnimation}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.default.frames, s)
+                      }
                     />
                   </motion.div>
                 )}
@@ -588,6 +655,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       widthFrame={500}
                       heightFrame={500}
                       steps={motionData.hello.frames}
+                      endAt={motionData.hello.frames}
                       fps={30}
                       autoplay={true}
                       loop={false}
@@ -596,11 +664,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       backgroundRepeat={`no-repeat`}
                       backgroundPosition={`center center`}
                       isResponsive={true}
-                      getInstance={(s) => {
-                        spritesheet.current = s;
-                      }}
-                      // onPlay={onPlayAnimation}
-                      onPause={onPauseAnimation}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.hello.frames, s)
+                      }
                     />
                   </motion.div>
                 )}
@@ -620,6 +686,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       widthFrame={500}
                       heightFrame={500}
                       steps={motionData.meal.frames}
+                      endAt={motionData.meal.frames}
                       fps={30}
                       autoplay={true}
                       loop={false}
@@ -628,11 +695,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       backgroundRepeat={`no-repeat`}
                       backgroundPosition={`center center`}
                       isResponsive={true}
-                      getInstance={(s) => {
-                        spritesheet.current = s;
-                      }}
-                      // onPlay={onPlayAnimation}
-                      onPause={onPauseAnimation}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.meal.frames, s)
+                      }
                     />
                   </motion.div>
                 )}
@@ -652,6 +717,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       widthFrame={500}
                       heightFrame={500}
                       steps={motionData.shower.frames}
+                      endAt={motionData.shower.frames}
                       fps={30}
                       autoplay={true}
                       loop={false}
@@ -660,11 +726,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       backgroundRepeat={`no-repeat`}
                       backgroundPosition={`center center`}
                       isResponsive={true}
-                      getInstance={(s) => {
-                        spritesheet.current = s;
-                      }}
-                      // onPlay={onPlayAnimation}
-                      onPause={onPauseAnimation}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.shower.frames, s)
+                      }
                     />
                   </motion.div>
                 )}
@@ -684,6 +748,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       widthFrame={500}
                       heightFrame={500}
                       steps={motionData.walk.frames}
+                      endAt={motionData.walk.frames}
                       fps={30}
                       autoplay={true}
                       loop={false}
@@ -692,11 +757,9 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                       backgroundRepeat={`no-repeat`}
                       backgroundPosition={`center center`}
                       isResponsive={true}
-                      getInstance={(s) => {
-                        spritesheet.current = s;
-                      }}
-                      // onPlay={onPlayAnimation}
-                      onPause={onPauseAnimation}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.walk.frames, s)
+                      }
                     />
                   </motion.div>
                 )}
@@ -720,6 +783,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                           widthFrame={500}
                           heightFrame={500}
                           steps={anim.frames}
+                          endAt={anim.frames}
                           fps={30}
                           autoplay={true}
                           loop={false}
@@ -731,8 +795,7 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
                           getInstance={(s) => {
                             spritesheet.current = s;
                           }}
-                          // onPlay={onPlayAnimation}
-                          onPause={onPauseAnimation}
+                          onPause={(s) => onPauseAnimation(anim.frames, s)}
                         />
                       </motion.div>
                     );
@@ -874,18 +937,20 @@ export default function Home({ isWalking, setIsWalking }: IProps) {
             "걸음마",
             "발차기",
             "스트레칭",
-            "점프",
+            "파워워킹",
             "셔플댄스",
             "댑",
             "댄스",
           ].map((name, i) => (
             <AnimContainer key={name}>
               <AnimButton onClick={playAnimation(i)}>{name}</AnimButton>
-              {motionData && i >= motionData.motion.length && (
-                <AnimDisabled>
-                  <LockIcon />
-                </AnimDisabled>
-              )}
+              {i + 2 > expHandler(characterData.exp).level &&
+                motionData &&
+                i >= motionData.motion.length && (
+                  <AnimDisabled>
+                    <LockIcon />
+                  </AnimDisabled>
+                )}
             </AnimContainer>
           ))}
         </AnimGrid>

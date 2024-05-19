@@ -87,7 +87,7 @@ export const getChatSentiment = async (params: {
   return usInstance.post("/character/chat/sentiment", params);
 };
 
-export const offline = async (): Promise<string> => {
+export const offline = async (): Promise<{ message: string }> => {
   return seoulInstance.post("characters/offline");
 };
 

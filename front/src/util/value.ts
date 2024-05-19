@@ -1,4 +1,4 @@
-import { ICharacter, InteractType } from "@/models";
+import { ICharacter, IMotion, InteractType } from "@/models";
 
 export const expHandler = (exp: number) => {
   const LEVEL_EXP = [0, 10, 25, 45, 65, 90, 120, 150, 190, 230];
@@ -48,11 +48,17 @@ export const expHandler = (exp: number) => {
     curExp = 200;
   }
 
-  return { level, curExp, maxExp, percentage: ((100 * curExp) / maxExp).toFixed(2) };
+  return {
+    level,
+    curExp,
+    maxExp,
+    percentage: ((100 * curExp) / maxExp).toFixed(2),
+  };
 };
 
 export const statusHandler = (characterData: ICharacter | null) => {
-  if (!characterData) return { fullnessMax: 0, intimacyMax: 0, cleannessMax: 0 };
+  if (!characterData)
+    return { fullnessMax: 0, intimacyMax: 0, cleannessMax: 0 };
   const level = expHandler(characterData.exp).level;
   const intimacyLevel = characterData.stat.intimacyStat;
   let fullnessMax = 0;
@@ -138,4 +144,20 @@ export const interactionMessage = (type: InteractType, exp: number) => {
     return `대화을 통해 기분이 안좋아져 친밀도가 하락했습니다`;
   }
   return "";
+};
+
+export const validMotionData = (motionData: IMotion) => {
+  if (!motionData) return false;
+  if (
+    motionData.motion.length > 0 &&
+    motionData.default &&
+    motionData.hello &&
+    motionData.meal &&
+    motionData.walk &&
+    motionData.shower
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 };
