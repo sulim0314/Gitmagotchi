@@ -6,6 +6,7 @@ import json
 import logging
 
 motion_name_by_lv = dict()
+processes = []
 
 # level
 motion_name_by_lv[202] = "rhythm.yaml" # 리듬타기
@@ -29,6 +30,13 @@ def handler(event, context):
     motion_cfg_dir = "/function/gitmagotchi/config/motion"
     retarget_cfg_fn = "/function/gitmagotchi/config/retarget/fair1_ppf.yaml"
     usr_assets_dir = "/tmp/out/character_assets"
+
+
+    # char_anno_dir = "AnimatedDrawings/gitmagotchi/assets"
+    # motion_cfg_dir = "AnimatedDrawings/gitmagotchi/config/motion"
+    # retarget_cfg_fn = "AnimatedDrawings/gitmagotchi/config/retarget/fair1_ppf.yaml"
+    # usr_assets_dir = "character_assets"
+
     print(event)
     
     body = json.loads(event["Records"][0]["body"])
@@ -36,6 +44,12 @@ def handler(event, context):
     level = body["requiredLevel"]
     adult_or_child = body["adultOrChild"]
     user_id = body["userId"]
+    
+    # character_id = 82
+    # level = 104
+    # adult_or_child = "adult"
+    # user_id = 76997543
+
 
     # tmp에 characterId 폴더를 생성함
     usr_assets_path = os.path.join(usr_assets_dir, str(character_id))
@@ -53,3 +67,6 @@ def handler(event, context):
         return json.dumps({'statusCode': 500,
                 'body': 'Motion assignment failed.'})
     return json.dumps({'statusCode': 200, 'body': 'Ready!'})
+
+# if __name__ == "__main__":
+#     handler(None, None)

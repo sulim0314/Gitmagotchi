@@ -179,42 +179,36 @@ def get_user_id(character_id):
 '''
     [mysql] character에 해당 level의 모션이 존재하는지
 '''
-def check_motion(character_id: int, level: int):
+def check_motion(character_id: int, level: int, is_adult: int):
     conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
-    sql = f"SELECT id, required_level, is_adult FROM {db_name}.motion WHERE character_id=%s"
+    sql = f"SELECT id, required_level, is_adult FROM {db_name}.motion WHERE character_id=%s and required_level=%s and is_adult=%s"
     result = None
     try:
         with conn.cursor() as cur:
-            cur.execute(sql, (str(character_id)))
-            result = cur.fetchmany(20)
+            cur.execute(sql, (str(character_id), str(level), str(is_adult)))
+            result = cur.fetchone()
         conn.commit()
     finally:
         conn.close()
 
-    if not result:
-        return None
-    
-    level_set = set()
-    for _, l, a in result:
-        level_set.add(str(l)+str(a))
+    if result:
+        return True
+    return False
 
-    return level_set
-
-def send_message(url,msg,level,adult_or_child, level_set):
-    check_str = str(level)
+def send_message(url,msg,level,adult_or_child):
+    is_adult = 1
     if adult_or_child == "child":
-        check_str += str(0)
-    else:
-        check_str += str(1)
+        is_adult = 0
 
-    if level_set and check_str in level_set:
+    found = check_motion(msg["characterId"], level, is_adult)
+    if found:
         return
 
     msg["requiredLevel"] = level
     msg["adultOrChild"] = adult_or_child
     sqs.send_message(QueueUrl=url,
                 MessageBody = json.dumps(msg),
-                MessageGroupId = "motion"
+                MessageGroupId = f"motion-{str(uuid.uuid4())}"
             )
 
 
@@ -248,45 +242,38 @@ def handler(event, context):
     if level == 1:
         # 아기버전
         motion_level = level + motion_key
-        level_set = check_motion(character_id, motion_level)
-        
-        send_message(default_url, msg, 103, "child", level_set)
-        send_message(default_url, msg, 104, "child", level_set)
+        send_message(default_url, msg, 103, "child")
+        send_message(default_url, msg, 104, "child")
 
-
-        send_message(interaction_url, msg, 100, "child", level_set)
-        send_message(interaction_url, msg, 101, "child", level_set)
-        send_message(interaction_url, msg, 102, "child", level_set)
+        send_message(interaction_url, msg, 100, "child")
+        send_message(interaction_url, msg, 101, "child")
+        send_message(interaction_url, msg, 102, "child")
             
             
-        send_message(level_url, msg, motion_level, "child", level_set)
-        send_message(level_url, msg, motion_level,"adult", level_set)
+        send_message(level_url, msg, motion_level, "child")
+        send_message(level_url, msg, motion_level,"adult")
         return  {'statusCode': 200, 'body': json.dumps({"msg":"Ready!"})}
     
     if level == 4:
         # 성인 버전
-        motion_level = level + motion_key
-        level_set = check_motion(character_id, motion_level)
-            
+        motion_level = level + motion_key      
         # 기본
-        send_message(default_url, msg, 103, "adult", level_set)
-        send_message(default_url, msg, 104, "adult", level_set)
+        send_message(default_url, msg, 103, "adult")
+        send_message(default_url, msg, 104, "adult")
 
         # 상호작용
-        send_message(interaction_url,msg,100, "adult", level_set)
-        send_message(interaction_url,msg,101, "adult", level_set)
-        send_message(interaction_url,msg,102,"adult", level_set)
+        send_message(interaction_url,msg,100, "adult")
+        send_message(interaction_url,msg,101, "adult")
+        send_message(interaction_url,msg,102,"adult")
             
         # 레벨
-        send_message(level_url, msg, motion_level, "adult", level_set)
+        send_message(level_url, msg, motion_level, "adult")
         return  {'statusCode': 200, 'body': json.dumps({"msg":"Ready!"})}
 
     motion_level = level + motion_key
-    level_set = check_motion(character_id, motion_level)
-    
     if level < 5:
-        send_message(level_url, msg, motion_level, "child", level_set)
-    send_message(level_url, msg, motion_level, "adult", level_set)
+        send_message(level_url, msg, motion_level, "child")
+    send_message(level_url, msg, motion_level, "adult")
 
     # 레벨별 모션 생성하기
     return {'statusCode': 200, 'body': json.dumps({"msg":"Ready!"})}

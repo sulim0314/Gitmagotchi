@@ -44,6 +44,25 @@ db_name = "gitmagotchi"
     [s3/mysql] motion sprite 이미지 저장
 '''
 def save_motion(character_id: int, adult_or_child: str, user_id: int, required_level: int, frames: int, img_file_name: str, img_bytes: bytearray):
+    
+    # mysql 모션 저장
+    is_adult = 1
+    if adult_or_child == 'child':
+        is_adult = 0
+
+    conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
+    # character에 해당 level의 모션이 존재하는지
+    sql = f"SELECT id, required_level, is_adult, motion_url FROM {db_name}.motion WHERE character_id=%s and required_level=%s and is_adult=%s"
+    result = None
+    with conn.cursor() as cur:
+        cur.execute(sql, (str(character_id), str(required_level), str(is_adult)))
+        result = cur.fetchone()
+    conn.commit()
+
+    if result:
+        conn.close()
+        return True, result[3]
+
     # s3 모션 저장
     uploaded_url = None
     try:
@@ -53,14 +72,7 @@ def save_motion(character_id: int, adult_or_child: str, user_id: int, required_l
         logging.error(e)
         return False, None
 
-    # mysql 모션 저장
-    is_adult = 1
-    if adult_or_child == 'child':
-        is_adult = 0
-    
-    conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
-    sql = f"INSERT INTO {db_name}.motion (user_id, character_id, motion_url, required_level, is_adult, frames) VALUES (%s, %s, %s, %s, %s, %s)"
-    
+    sql = f"INSERT INTO {db_name}.motion (user_id, character_id, motion_url, required_level, is_adult, frames) VALUES (%s, %s, %s, %s, %s, %s)"    
     try:
         with conn.cursor() as cur:
             cur.execute(sql, (user_id, character_id, uploaded_url, required_level, is_adult, frames))
