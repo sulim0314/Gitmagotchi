@@ -31,8 +31,28 @@ import RefreshImage from "@/assets/images/refresh.svg";
 import { eatMeal, getMeal } from "@/api/user";
 import { motionDataAtom } from "@/store/motion";
 import { AnimatePresence, motion } from "framer-motion";
+import Loading from "@/components/common/Loading";
 
-export default function Home() {
+interface IProps {
+  isWalking: boolean;
+  setIsWalking: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const upKeyframes: Keyframe[] = [
+  { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
+  { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
+  { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
+  { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
+  { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
+  { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
+];
+const upOptions: KeyframeAnimationOptions = {
+  delay: 300,
+  duration: 2000,
+  easing: "ease-in-out",
+};
+
+export default function Home({ isWalking, setIsWalking }: IProps) {
   const navigate = useNavigate();
   const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -40,7 +60,13 @@ export default function Home() {
   const motionData = useRecoilValue(motionDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
+
   const levelupRef = useRef<HTMLDivElement>(null);
+  const fullnessupRef = useRef<HTMLDivElement>(null);
+  const intimacyupRef = useRef<HTMLDivElement>(null);
+  const cleannessupRef = useRef<HTMLDivElement>(null);
+  const goldupRef = useRef<HTMLDivElement>(null);
+
   const messageBarRef = useRef<HTMLDivElement>(null);
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
@@ -51,6 +77,9 @@ export default function Home() {
   const spriteRef = useRef<HTMLImageElement>(new Image());
   const [spriteLoaded, setSpriteLoaded] = useState<boolean>(false);
   const [currentSprite, setCurrentSprite] = useState<IAnimation | null>(null);
+
+  const [isEating, setIsEating] = useState<boolean>(false);
+  const [isShowering, setIsShowering] = useState<boolean>(false);
 
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
@@ -68,6 +97,7 @@ export default function Home() {
       addMessage(
         interactionMessage(data.interactType, data.exp - characterData.exp)
       );
+      upEffect(data.interactType);
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
@@ -90,6 +120,13 @@ export default function Home() {
       });
     },
     onError: () => addMessage("캐릭터와 상호작용 하는데에 문제가 생겼습니다."),
+    onSettled: () => {
+      if (!(motionData && motionData.motion.length > 0)) {
+        setIsEating(false);
+        setIsWalking(false);
+        setIsShowering(false);
+      }
+    },
   });
 
   const mealMutation = useMutation({
@@ -131,18 +168,17 @@ export default function Home() {
 
   useEffect(() => {
     if (!currentSprite || !spriteRef.current) return;
-    if (spritesheet.current) {
-      spritesheet.current.setEndAt(currentSprite.frames);
-    }
+
     // if (spritesheet.current) {
     //   spritesheet.current.goToAndPause(1);
     // }
     spriteRef.current.src = currentSprite?.motion;
     spriteRef.current.onload = () => {
       setSpriteLoaded(true);
-      if (spritesheet.current) {
-        spritesheet.current.goToAndPlay(1);
-      }
+      // if (spritesheet.current) {
+      //   spritesheet.current.setEndAt(currentSprite.frames);
+      //   spritesheet.current.goToAndPlay(1);
+      // }
     };
   }, [currentSprite]);
 
@@ -202,75 +238,52 @@ export default function Home() {
   const handleInteraction = (type: InteractType) => {
     return () => {
       if (type === "EAT") {
-        if (motionData) {
-          setCurrentSprite(motionData.meal);
-        }
         if (
           (characterData?.status.fullness || 0) ===
           statusHandler(characterData).fullnessMax
         ) {
           addMessage("배가 불러 더이상 밥을 먹을 수 없습니다.");
           return;
+        } else {
+          setIsEating(true);
+          if (motionData) {
+            setCurrentSprite(motionData.meal);
+          }
         }
       }
       if (type === "WALK") {
-        if (motionData) {
-          setCurrentSprite(motionData.walk);
-        }
         if (
           (characterData?.status.intimacy || 0) ===
           statusHandler(characterData).intimacyMax
         ) {
           addMessage("이미 친밀도가 최대치라서 산책하고 싶지 않아 합니다.");
           return;
+        } else {
+          setIsWalking(true);
+          if (motionData) {
+            setCurrentSprite(motionData.walk);
+          }
         }
       }
       if (type === "SHOWER") {
-        if (motionData) {
-          setCurrentSprite(motionData.shower);
-        }
         if (
           (characterData?.status.cleanness || 0) ===
           statusHandler(characterData).cleannessMax
         ) {
           addMessage("이미 깨끗해 샤워하고 싶지 않아 합니다.");
           return;
+        } else {
+          setIsShowering(true);
+          if (motionData) {
+            setCurrentSprite(motionData.shower);
+          }
         }
       }
-
-      interactionMution.mutate({
-        body: JSON.stringify({
-          exp: characterData?.exp,
-          interactType: type,
-          status: {
-            fullness: characterData?.status.fullness,
-            intimacy: characterData?.status.intimacy,
-            cleanness: characterData?.status.cleanness,
-          },
-          stat: {
-            fullnessStat: characterData?.stat.fullnessStat,
-            intimacyStat: characterData?.stat.intimacyStat,
-          },
-        }),
-      });
     };
   };
 
   const levelUpEffect = (level: number) => {
-    const keyframes: Keyframe[] = [
-      { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
-      { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
-      { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
-      { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
-      { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
-      { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
-    ];
-    const options: KeyframeAnimationOptions = {
-      delay: 300,
-      duration: 2000,
-      easing: "ease-in-out",
-    };
-    levelupRef.current?.animate(keyframes, options);
+    levelupRef.current?.animate(upKeyframes, upOptions);
     setMessageData((prev) => [
       ...prev,
       {
@@ -278,6 +291,16 @@ export default function Home() {
         text: `레벨이 ${level}로 올랐습니다.`,
       },
     ]);
+  };
+
+  const upEffect = (type: InteractType) => {
+    if (type === "EAT") {
+      fullnessupRef.current?.animate(upKeyframes, upOptions);
+    } else if (type === "WALK" || type === "CHAT_POSITIVE") {
+      intimacyupRef.current?.animate(upKeyframes, upOptions);
+    } else if (type === "SHOWER") {
+      cleannessupRef.current?.animate(upKeyframes, upOptions);
+    }
   };
 
   useEffect(() => {
@@ -302,31 +325,89 @@ export default function Home() {
     }
   }, [mealMutation.isPending]);
 
-  const onPauseAnimation = () => {
-    if (spritesheet.current && motionData) {
-      if (Math.random() > 0.1) {
-        if (currentSprite?.frames !== motionData.default.frames) {
-          setCurrentSprite(motionData.default);
+  const onPauseAnimation = (spritesheet: Spritesheet) => {
+    if (spritesheet.getInfo("steps") === currentSprite?.frames) {
+      // console.log(spritesheet.getInfo("steps"), currentSprite?.frames);
+      if (motionData?.meal.frames === spritesheet.getInfo("steps")) {
+        setIsEating(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "EAT",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+      if (motionData?.shower.frames === spritesheet.getInfo("steps")) {
+        setIsShowering(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "SHOWER",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+      if (motionData?.walk.frames === spritesheet.getInfo("steps")) {
+        setIsWalking(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "WALK",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+
+      if (motionData) {
+        if (Math.random() > 0.1) {
+          if (currentSprite?.frames !== motionData.default.frames) {
+            setCurrentSprite(motionData.default);
+          } else {
+            spritesheet.goToAndPlay(1);
+          }
         } else {
-          spritesheet.current.goToAndPlay(1);
+          setCurrentSprite(
+            motionData.motion[
+              Math.floor(Math.random() * motionData.motion.length)
+            ]
+          );
         }
-      } else {
-        setCurrentSprite(
-          motionData.motion[
-            Math.floor(Math.random() * motionData.motion.length)
-          ]
-        );
       }
     }
   };
 
-  const onPlayAnimation = () => {
-    if (spritesheet.current && currentSprite) {
-      spritesheet.current.setEndAt(currentSprite.frames);
-    }
-  };
+  // const onPlayAnimation = () => {
+  //   if (spritesheet.current && currentSprite) {
+  //     spritesheet.current.setEndAt(currentSprite.frames);
+  //   }
+  // };
 
-  if (!characterData || !userData) return null;
+  if (!characterData || !userData) return <Loading />;
 
   return (
     <Wrapper>
@@ -416,7 +497,9 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
+          {!isEating && !isShowering && !isWalking && (
+            <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
+          )}
         </LeftHeader>
         <RightHeader>
           <PropertyList className="text-border">
@@ -457,37 +540,204 @@ export default function Home() {
         <CharacterCanvasContainer>
           {motionData && motionData.motion.length > 0 ? (
             <AnimatePresence initial={false}>
-              {motionData && currentSprite && spriteLoaded && (
-                <motion.div
-                  key={currentSprite.frames + new Date().valueOf()}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.7 }}
-                  className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                >
-                  <CharacterCanvas
-                    image={currentSprite.motion}
-                    widthFrame={500}
-                    heightFrame={500}
-                    steps={1000}
-                    fps={30}
-                    autoplay={true}
-                    loop={false}
-                    endAt={currentSprite.frames}
-                    direction="forward"
-                    backgroundSize={`cover`}
-                    backgroundRepeat={`no-repeat`}
-                    backgroundPosition={`center center`}
-                    isResponsive={true}
-                    getInstance={(s) => {
-                      spritesheet.current = s;
-                    }}
-                    onPlay={onPlayAnimation}
-                    onPause={onPauseAnimation}
-                  />
-                </motion.div>
-              )}
+              {motionData &&
+                currentSprite?.frames === motionData.default.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.default.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.default.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.default.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      getInstance={(s) => {
+                        spritesheet.current = s;
+                      }}
+                      // onPlay={onPlayAnimation}
+                      onPause={onPauseAnimation}
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.hello.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.hello.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.hello.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.hello.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      getInstance={(s) => {
+                        spritesheet.current = s;
+                      }}
+                      // onPlay={onPlayAnimation}
+                      onPause={onPauseAnimation}
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.meal.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.meal.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.meal.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.meal.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      getInstance={(s) => {
+                        spritesheet.current = s;
+                      }}
+                      // onPlay={onPlayAnimation}
+                      onPause={onPauseAnimation}
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.shower.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.shower.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.shower.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.shower.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      getInstance={(s) => {
+                        spritesheet.current = s;
+                      }}
+                      // onPlay={onPlayAnimation}
+                      onPause={onPauseAnimation}
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.walk.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.walk.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.walk.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.walk.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      getInstance={(s) => {
+                        spritesheet.current = s;
+                      }}
+                      // onPlay={onPlayAnimation}
+                      onPause={onPauseAnimation}
+                    />
+                  </motion.div>
+                )}
+
+              {motionData &&
+                currentSprite &&
+                spriteLoaded &&
+                motionData.motion.map((anim) => {
+                  if (anim.frames === currentSprite.frames) {
+                    return (
+                      <motion.div
+                        key={anim.frames}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7 }}
+                        className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                      >
+                        <CharacterCanvas
+                          image={anim.motion}
+                          widthFrame={500}
+                          heightFrame={500}
+                          steps={anim.frames}
+                          fps={30}
+                          autoplay={true}
+                          loop={false}
+                          direction="forward"
+                          backgroundSize={`cover`}
+                          backgroundRepeat={`no-repeat`}
+                          backgroundPosition={`center center`}
+                          isResponsive={true}
+                          getInstance={(s) => {
+                            spritesheet.current = s;
+                          }}
+                          // onPlay={onPlayAnimation}
+                          onPause={onPauseAnimation}
+                        />
+                      </motion.div>
+                    );
+                  }
+                })}
             </AnimatePresence>
           ) : (
             <ImgContainer>
@@ -520,23 +770,55 @@ export default function Home() {
                   <HungryEffect />
                 </HungryEffectContainer>
               )}
-            <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
+            {isEating && (
+              <div className="absolute left-1/2 top-1/2 w-[500px] lg:w-[700px] h-[500px] lg:h-[700px] -translate-x-1/2 -translate-y-1/2">
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 left-8"
+                />
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 rotate-12 left-24"
+                />
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 rotate-[160deg] left-96"
+                />
+              </div>
+            )}
+            <LevelupText ref={levelupRef} className="text-green-600">
+              LEVEL UP
+            </LevelupText>
+            <LevelupText ref={fullnessupRef} className="text-red-600">
+              포만감 UP
+            </LevelupText>
+            <LevelupText ref={cleannessupRef} className="text-blue-600">
+              청결도 UP
+            </LevelupText>
+            <LevelupText ref={intimacyupRef} className="text-orange-600">
+              친밀도 UP
+            </LevelupText>
+            <LevelupText ref={goldupRef} className="text-yellow-600">
+              GOLD UP
+            </LevelupText>
           </EffectContainer>
         </CharacterCanvasContainer>
-        <InteractionContainer>
-          <InteractionButton onClick={() => eatMutation.mutate()}>
-            <img src={interactionEatImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={handleInteraction("WALK")}>
-            <img src={interactionRunImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={handleInteraction("SHOWER")}>
-            <img src={interactionShowerImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={() => navigate("/character/game")}>
-            <img src={interactionGameImage} className="w-10 bg-cover" />
-          </InteractionButton>
-        </InteractionContainer>
+        {!isEating && !isShowering && !isWalking && (
+          <InteractionContainer>
+            <InteractionButton onClick={() => eatMutation.mutate()}>
+              <img src={interactionEatImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={handleInteraction("WALK")}>
+              <img src={interactionRunImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={handleInteraction("SHOWER")}>
+              <img src={interactionShowerImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={() => navigate("/character/game")}>
+              <img src={interactionGameImage} className="w-10 bg-cover" />
+            </InteractionButton>
+          </InteractionContainer>
+        )}
       </MainContainer>
       <ServerMsgContainer>
         <ServerMsgBox ref={messageBarRef} onClick={toggleMsgModal}>
@@ -544,6 +826,11 @@ export default function Home() {
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
+      {isShowering && (
+        <div className="shower-pole scale-[300%] absolute top-0 left-1/2 translate-x-[27rem]">
+          <div className="water"></div>
+        </div>
+      )}
       <CustomModal
         style={customModalStyles}
         isOpen={msgModal}
@@ -944,10 +1231,14 @@ translate-y-24
 
 const EffectContainer = tw.div`
 absolute
-w-full
-h-full
-top-0
-left-0
+w-[500px]
+lg:w-[700px]
+h-[500px]
+lg:h-[700px]
+top-1/2
+left-1/2
+-translate-x-1/2
+-translate-y-1/2
 flex
 justify-center
 `;
@@ -979,10 +1270,14 @@ top-0
 `;
 
 const LevelupText = tw.div`
+absolute
+top-0
 opacity-0
 text-3xl
 font-bold
-text-green-600
+w-80
+flex
+justify-center
 `;
 
 const CharacterCanvas = tw(Spritesheet)`

@@ -9,4 +9,5 @@ export interface ICollection extends IBaseEntity {
   intimacyStat: number;
   cleannessStat: number;
   characterUrl: string;
+  backgroundUrl: string;
 }

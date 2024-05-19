@@ -2,16 +2,17 @@ import tw from "tailwind-styled-components";
 import CommonButton from "@/components/common/CommonButton";
 import CommonInput from "@/components/common/CommonInput";
 import { useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { useMutation } from "@tanstack/react-query";
 import { modifyCharacter } from "@/api/character";
 import { userDataAtom } from "@/store/user";
 import { useNavigate } from "react-router-dom";
+import Loading from "@/components/common/Loading";
 
 export default function CharacterRename() {
   const navigate = useNavigate();
-  const setUserData = useSetRecoilState(userDataAtom);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
   const [newName, setNewName] = useState<string>(
     characterData ? characterData.name : ""
@@ -26,7 +27,13 @@ export default function CharacterRename() {
         name: newName,
       }));
       // 골드 감소
-      setUserData((prev) => prev);
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          gold: prev.gold - 100,
+        };
+      });
 
       navigate("/character", { replace: true });
     },
@@ -46,6 +53,8 @@ export default function CharacterRename() {
     });
   };
 
+  if (!userData) return <Loading />;
+
   return (
     <Wrapper>
       <img src={characterData?.faceUrl} className="w-60" />
@@ -63,8 +72,13 @@ export default function CharacterRename() {
               }}
             />
           </PromptContainer>
-          <CommonButton title={"확인 (💰100)"} onClick={rename} />
+          <CommonButton
+            title={"확인 (💰100)"}
+            disabled={userData.gold < 100}
+            onClick={rename}
+          />
         </ButtonContainer>
+        <h1>{`현재 골드: 💰${userData.gold}`}</h1>
       </Content>
     </Wrapper>
   );

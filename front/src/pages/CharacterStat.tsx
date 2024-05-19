@@ -10,6 +10,7 @@ import { expHandler } from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
 import { resetStatPoint } from "@/api/character";
 import { userDataAtom } from "@/store/user";
+import Loading from "@/components/common/Loading";
 
 export default function CharacterStat() {
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
@@ -95,7 +96,7 @@ export default function CharacterStat() {
     }
   };
 
-  if (!characterData) return null;
+  if (!characterData) return <Loading />;
 
   return (
     <Wrapper>
@@ -112,7 +113,7 @@ export default function CharacterStat() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData.faceUrl} className="w-36 lg:w-72" />
+          <img src={characterData.characterUrl} className="w-36 lg:w-72" />
           <Name>{characterData.name}</Name>
           <BirthDate>
             {characterData.createdAt ? `${characterData.createdAt} 출생` : ""}

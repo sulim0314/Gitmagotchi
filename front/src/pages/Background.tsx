@@ -1,25 +1,29 @@
 import CommonButton from "@/components/common/CommonButton";
 import tw from "tailwind-styled-components";
-import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { HiCheckCircle, HiOutlineTrash } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IBackground } from "@/models";
 import { useEffect, useState } from "react";
 import { changeBackground, getBackgroundList } from "@/api/user";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
 import { deleteBackground } from "@/api/background";
+import { characterDataAtom } from "@/store/character";
 
 export default function Background() {
   const navigate = useNavigate();
   const [userData, setUserData] = useRecoilState(userDataAtom);
+  const characterData = useRecoilValue(characterDataAtom);
   const [selected, setSelected] = useState<IBackground>({
     id: 1,
     imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
   });
   const [backgroundList, setBackgroundList] = useState<IBackground[]>([
-    { id: 1, imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg" },
+    {
+      id: 1,
+      imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+    },
   ]);
 
   const { data } = useQuery({
@@ -51,11 +55,13 @@ export default function Background() {
           if (!prev) return prev;
           setSelected({
             id: 1,
-            imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+            imageUrl:
+              "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
           });
           return {
             ...prev,
-            backgroundUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+            backgroundUrl:
+              "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
           };
         });
       }
@@ -68,7 +74,11 @@ export default function Background() {
   useEffect(() => {
     if (data) {
       setBackgroundList([
-        { id: 1, imageUrl: "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg" },
+        {
+          id: 1,
+          imageUrl:
+            "https://gitmagotchi-generated.s3.amazonaws.com/sampleBg2.jpg",
+        },
         ...data.backgrounds,
       ]);
     }
@@ -114,7 +124,7 @@ export default function Background() {
               backgroundImage: `url(${selected?.imageUrl})`,
             }}
           >
-            <img src={sampleCharacter2Image} className="w-40 lg:w-60" />
+            <img src={characterData?.characterUrl} className="w-40 lg:w-60" />
           </CurrentBg>
         </CurrentBgContainer>
         <BgList>

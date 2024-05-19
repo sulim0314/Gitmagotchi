@@ -50,14 +50,16 @@ export const createAnimation = async (params: {
   return seoulInstance.post("/characters/motion", params);
 };
 
-// export const generateFace = async (params: { body: string }): Promise<{ imageUrl: string }> => {
-//   return usInstance.post("/character/face/ai", params);
-// };
 export const generateFace = async (params: {
   body: string;
 }): Promise<{ imageUrl: string }> => {
-  return usInstance.post("/character/face/ai/java", params);
+  return usInstance.post("/character/face/ai", params);
 };
+// export const generateFace = async (params: {
+//   body: string;
+// }): Promise<{ imageUrl: string }> => {
+//   return usInstance.post("/character/face/ai/java", params);
+// };
 
 export const getInteractionResult = async (params: {
   body: string;
@@ -83,6 +85,10 @@ export const getChatSentiment = async (params: {
   body: string;
 }): Promise<string> => {
   return usInstance.post("/character/chat/sentiment", params);
+};
+
+export const offline = async (): Promise<string> => {
+  return seoulInstance.post("characters/offline");
 };
 
 // here

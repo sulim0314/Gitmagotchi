@@ -24,7 +24,12 @@ import { userDataAtom } from "@/store/user";
 import { characterDataAtom } from "@/store/character";
 import { Auth } from "aws-amplify";
 import { getUser } from "@/api/user";
-import { applyCharacter, getCharacter, getMotion } from "@/api/character";
+import {
+  applyCharacter,
+  getCharacter,
+  getMotion,
+  offline,
+} from "@/api/character";
 import EditProfile from "@/pages/EditProfile";
 import { IAuth } from "@/models";
 import CharacterEnding from "@/pages/CharacterEnding";
@@ -33,6 +38,7 @@ import Background from "@/pages/Background";
 import { useQuery } from "@tanstack/react-query";
 import { expHandler } from "@/util/value";
 import { motionDataAtom } from "@/store/motion";
+import Loading from "@/components/common/Loading";
 
 export default function App() {
   const location = useLocation();
@@ -49,6 +55,7 @@ export default function App() {
   const [frameLoaded, setFrameLoaded] = useState<boolean>(false);
   const bgRef = useRef<HTMLImageElement>(new Image());
   const [bgLoaded, setBgLoaded] = useState<boolean>(false);
+  const [isWalking, setIsWalking] = useState<boolean>(false);
 
   const statIntervalId = useRef<NodeJS.Timeout | null>(null);
   const cleannessIntervalId = useRef<NodeJS.Timeout | null>(null);
@@ -76,6 +83,10 @@ export default function App() {
     };
     bgRef.current.onload = () => {
       setBgLoaded(true);
+    };
+
+    return () => {
+      offline();
     };
   }, []);
 
@@ -242,8 +253,7 @@ export default function App() {
     }
   }, [motionData]);
 
-  if (loading || !frameLoaded || (userData && !bgLoaded))
-    return <div>Loading...</div>;
+  if (loading || !frameLoaded || (userData && !bgLoaded)) return <Loading />;
 
   return (
     <>
@@ -254,11 +264,13 @@ export default function App() {
               backgroundImage: `url(${userData?.backgroundUrl || SampleBg})`,
             }}
           />
-          <BackgroundFrame
-            style={{
-              backgroundImage: `url(${BackgroundImage})`,
-            }}
-          />
+          {!isWalking && (
+            <BackgroundFrame
+              style={{
+                backgroundImage: `url(${BackgroundImage})`,
+              }}
+            />
+          )}
           <White />
         </>
       )}
@@ -269,7 +281,12 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/character/create" element={<CreateCharacter />} />
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={
+                <Home isWalking={isWalking} setIsWalking={setIsWalking} />
+              }
+            />
             <Route path="/collection" element={<Collection />} />
             <Route path="/award" element={<Award />} />
             <Route path="/ranking" element={<Ranking />} />

@@ -5,10 +5,22 @@ import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router";
 import { useSetRecoilState } from "recoil";
 import { messageDataAtom } from "@/store/message";
+import { useEffect, useRef, useState } from "react";
+import Loading from "@/components/common/Loading";
 
 export default function Login() {
   const navigate = useNavigate();
   const setMessageData = useSetRecoilState(messageDataAtom);
+  const faceRef = useRef<HTMLImageElement>(new Image());
+  const [faceLoaded, setFaceLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    faceRef.current.src =
+      "https://gitmagotchi-generated.s3.amazonaws.com/face.png";
+    faceRef.current.onload = () => {
+      setFaceLoaded(true);
+    };
+  }, []);
 
   const signIn = async () => {
     await Auth.federatedSignIn({
@@ -25,11 +37,15 @@ export default function Login() {
     navigate("/", { replace: true });
   };
 
+  if (!faceLoaded) return <Loading />;
+
   return (
     <Wrapper>
       <ImgContainer>
         <BabyImg src={BabyImgFrame} />
-        <FaceImg src={"https://gitmagotchi-generated.s3.amazonaws.com/face.png"} />
+        <FaceImg
+          src={"https://gitmagotchi-generated.s3.amazonaws.com/face.png"}
+        />
       </ImgContainer>
       <Content>
         <Title>깃마고치</Title>

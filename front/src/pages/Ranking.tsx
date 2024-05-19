@@ -42,8 +42,6 @@ export default function Ranking() {
     }
   };
 
-  console.log(myRankData);
-
   return (
     <Wrapper>
       <DesktopMenu>

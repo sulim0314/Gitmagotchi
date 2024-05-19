@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { expHandler, statusHandler } from "@/util/value";
+import Loading from "@/components/common/Loading";
 
 export default function CharacterMenu() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function CharacterMenu() {
     };
   };
 
-  if (!characterData) return null;
+  if (!characterData) return <Loading />;
 
   return (
     <Wrapper>
@@ -37,9 +38,9 @@ export default function CharacterMenu() {
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={characterData.faceUrl} className="w-36 lg:w-72" />
+          <img src={characterData.characterUrl} className="w-36 lg:w-72" />
           <Name>{characterData.name}</Name>
-          <BirthDate>2024.04.15. 출생</BirthDate>
+          {/* <BirthDate>2024.04.15. 출생</BirthDate> */}
         </NameContainer>
       </CharacterContainer>
       <OtherContainer>
@@ -52,7 +53,8 @@ export default function CharacterMenu() {
                 className="bg-red-500"
                 style={{
                   width: `${(
-                    (characterData.status.fullness / statusHandler(characterData).fullnessMax) *
+                    (characterData.status.fullness /
+                      statusHandler(characterData).fullnessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
@@ -71,7 +73,8 @@ export default function CharacterMenu() {
                 className="bg-amber-500"
                 style={{
                   width: `${(
-                    (characterData.status.intimacy / statusHandler(characterData).intimacyMax) *
+                    (characterData.status.intimacy /
+                      statusHandler(characterData).intimacyMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
@@ -90,7 +93,8 @@ export default function CharacterMenu() {
                 className="bg-blue-500"
                 style={{
                   width: `${(
-                    (characterData.status.cleanness / statusHandler(characterData).cleannessMax) *
+                    (characterData.status.cleanness /
+                      statusHandler(characterData).cleannessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
@@ -103,8 +107,14 @@ export default function CharacterMenu() {
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
-          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
+          <CommonMenuItem
+            text={"캐릭터 능력치"}
+            onClick={onClickLink("/character/stat")}
+          />
+          <CommonMenuItem
+            text={"캐릭터 이름 변경"}
+            onClick={onClickLink("/character/rename")}
+          />
           <DeleteText>
             캐릭터를 방출하시려면{" "}
             <Link to="/character/delete">
@@ -200,10 +210,10 @@ const Name = tw.h1`
 text-2xl
 `;
 
-const BirthDate = tw.p`
-text-sm
-text-slate-500
-`;
+// const BirthDate = tw.p`
+// text-sm
+// text-slate-500
+// `;
 
 const OtherContainer = tw.div`
 w-full

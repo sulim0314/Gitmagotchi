@@ -5,6 +5,8 @@ import CommonInput from "@/components/common/CommonInput";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { generateBackground } from "@/api/background";
+import { useRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
@@ -18,11 +20,19 @@ export default function CreateByAi({
   createdRef,
 }: IProps) {
   const aiRef = useRef<HTMLImageElement>(null);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const animationRef = useRef<Animation>(new Animation());
   const [prompt, setPrompt] = useState<string>("");
   const mutation = useMutation({
     mutationFn: generateBackground,
     onSuccess: (data) => {
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          gold: prev.gold - 100,
+        };
+      });
       createdRef.current.src = data.imageUrl;
       createdRef.current.onload = () => {
         setCreatedUrl(data.imageUrl);
@@ -120,6 +130,7 @@ export default function CreateByAi({
                 />
               </PromptContainer>
               <CommonButton title={"생성 (💰100)"} />
+              <h1>{`현재 골드: 💰${userData?.gold}`}</h1>
             </ButtonContainer>
           </Content>
         </Wrapper>

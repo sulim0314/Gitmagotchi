@@ -48,19 +48,21 @@ export default function Chat() {
   const sentimentMutation = useMutation({
     mutationFn: getChatSentiment,
     onSuccess: (data) => {
-      let text: string;
+      let text: string = "";
       if (data === "POSITIVE") {
         text = "대화을 통해 기분이 좋아져 친밀도가 상승했습니다 +5";
       } else if (data === "NEGATIVE") {
         text = "대화을 통해 기분이 안좋아져 친밀도가 하락했습니다 -5";
       }
-      setMessageData((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toString(),
-          text,
-        },
-      ]);
+      if (text !== "") {
+        setMessageData((prev) => [
+          ...prev,
+          {
+            timestamp: new Date().toString(),
+            text,
+          },
+        ]);
+      }
       navigate("/");
     },
     onError: (err) => console.log(err),

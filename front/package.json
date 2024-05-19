@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.32.0",
+    "@types/react-loader-spinner": "^4.0.0",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^4.3.21",
     "axios": "^1.6.8",

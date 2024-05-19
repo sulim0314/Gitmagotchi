@@ -4,6 +4,8 @@ import CommonButton from "@/components/common/CommonButton";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { uploadBackground } from "@/api/background";
+import { useRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
@@ -12,9 +14,17 @@ interface IProps {
 
 export default function CreateByUpload({ setProcess, setCreatedUrl }: IProps) {
   const [uploadImg, setUploadImg] = useState<string | null>(DefaultImage);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const mutation = useMutation({
     mutationFn: uploadBackground,
     onSuccess: (data) => {
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          gold: prev.gold - 100,
+        };
+      });
       setCreatedUrl(data.imageUrl);
       setProcess(3);
     },
@@ -30,7 +40,9 @@ export default function CreateByUpload({ setProcess, setCreatedUrl }: IProps) {
     });
   };
 
-  const onChangeProfileImg: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const onChangeProfileImg: React.ChangeEventHandler<HTMLInputElement> = (
+    e
+  ) => {
     if (e.target.files) {
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -65,6 +77,7 @@ export default function CreateByUpload({ setProcess, setCreatedUrl }: IProps) {
         <ButtonContainer>
           <CommonButton title={"업로드 (💰50)"} onClick={generateBg} />
         </ButtonContainer>
+        <h1>{`현재 골드: 💰${userData?.gold}`}</h1>
       </Content>
     </Wrapper>
   );
