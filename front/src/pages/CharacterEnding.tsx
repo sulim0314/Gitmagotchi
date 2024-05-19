@@ -29,7 +29,7 @@ export default function CharacterEnding() {
 
   const endingText = () => {
     if (!characterData) return;
-    if (characterData.exp === 230) {
+    if (characterData.exp >= 230) {
       return (
         <DesktopTitle>
           <Title>{`${characterData?.name} 캐릭터가`}</Title>
@@ -37,7 +37,7 @@ export default function CharacterEnding() {
           <Title>명예의 전당에 등록됩니다.</Title>
         </DesktopTitle>
       );
-    } else if (characterData.status.cleanness === 0) {
+    } else if (characterData.status.cleanness <= 0) {
       return (
         <DesktopTitle>
           <Title>{`${characterData?.name} 캐릭터가`}</Title>
@@ -45,7 +45,7 @@ export default function CharacterEnding() {
           <Title>병사했습니다.</Title>
         </DesktopTitle>
       );
-    } else if (characterData.status.fullness === 0) {
+    } else if (characterData.status.fullness <= 0) {
       return (
         <DesktopTitle>
           <Title>{`${characterData?.name} 캐릭터가`}</Title>
@@ -53,7 +53,7 @@ export default function CharacterEnding() {
           <Title>아사했습니다.</Title>
         </DesktopTitle>
       );
-    } else if (characterData.status.intimacy === 0) {
+    } else if (characterData.status.intimacy <= 0) {
       return (
         <DesktopTitle>
           <Title>{`${characterData?.name} 캐릭터가`}</Title>
@@ -66,13 +66,13 @@ export default function CharacterEnding() {
 
   const endingConfirm = () => {
     if (!characterData) return;
-    if (characterData.exp === 230) {
+    if (characterData.exp >= 230) {
       mutation.mutate({ body: JSON.stringify({ endingType: "INDEPENDENT" }) });
-    } else if (characterData.status.cleanness === 0) {
+    } else if (characterData.status.cleanness <= 0) {
       mutation.mutate({ body: JSON.stringify({ endingType: "SICK" }) });
-    } else if (characterData.status.fullness === 0) {
+    } else if (characterData.status.fullness <= 0) {
       mutation.mutate({ body: JSON.stringify({ endingType: "HUNGRY" }) });
-    } else if (characterData.status.intimacy === 0) {
+    } else if (characterData.status.intimacy <= 0) {
       mutation.mutate({ body: JSON.stringify({ endingType: "RUNAWAY" }) });
     }
   };
