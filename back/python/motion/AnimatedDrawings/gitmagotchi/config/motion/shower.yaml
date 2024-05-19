@@ -1,6 +1,6 @@
-filepath: gitmagotchi/bvh/rokoko/stretching.bvh
-start_frame_idx: 480
-end_frame_idx: 630
+filepath: gitmagotchi/bvh/rokoko/shower.bvh
+start_frame_idx: 10
+end_frame_idx: 334
 groundplane_joint: LeftFoot
 forward_perp_joint_vectors:
   - - LeftShoulder
