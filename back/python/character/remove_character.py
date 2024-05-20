@@ -1,18 +1,12 @@
+import pymysql
+import boto3
 import json
 import logging
-import boto3
-import pymysql
-
-from botocore.exceptions import ClientError
 from pymysql.err import OperationalError
 
-# 필요한 설정 값을 설정하세요
-S3_BUCKET = 'gitmagotchi-generated'  # S3 버킷 이름
-AWS_REGION_VIRGINIA = 'us-east-1'
 AWS_REGION_SEOUL = 'ap-northeast-2'  # 리전 정보
 
-s3_client = boto3.client('s3', region_name=AWS_REGION_VIRGINIA)
-ssm_client = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
+ssm = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
 
 class DatabaseConnectionError(Exception):
     """데이터베이스 연결 실패 시 발생하는 예외"""
@@ -22,7 +16,7 @@ class DatabaseConnectionError(Exception):
 
 def get_parameter(name):
     """Parameter Store로부터 파라미터 값을 가져오는 함수"""
-    response = ssm_client.get_parameter(
+    response = ssm.get_parameter(
         Name=name,
         WithDecryption=True
     )
@@ -42,29 +36,23 @@ def init_db():
         logging.error(f"Database connection failed: {e}")
         raise DatabaseConnectionError("Failed to connect to the database")
 
-def save_to_aurora(userId, backgroundId):
-    conn = None    
+def save_to_aurora(userId):
+    conn = None
     try:
-        conn = init_db()
-        with conn.cursor() as cur:
-            # 현재 배경화면을 삭제하면 첫번째 배경화면으로 변경
-            select_query = """
-            SELECT background_id FROM user WHERE id=%s;
+        conn = init_db()    
+        with conn.cursor() as cur:            
+            delete_query = """
+            UPDATE `character`
+            SET is_deleted = 1
+            WHERE id = (SELECT character_id FROM user WHERE id = %s);
             """
-            cur.execute(select_query, (userId,))
-            result = cur.fetchone()[0]
-            if int(result) == int(backgroundId):
-                update_query ="""
-                UPDATE user SET background_id=%s where id=%s;
-                """
-                cur.execute(update_query, (1,userId))
-
-            # user_background 테이블에 데이터 삭제
-            delete_user_background_query = """
-            DELETE FROM user_background
-            WHERE user_id=%s AND background_id=%s;
+            cur.execute(delete_query, (userId,))
+            update_query = """
+            UPDATE user
+            SET character_id = null
+            WHERE id = %s;
             """
-            cur.execute(delete_user_background_query, (userId, backgroundId))
+            cur.execute(update_query, (userId,))        
         conn.commit()
     except Exception as e:
         raise Exception(f'Error occured on save... {e}')
@@ -72,22 +60,16 @@ def save_to_aurora(userId, backgroundId):
         if conn:
             conn.close()
 
-def lambda_handler(event, context):
+def lambda_handler(event, context):    
     try:
-        backgroundId = event.get('queryStringParameters', {}).get('backgroundId')        
         userId = event.get('context').get('username').replace('github_', '')
-        
         if not userId:
             raise ValueError('Missing userId')
-        elif not backgroundId:
-            raise ValueError('Missing backgroundId')
-    
-        save_to_aurora(userId, backgroundId)
+        save_to_aurora(userId)
         return {
             'statusCode': 200,
-            'body': json.dumps({'message':'Query executed successfully!'})
+            'body': json.dumps({'message': 'Character delete successfully'})
         }
-    
     except DatabaseConnectionError as e:
         logging.error(f"DatabaseConnectionError: {e}")
         return {
@@ -95,14 +77,12 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Database connection error'})
         }
     except ValueError as e:
-        logging.error(f"ValueError: {e}")
         return {
             'statusCode': 400,
             'body': json.dumps({'error': str(e)})
         }
     except Exception as e:
-        logging.error(f"Internal server error: {e}")
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': 'Internal server error', 'detail': str(e)})
-        }  
+            'body': json.dumps({'error': 'Internal server error'})
+        }        

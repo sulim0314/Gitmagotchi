@@ -1,13 +1,11 @@
 import pymysql
 import boto3
-import logging
 import json
-
+import logging
 from pymysql.err import OperationalError
 
-AWS_REGION_SEOUL = 'ap-northeast-2'  # 리전 정보
-
-ssm = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
+# AWS Systems Manager (SSM) 클라이언트 생성
+ssm = boto3.client('ssm', region_name='ap-northeast-2')
 
 class NotFoundException(Exception):
     """요청한 리소스를 찾을 수 없을 때 발생하는 예외"""
@@ -43,41 +41,61 @@ def init_db():
         logging.error(f"Database connection failed: {e}")
         raise DatabaseConnectionError("Failed to connect to the database")
 
-def search_from_aurora(userId):
+def reflect_status(userId):
     conn = None
     try:
-        conn = init_db()
         with conn.cursor() as cur:
-            select_query = """
-            SELECT b.id, b.image_url
-            FROM user_background AS ub
-            JOIN background AS b ON ub.background_id = b.id
-            WHERE ub.user_id = %s;
+            conn = init_db()    
+            # 캐릭터 Id 찾기
+            select_character_id_query = """
+            SELECT character_id FROM user WHERE id = %s;
             """
-            cur.execute(select_query, (userId,))
+            cur.execute(select_character_id_query, (userId,))            
+            characterId = cur.fetchone()
 
-            results = cur.fetchall()  # 여러 결과를 가져옵니다.
-            backgrounds = [{'id': row[0], 'imageUrl': row[1]} for row in results]
-            return backgrounds
-        
+            if not characterId:
+                raise NotFoundException('Character not Found')
+
+            select_query = """
+            SELECT c.last_online, s.cleanness_stat
+            FROM `character` c
+            JOIN stat s ON c.id = s.character_id
+            WHERE c.id = %s
+            """
+            cur.execute(select_query, (characterId,))
+            result = cur.fetchone()
+
+            if not result:
+                raise NotFoundException('Factor not Found')
+            
+            lastOnline, cleannessStat = result
+
+            update_query = """
+            UPDATE `status`
+            SET
+                fullness = fullness - FLOOR(TIMESTAMPDIFF(HOUR, %s, NOW()) / 2),
+                intimacy = intimacy - FLOOR(TIMESTAMPDIFF(HOUR, %s, NOW()) / 2),
+                cleanness = cleanness - FLOOR(TIMESTAMPDIFF(HOUR, %s, NOW()) / (%s + 1))
+            WHERE character_id = %s AND TIMESTAMPDIFF(HOUR, %s, NOW()) >= 2;
+            """
+            cur.execute(update_query, (lastOnline, lastOnline, lastOnline, cleannessStat, characterId, lastOnline))        
+        conn.commit()
     except Exception as e:
         raise Exception(f'Error occured on save... {e}')
     finally:
         if conn:
-            conn.close()            
+            conn.close()
 
-def lambda_handler(event, context):
+def lambda_handler(event, context):    
     try:
-        print("event : ", event)
         userId = event.get('context').get('username').replace('github_', '')
-
         if not userId:
             raise ValueError('Missing userId')
-        
-        backgrounds = search_from_aurora(userId)
+        reflect_status(userId)
+
         return {
             'statusCode': 200,
-            'body': json.dumps({'backgrounds': backgrounds})
+            'body': json.dumps({'message': 'Character reflect successfully'})
         }
     except NotFoundException as e:
         logging.error(f"NotFoundException: {e}")
@@ -92,14 +110,12 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Database connection error'})
         }
     except ValueError as e:
-        logging.error(f"ValueError: {e}")
         return {
             'statusCode': 400,
             'body': json.dumps({'error': str(e)})
         }
     except Exception as e:
-        logging.error(f"Internal server error: {e}")
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': 'Internal server error', 'detail': str(e)})
-        }  
+            'body': json.dumps({'error': 'Internal server error'})
+        }        
