@@ -75,46 +75,56 @@
 <br/>
 
 # 🎨 아키텍처
+![아키텍처](./assets/aws.png)
 
-<!-- 아키텍처 사진 -->
 <br/>
 
 # 💡 주요기능
 
-## **Docs**
+### 1. 사용자 인증
+![사용자인증](./assets/login.gif)
 
-### 1. 메인화면
+### 2. 커밋 기반 밥 짓기
+![커밋기반밥짓기](./assets/prepare-meal.gif)
 
--
-  <br/>
+### 3. 캐릭터 얼굴 AI 생성
+![캐릭터얼굴](./assets/create_character.gif)
+
+### 4. 배경화면 AI 생성
+![배경화면](./assets/background.gif)
+
+### 5. 채팅 및 감정분석
+![채팅](./assets/chat_comprehend.gif)
+
+### 6. 캐릭터 모션
+![캐릭터모션](./assets/motions.gif)
+
+### 7. 캐릭터 도감
+![캐릭터도감](./assets/dogam.gif)
+
+### 8. 캐릭터 경험치
+![캐릭터경험치](./assets/exp.gif)
+
+### 9. 캐릭터 스탯
+![캐릭터스탯](./assets/stat.gif)
+
+### 10. 명예의 전당 오르기
+![명예의전당오르기](./assets/tofame.gif)
+
+### 11. 명예의 전당
+![명예의전당](./assets/fame.gif)
+
+### 12. 사용자 랭킹
+![사용자랭킹](./assets/ranking.gif)
+
+### 13. 통합검색
+![통합검색](./assets/search.gif)
 
 
 <br/>
-<br/>
-
-### 2. Docs
-
-- API를 쉽게 사용할 수 있도록 사용법 제공
-- 시작하기, 용어 정의, 프로젝트 구조, 커스텀 방법, 샘플 앱 이용법
-  <br/>
-
-![Docs](./assets/docs/Docs-Docs.gif)
-<br/>
-<br/>
-
-### 3. APIs
-
-- 43개의 API의 Request, Response 정보 제공
-- Request, Response 정보를 제공하고, 이를 바탕으로 테스트베드 사용
-  <br/>
-
-![APIs](./assets/docs/Docs-APIs.gif)
-<br/>
-<br/>
-
 
 # 🎬 UCC
-
+https://www.youtube.com/watch?v=w9rcBkjkh_k
 
 <br/>
 
@@ -122,17 +132,17 @@
 
 ### [1. 요구사항 명세서](https://chocolate-mint-5ac.notion.site/2f50c6e01a2f4712a7bdd678e81c9b08?pvs=4)
 
-![Required](./assets/Required.PNG)
+![Required](./assets/기능.png)
 
 ### [2. ERD]
 
-![ERD](./assets/ERD.PNG)
+![ERD](./assets/erd.png)
 
 ### [3. API 명세서](https://chocolate-mint-5ac.notion.site/API-2e3285f3edd247fbae97d6e0d96f6108?pvs=4)
 
-![API](./assets/API.PNG)
+![API](./assets/api.png)
 <br/>
 
 # 참고
 
-### [노션](https://joyous-panther-248.notion.site/A503-13-7e43baa015974b2eb153f22c622f4c84?pvs=4)
+### 노션
