@@ -1,5 +1,5 @@
 import tw from "tailwind-styled-components";
-import PictureImage from "@/assets/images/picture.png";
+import PictureImage from "@/assets/images/picture.svg";
 import CommonButton from "@/components/common/CommonButton";
 
 interface IProps {

@@ -1,13 +1,20 @@
-// import { usInstance } from ".";
+import { IRanking, Pageable } from "@/models";
+import { seoulInstance } from ".";
 
-import { sampleRanking } from "./sample";
+export const getRankingList = async (params: {
+  type: "BEST" | "WORST";
+  page?: number;
+  pageSize?: number;
+}): Promise<Pageable<IRanking>> => {
+  return seoulInstance.get("/users/rank", { params });
+};
 
-export const getRankingList = async (): Promise<any> => {
-  //   const response = await usInstance.post("/collection", params);
-  //   return response.data;
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(sampleRanking);
-    }, 2000);
-  });
+export const getMyRank = async (params: {
+  type: "BEST" | "WORST";
+}): Promise<{
+  collectionCount: number;
+  rank: number;
+  id: number;
+}> => {
+  return seoulInstance.get("/users/rank/me", { params });
 };

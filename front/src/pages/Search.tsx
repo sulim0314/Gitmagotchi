@@ -1,23 +1,58 @@
 import tw from "tailwind-styled-components";
-import { HiChevronLeft, HiChevronRight, HiChevronDown, HiChevronUp } from "react-icons/hi";
+import {
+  HiChevronLeft,
+  HiChevronRight,
+  // HiChevronDown,
+  // HiChevronUp,
+} from "react-icons/hi";
 import { HiOutlineSearch } from "react-icons/hi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getSearchList } from "@/api/search";
+import { getCharacterSearchList, getUserSearchList } from "@/api/search";
 import CharacterItem from "@/components/search/CharacterItem";
-import { ICharacter, IUser } from "@/models";
+import { ISimpleCharacter, IUser } from "@/models";
 import UserItem from "@/components/search/UserItem";
 
 export default function Search() {
   const [type, setType] = useState<"CHARACTER" | "USER">("CHARACTER");
-  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  // const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [keyword, setKeyword] = useState<string>("");
+  const [searchWord, setSearchWord] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [searchList, setSearchList] = useState<ISimpleCharacter[] | IUser[]>(
+    []
+  );
+
   const { data } = useQuery({
-    queryKey: ["search", type, keyword],
-    queryFn: () => getSearchList({ type, keyword }),
+    queryKey: ["search", type, searchWord, page],
+    queryFn: () => {
+      if (searchWord === "") {
+        setSearchList([]);
+      } else if (type === "CHARACTER") {
+        return getCharacterSearchList({ name: searchWord });
+      } else {
+        return getUserSearchList({
+          keyword: searchWord,
+          page,
+          pageSize: 10,
+        });
+      }
+    },
   });
 
+  useEffect(() => {
+    if (!data) return;
+    if (type === "CHARACTER") {
+      setSearchList(data);
+    } else {
+      setSearchList(data.content);
+    }
+  }, [data, type]);
+
   const changeType = () => {
+    setPage(1);
+    setKeyword("");
+    setSearchWord("");
     if (type === "CHARACTER") {
       setType("USER");
     } else {
@@ -25,21 +60,26 @@ export default function Search() {
     }
   };
 
-  const toggleHistoryOpen = () => {
-    setHistoryOpen((prev) => !prev);
-  };
+  // const toggleHistoryOpen = () => {
+  //   setHistoryOpen((prev) => !prev);
+  // };
 
   const onChangeKeyword: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setKeyword(e.target.value);
   };
 
+  const submitKeyword: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    setSearchWord(keyword);
+  };
+
   return (
     <Wrapper>
       <DesktopMenu>
-        <DesktopMenuItem $selected={type === "CHARACTER"} onClick={() => setType("CHARACTER")}>
+        <DesktopMenuItem $selected={type === "CHARACTER"} onClick={changeType}>
           <DesktopMenuText>캐릭터 검색</DesktopMenuText>
         </DesktopMenuItem>
-        <DesktopMenuItem $selected={type === "USER"} onClick={() => setType("USER")}>
+        <DesktopMenuItem $selected={type === "USER"} onClick={changeType}>
           <DesktopMenuText>사용자 검색</DesktopMenuText>
         </DesktopMenuItem>
       </DesktopMenu>
@@ -53,16 +93,18 @@ export default function Search() {
             <RightIcon onClick={changeType} />
           </MobileRankingMenu>
         </MobileHeader>
-        <InputContainer>
+        <InputContainer onSubmit={submitKeyword}>
           <SearchInput
-            placeholder={`${type === "CHARACTER" ? "캐릭터" : "사용자"}를 찾아보세요.`}
+            placeholder={`${
+              type === "CHARACTER" ? "캐릭터" : "사용자"
+            }를 찾아보세요.`}
             onChange={onChangeKeyword}
           />
           <SearchIcon />
         </InputContainer>
         <Content>
           <ScrollContent>
-            <RecentKeywordContainer>
+            {/* <RecentKeywordContainer>
               <TitleContainer>
                 <Title>최근검색어</Title>
                 {historyOpen ? (
@@ -71,22 +113,26 @@ export default function Search() {
                   <DownIcon onClick={toggleHistoryOpen} />
                 )}
               </TitleContainer>
-              {historyOpen && <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>}
+              {historyOpen && (
+                <ResultKeywordList>최근 검색내역이 없습니다.</ResultKeywordList>
+              )}
             </RecentKeywordContainer>
-            {historyOpen && <Divider />}
+            {historyOpen && <Divider />} */}
             <ResultContainer>
               <TitleContainer>
                 <Title>검색 결과</Title>
               </TitleContainer>
               {data && type === "CHARACTER" ? (
                 <CharacterResultList>
-                  {data?.map((c: ICharacter) => (
-                    <CharacterItem key={c.id} character={c} />
-                  ))}
+                  {(searchList as ISimpleCharacter[]).map(
+                    (c: ISimpleCharacter) => (
+                      <CharacterItem key={c.characterId} character={c} />
+                    )
+                  )}
                 </CharacterResultList>
               ) : (
                 <UserResultList>
-                  {data?.map((u: IUser) => (
+                  {(searchList as IUser[]).map((u: IUser) => (
                     <UserItem key={u.id} user={u} />
                   ))}
                 </UserResultList>
@@ -120,7 +166,8 @@ space-y-2
 `;
 
 const DesktopMenuItem = tw.button<{ $selected: boolean }>`
-${(p) => (p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent")}
+${(p) =>
+  p.$selected ? "bg-purple-200 border-slate-800" : "border-transparent"}
 border-2
 h-14
 w-full
@@ -187,21 +234,21 @@ text-slate-400
 cursor-pointer
 `;
 
-const UpIcon = tw(HiChevronUp)`
-w-6
-h-6
-text-slate-400
-cursor-pointer
-`;
+// const UpIcon = tw(HiChevronUp)`
+// w-6
+// h-6
+// text-slate-400
+// cursor-pointer
+// `;
 
-const DownIcon = tw(HiChevronDown)`
-w-6
-h-6
-text-slate-400
-cursor-pointer
-`;
+// const DownIcon = tw(HiChevronDown)`
+// w-6
+// h-6
+// text-slate-400
+// cursor-pointer
+// `;
 
-const InputContainer = tw.div`
+const InputContainer = tw.form`
 w-full
 flex
 px-8
@@ -256,9 +303,9 @@ grid-cols-3
 gap-2
 `;
 
-const RecentKeywordContainer = tw.div`
-w-full
-`;
+// const RecentKeywordContainer = tw.div`
+// w-full
+// `;
 
 const ResultContainer = tw.div`
 w-full
@@ -273,25 +320,25 @@ px-8
 py-4
 `;
 
-const Divider = tw.div`
-bg-slate-300/50
-lg:bg-transparent
-w-full
-h-4
-`;
+// const Divider = tw.div`
+// bg-slate-300/50
+// lg:bg-transparent
+// w-full
+// h-4
+// `;
 
 const Title = tw.h1`
 font-bold
 text-xl
 `;
 
-const ResultKeywordList = tw.div`
-w-full
-min-h-40
-flex
-flex-col
-justify-center
-items-center
-lg:bg-slate-200
-lg:rounded-lg
-`;
+// const ResultKeywordList = tw.div`
+// w-full
+// min-h-40
+// flex
+// flex-col
+// justify-center
+// items-center
+// lg:bg-slate-200
+// lg:rounded-lg
+// `;

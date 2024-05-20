@@ -3,11 +3,18 @@ export * from "@/models/background.interface";
 export * from "@/models/character.interface";
 export * from "@/models/collection.interface";
 export * from "@/models/message.interface";
+export * from "@/models/motion.interface";
 export * from "@/models/user.interface";
 
 export interface IResponse {
   statusCode: number;
   body: string;
+}
+
+export interface IBaseEntity {
+  createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
 }
 
 export interface Pageable<T> {

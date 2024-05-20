@@ -1,21 +1,45 @@
 import tw from "tailwind-styled-components";
-import SampleCharacterImage from "@/assets/images/sampleCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
-import { Link } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { userDataAtom } from "@/store/user";
+import { createAnimation } from "@/api/character";
 
-export default function CreateResult() {
+interface IProps {
+  createdId: number | null;
+  createdName: string;
+  faceUrl: string;
+}
+
+export default function CreateResult({ createdId, createdName, faceUrl }: IProps) {
+  const setUserData = useSetRecoilState(userDataAtom);
+
+  const resultConfirm = () => {
+    if (!createdId) return;
+    createAnimation({
+      characterId: createdId,
+      requiredLevel: 1,
+    });
+    setUserData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        characterId: createdId,
+      };
+    });
+  };
+
   return (
     <Wrapper>
-      <img src={SampleCharacterImage} className="w-60" />
+      <ImgContainer>
+        <CreatedImg src={faceUrl} />
+      </ImgContainer>
       <Content>
         <DesktopTitle>
-          <Title>도날드덕 캐릭터가</Title>
+          <Title>{`${createdName} 캐릭터가`}</Title>
           <Title>생성되었어요.</Title>
         </DesktopTitle>
         <ButtonContainer>
-          <Link to={"/"}>
-            <CommonButton title={"확인"} />
-          </Link>
+          <CommonButton title={"확인"} onClick={resultConfirm} />
         </ButtonContainer>
       </Content>
     </Wrapper>
@@ -33,20 +57,32 @@ justify-center
 items-center
 `;
 
+const ImgContainer = tw.div`
+w-60
+h-60
+`;
+
+const CreatedImg = tw.img`
+scale-125
+translate-y-1
+w-60
+h-60
+`;
+
 const Content = tw.div`
 flex
 flex-col
 justify-center
 items-center
 space-y-4
-h-80
+lg:h-80
 `;
 
 const DesktopTitle = tw.div`
 flex
 flex-col
 items-center
-space-y-4
+lg:space-y-4
 `;
 
 const Title = tw.h1`
@@ -57,7 +93,7 @@ lg:mb-6
 `;
 
 const ButtonContainer = tw.div`
-h-72
+lg:h-72
 flex
 flex-col
 space-y-4

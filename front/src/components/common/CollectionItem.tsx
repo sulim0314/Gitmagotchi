@@ -22,6 +22,14 @@ export default function CollectionItem({ collection, award }: IProps) {
     <Wrapper>
       <Container>
         <BackgroundImage
+          className="bg-cover"
+          $grayscale={collection.ending !== "INDEPENDENT"}
+          style={{
+            backgroundImage: `url(${collection.backgroundUrl})`,
+          }}
+        />
+        <BackgroundImage
+          className="bg-contain"
           $grayscale={collection.ending !== "INDEPENDENT"}
           style={{
             backgroundImage: `url(${collection.characterUrl})`,
@@ -35,7 +43,9 @@ export default function CollectionItem({ collection, award }: IProps) {
         </NameContainer>
         {award && <Username>{collection.userId}</Username>}
         {collection.ending !== "INDEPENDENT" && (
-          <DeathType>{formatEnding(collection.ending)}</DeathType>
+          <div className="text-border">
+            <DeathType>{formatEnding(collection.ending)}</DeathType>
+          </div>
         )}
       </Container>
     </Wrapper>
@@ -61,6 +71,9 @@ shadow-lg
 overflow-hidden
 border-2
 border-slate-800
+bg-cover
+bg-no-repeat
+bg-center
 `;
 
 const BackgroundImage = tw.div<{ $grayscale: boolean }>`
@@ -68,7 +81,6 @@ absolute
 w-full
 h-full
 ${(p) => (p.$grayscale ? "grayscale" : "")}
-bg-cover
 bg-no-repeat
 bg-center
 `;
@@ -111,12 +123,13 @@ font-bold
 
 const DeathType = tw.h1`
 absolute
+grayscale-0
 top-1/2
 left-1/2
 -translate-x-1/2
 -translate-y-1/2
 text-red-500
-font-extrabold
+font-bold
 text-2xl
 z-10
 `;

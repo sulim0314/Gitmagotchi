@@ -3,7 +3,7 @@ import { IoSend } from "react-icons/io5";
 import CharacterChat from "@/components/chat/CharacterChat";
 import UserChat from "@/components/chat/UserChat";
 import { useMutation } from "@tanstack/react-query";
-import { getChatResponse, getChatSentiment } from "@/api/character";
+import { getChatSentiment, getTestResponse } from "@/api/character";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { characterDataAtom } from "@/store/character";
@@ -11,6 +11,7 @@ import { userDataAtom } from "@/store/user";
 import { ImExit } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
 import { messageDataAtom } from "@/store/message";
+import { expHandler, statusHandler } from "@/util/value";
 
 interface IUserChat {
   isUser: boolean;
@@ -37,29 +38,35 @@ export default function Chat() {
   const setMessageData = useSetRecoilState(messageDataAtom);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const chatMutation = useMutation({
-    mutationFn: getChatResponse,
-    onSuccess: (data) => getMessage(unicodeToChar(data)),
+    // mutationFn: getChatResponse,
+    mutationFn: getTestResponse,
+    // onSuccess: (data) => getMessage(unicodeToChar(data)),
+    onSuccess: (data) => getMessage(data),
     onError: (err) => console.log(err),
+    retry: 2,
   });
   const sentimentMutation = useMutation({
     mutationFn: getChatSentiment,
     onSuccess: (data) => {
-      let text: string;
+      let text: string = "";
       if (data === "POSITIVE") {
         text = "대화을 통해 기분이 좋아져 친밀도가 상승했습니다 +5";
       } else if (data === "NEGATIVE") {
         text = "대화을 통해 기분이 안좋아져 친밀도가 하락했습니다 -5";
       }
-      setMessageData((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toString(),
-          text,
-        },
-      ]);
+      if (text !== "") {
+        setMessageData((prev) => [
+          ...prev,
+          {
+            timestamp: new Date().toString(),
+            text,
+          },
+        ]);
+      }
       navigate("/");
     },
     onError: (err) => console.log(err),
+    retry: 2,
   });
 
   const [chatMsg, setChatMsg] = useState<string>("");
@@ -67,9 +74,9 @@ export default function Chat() {
     {
       isUser: false,
       imgSrc: characterData?.faceUrl || "",
-      level: 9,
+      level: expHandler(characterData?.exp || 0).level,
       name: characterData?.name || "",
-      text: `안녕! 난 ${characterData?.name}이야.`,
+      text: `안녕! 난 ${characterData?.name}(이)야.`,
     },
   ]);
 
@@ -84,6 +91,7 @@ export default function Chat() {
   const sendMessage: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     setChatMsg("");
+    if (!characterData) return;
 
     setChatList((prev) => [
       ...prev,
@@ -96,42 +104,86 @@ export default function Chat() {
       },
     ]);
 
+    // chatMutation.mutate({
+    //   body: JSON.stringify({
+    //     characterInfo: {
+    //       name: characterData?.name,
+    //       level: Math.floor((characterData?.exp || 0) / 100),
+    //       fullness: 70,
+    //       intimacy: 80,
+    //       cleanness: 60,
+    //     },
+    //     userInput: chatMsg,
+    //   }),
+    // });
+
     chatMutation.mutate({
       body: JSON.stringify({
         characterInfo: {
-          name: characterData?.name,
-          level: Math.floor((characterData?.exp || 0) / 100),
-          fullness: 70,
-          intimacy: 80,
-          cleanliness: 60,
+          name: characterData.name,
+          level: expHandler(characterData.exp).level,
+          fullness: characterData.status.fullness,
+          intimacy: characterData.status.intimacy,
+          cleanness: characterData.status.cleanness,
+          intimacyMax: statusHandler(characterData).intimacyMax,
+          fullnessMax: statusHandler(characterData).fullnessMax,
+          cleannessMax: statusHandler(characterData).cleannessMax,
         },
         userInput: chatMsg,
+        chat: chatList
+          .filter((_, i) => i > chatList.length - 10)
+          .map((c) => `${c.isUser ? "사용자" : "캐릭터"}: ${c.text}\n`)
+          .join(),
       }),
     });
   };
 
   const getMessage = (data: string) => {
+    const answer = filterAnswer(data);
     setChatList((prev) => [
       ...prev,
       {
         isUser: false,
         imgSrc: characterData?.faceUrl || "",
-        level: Math.floor((characterData?.exp || 0) / 100),
+        level: expHandler(characterData?.exp || 0).level,
         name: characterData?.name || "",
-        text: data,
+        text: answer,
       },
     ]);
   };
 
-  const unicodeToChar = (text: string) => {
-    return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
-      return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
-    });
+  const filterAnswer = (data: string) => {
+    let answer = data;
+    const filters = [
+      `${characterData?.name}:`,
+      "다마고치:",
+      "캐릭터 답글",
+      "답글",
+      "response =",
+      "[응답]",
+      "[답변]",
+      "[대화 내용]",
+      "[챗봇 응답]",
+      "캐릭터",
+      "The response is:",
+      "[챗봇 답]",
+    ];
+
+    for (const filter of filters) {
+      answer = answer.startsWith(filter) ? answer.split(filter)[1] : answer;
+    }
+    return answer;
   };
+
+  // const unicodeToChar = (text: string) => {
+  //   return text.replace(/\\u[\dA-F]{4}/gi, function (match) {
+  //     return String.fromCharCode(parseInt(match.replace(/\\u/g, ""), 16));
+  //   });
+  // };
 
   const exitChat = () => {
     sentimentMutation.mutate({
-      source_text: chatList
+      body: chatList
         .filter((c) => !c.isUser)
         .map((c) => c.text)
         .join(" "),
@@ -173,7 +225,11 @@ export default function Chat() {
         </ChatList>
       </ChatContainer>
       <ChatInputContainer onSubmit={sendMessage}>
-        <ChatInput placeholder="메시지를 입력하세요." onChange={onChangeMsg} value={chatMsg} />
+        <ChatInput
+          placeholder="메시지를 입력하세요."
+          onChange={onChangeMsg}
+          value={chatMsg}
+        />
         <button>
           <SendIcon />
         </button>
@@ -232,12 +288,16 @@ w-full
 h-full
 grow-0
 overflow-y-scroll
+lg:px-40
+xl:px-80
 `;
 
 const ChatInputContainer = tw.form`
 w-full
 p-4
 relative
+lg:px-40
+xl:px-80
 `;
 
 const ChatInput = tw.input`

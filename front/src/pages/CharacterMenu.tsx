@@ -1,21 +1,17 @@
 import tw from "tailwind-styled-components";
-import sampleCharacter2Image from "@/assets/images/sampleCharacter2.png";
 import { BsStars } from "react-icons/bs";
 import { HiHeart } from "react-icons/hi";
 import { LuBatteryFull } from "react-icons/lu";
 import CommonMenuItem from "@/components/common/CommonMenuItem";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { characterDataAtom } from "@/store/character";
 import { expHandler, statusHandler } from "@/util/value";
-import { statDataAtom } from "@/store/stat";
-import { statusDataAtom } from "@/store/status";
+import Loading from "@/components/common/Loading";
 
 export default function CharacterMenu() {
   const navigate = useNavigate();
   const characterData = useRecoilValue(characterDataAtom);
-  const statData = useRecoilValue(statDataAtom);
-  const statusData = useRecoilValue(statusDataAtom);
 
   const onClickLink = (url: string) => {
     return () => {
@@ -23,22 +19,31 @@ export default function CharacterMenu() {
     };
   };
 
+  if (!characterData) return <Loading />;
+
   return (
     <Wrapper>
       <CharacterContainer>
         <ExpContainer>
-          <LevelText>{`LV.${expHandler(characterData?.exp || 0).level}`}</LevelText>
+          <LevelText>{`LV.${expHandler(characterData.exp).level}`}</LevelText>
           <ExpBarContainer className="text-border">
-            <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
-            <DataText>{`${expHandler(characterData?.exp || 0).curExp} / ${
-              expHandler(characterData?.exp || 0).maxExp
+            <ExpBar
+              style={{
+                width: `${expHandler(characterData.exp).percentage}%`,
+              }}
+            />
+            <DataText>{`${expHandler(characterData.exp).curExp} / ${
+              expHandler(characterData.exp).maxExp
             }`}</DataText>
           </ExpBarContainer>
         </ExpContainer>
         <NameContainer>
-          <img src={sampleCharacter2Image} className="w-36 lg:w-72" />
-          <Name>{characterData?.name}</Name>
-          <BirthDate>2024.04.15. 출생</BirthDate>
+          <img
+            src={characterData.characterUrl || characterData.faceUrl}
+            className="w-36 lg:w-72"
+          />
+          <Name>{characterData.name}</Name>
+          {/* <BirthDate>2024.04.15. 출생</BirthDate> */}
         </NameContainer>
       </CharacterContainer>
       <OtherContainer>
@@ -51,23 +56,17 @@ export default function CharacterMenu() {
                 className="bg-red-500"
                 style={{
                   width: `${(
-                    ((statusData?.fullness || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
-                      ).fullnessMax) *
+                    (characterData.status.fullness /
+                      statusHandler(characterData).fullnessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.fullness || 1} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
-                ).fullnessMax
+              <DataText>{`${characterData.status.fullness} / ${
+                statusHandler(characterData).fullnessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.1</StatLabelText>
+            <StatLabelText>{`LV.${characterData.stat.fullnessStat}`}</StatLabelText>
           </StatRow>
           <StatRow>
             <HeartIcon />
@@ -77,23 +76,17 @@ export default function CharacterMenu() {
                 className="bg-amber-500"
                 style={{
                   width: `${(
-                    ((statusData?.intimacy || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
-                      ).intimacyMax) *
+                    (characterData.status.intimacy /
+                      statusHandler(characterData).intimacyMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.intimacy || 1} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
-                ).intimacyMax
+              <DataText>{`${characterData.status.intimacy} / ${
+                statusHandler(characterData).intimacyMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.4</StatLabelText>
+            <StatLabelText>{`LV.${characterData?.stat.intimacyStat}`}</StatLabelText>
           </StatRow>
           <StatRow>
             <ShineIcon />
@@ -103,31 +96,34 @@ export default function CharacterMenu() {
                 className="bg-blue-500"
                 style={{
                   width: `${(
-                    ((statusData?.cleanness || 0) /
-                      statusHandler(
-                        expHandler(characterData?.exp || 0).level,
-                        statData?.intimacyStat || 1
-                      ).cleannessMax) *
+                    (characterData.status.cleanness /
+                      statusHandler(characterData).cleannessMax) *
                     100
                   ).toFixed(2)}%`,
                 }}
               />
-              <DataText>{`${statusData?.cleanness || 1} / ${
-                statusHandler(
-                  expHandler(characterData?.exp || 0).level,
-                  statData?.intimacyStat || 1
-                ).cleannessMax
+              <DataText>{`${characterData.status.cleanness} / ${
+                statusHandler(characterData).cleannessMax
               }`}</DataText>
             </StatBarContainer>
-            <StatLabelText>LV.6</StatLabelText>
+            <StatLabelText>{`LV.${characterData.stat.cleannessStat}`}</StatLabelText>
           </StatRow>
         </StatContainer>
         <MenuContainer>
-          <CommonMenuItem text={"캐릭터 능력치"} onClick={onClickLink("/character/stat")} />
-          <CommonMenuItem text={"캐릭터 이름 변경"} onClick={onClickLink("/character/rename")} />
-          <CommonMenuItem text={"캐릭터 성형"} onClick={onClickLink("/character/change")} />
+          <CommonMenuItem
+            text={"캐릭터 능력치"}
+            onClick={onClickLink("/character/stat")}
+          />
+          <CommonMenuItem
+            text={"캐릭터 이름 변경"}
+            onClick={onClickLink("/character/rename")}
+          />
           <DeleteText>
-            캐릭터를 방출하시려면 <DeleteLink>여기</DeleteLink>를 눌러주세요.
+            캐릭터를 방출하시려면{" "}
+            <Link to="/character/delete">
+              <DeleteLink>여기</DeleteLink>
+            </Link>
+            를 눌러주세요.
           </DeleteText>
         </MenuContainer>
       </OtherContainer>
@@ -217,10 +213,10 @@ const Name = tw.h1`
 text-2xl
 `;
 
-const BirthDate = tw.p`
-text-sm
-text-slate-500
-`;
+// const BirthDate = tw.p`
+// text-sm
+// text-slate-500
+// `;
 
 const OtherContainer = tw.div`
 w-full
