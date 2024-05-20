@@ -80,6 +80,7 @@ public class GetMealHandler implements
             if (jedis.exists(String.valueOf(userId))) {
                 Integer n = Integer.parseInt(jedis.get(String.valueOf(userId)));
                 if (n >= 3) {
+//                    jedis.set(String.valueOf(userId), "0"); /////
                     JSONObject bodyJson = new JSONObject();
                     bodyJson.put("message", "밥 짓기는 하루에 3번만 가능합니다.");
                     bodyJson.put("value", 0);
@@ -98,7 +99,7 @@ public class GetMealHandler implements
 
         try {
             // 사용자의 전체 레포 목록 조회
-            String reposUrl = "https://api.github.com/user/repos";
+            String reposUrl = "https://api.github.com/user/repos?per_page=100";
             HttpRequest reposRequest = HttpRequest.newBuilder()
                 .uri(URI.create(reposUrl))
                 .header("Authorization", "Bearer " + githubToken)
@@ -172,15 +173,32 @@ public class GetMealHandler implements
                 }
             }
 
-            Integer alreadyCommit = Integer.parseInt(jedis.get(String.valueOf(userId)));
+            Integer alreadyCommit = 0;
+
+            if(jedis.exists(String.valueOf(userId))) {
+                alreadyCommit = Integer.parseInt(jedis.get(String.valueOf(userId)));
+            }
 
             JSONObject bodyJson = new JSONObject();
             bodyJson.put("message", "처리 완료");
+
+            int totalCommits = alreadyCommit + totalCommitsAfterLastMeal;
+            int newCommits = totalCommits > 3 ? 3 - alreadyCommit : totalCommitsAfterLastMeal;
+
+            if(newCommits > 0) {
+                bodyJson.put("value", newCommits);
+            } else {
+                bodyJson.put("value", 0);
+            }
+
+            /*
             if(alreadyCommit + totalCommitsAfterLastMeal > 3) {
                 bodyJson.put("value", Math.abs(3 - alreadyCommit));
             } else {
                 bodyJson.put("value", totalCommitsAfterLastMeal);
             }
+            */
+
             JSONObject responseJson = new JSONObject();
             responseJson.put("statusCode", 200);
             responseJson.put("body", bodyJson.toString());
@@ -188,6 +206,7 @@ public class GetMealHandler implements
 
             context.getLogger().log("totalCommitsAfterLastMeal================: " + totalCommitsAfterLastMeal);
 
+            /*
             if (jedis.exists(String.valueOf(userId))) {
                 if(alreadyCommit + totalCommitsAfterLastMeal > 3) {
                     jedis.incrBy(String.valueOf(userId), Math.abs(3 - alreadyCommit));
@@ -196,6 +215,19 @@ public class GetMealHandler implements
                 }
             } else {
                 jedis.setex(String.valueOf(userId), 86400, String.valueOf(totalCommitsAfterLastMeal));
+            }
+            */
+
+            if (jedis.exists(String.valueOf(userId))) {
+//                totalCommits = alreadyCommit + totalCommitsAfterLastMeal;
+//                newCommits = totalCommits > 3 ? 3 - alreadyCommit : totalCommitsAfterLastMeal;
+
+                if(newCommits > 0) {
+                    jedis.incrBy(String.valueOf(userId), newCommits);
+                }
+            } else {
+                int initialCommits = totalCommitsAfterLastMeal > 3 ? 3 : totalCommitsAfterLastMeal;
+                jedis.setex(String.valueOf(userId), 86400, String.valueOf(initialCommits));
             }
 
             jedis.close();
