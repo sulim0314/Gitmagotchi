@@ -4,8 +4,9 @@ import json
 import logging
 from pymysql.err import OperationalError
 
-# AWS Systems Manager (SSM) 클라이언트 생성
-ssm = boto3.client('ssm', region_name='ap-northeast-2')
+AWS_REGION_SEOUL = 'ap-northeast-2'  # 리전 정보
+
+ssm = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
 
 class NotFoundException(Exception):
     """요청한 리소스를 찾을 수 없을 때 발생하는 예외"""
@@ -41,71 +42,87 @@ def init_db():
         logging.error(f"Database connection failed: {e}")
         raise DatabaseConnectionError("Failed to connect to the database")
 
-def save_to_aurora(userId, name, faceUrl):
+def save_to_aurora(userId, endingType):
     conn = None
     try:
         conn = init_db()    
         with conn.cursor() as cur:        
-            # 캐릭터 생성            
-            insert_character_query = """
-            INSERT INTO `character` (user_id, name, face_url)
-            VALUES (%s, %s, %s);
+            # 캐릭터 Id 찾기
+            select_query = """
+            SELECT character_id, background_id FROM user WHERE id = %s;
             """
-            cur.execute(insert_character_query, (userId, name, faceUrl))
-            characterId = cur.lastrowid
-            print("characterId : ", characterId)
+            cur.execute(select_query, (userId,))            
+            characterId, backgroundId = cur.fetchone()
 
-            # 상태 생성
-            insert_status_query = """
-            INSERT INTO `status` (character_id, user_id)
-            VALUES (%s, %s);
+            if not characterId:
+                raise NotFoundException('Character not Found')
+            if not backgroundId:
+                raise NotFoundException('Background not Found')
+            
+            # 컬렉션에 저장
+            insert_query = """
+            INSERT INTO collection 
+            (character_name, character_url, user_id, fullness_stat, intimacy_stat, cleanness_stat, ending, created_at, background_url)
+            SELECT c.name, 
+                    CASE
+                        WHEN c.exp >= 65 THEN c.character_adult_url
+                        ELSE c.character_child_url
+                    END,
+                    c.user_id, s.fullness_stat, s.intimacy_stat, s.cleanness_stat, %s, NOW(), 
+                    (SELECT image_url FROM background WHERE id = %s)
+            FROM `character` c
+            JOIN stat s ON c.id = s.character_id
+            WHERE c.id = %s;
             """
-            cur.execute(insert_status_query, (characterId, userId))
+            cur.execute(insert_query, (endingType, backgroundId, characterId))
 
-            # 능력치 생성
-            insert_stat_query = """
-            INSERT INTO `stat` (character_id, user_id)
-            VALUES (%s, %s);
-            """
-            cur.execute(insert_stat_query, (characterId, userId))
-
-            # 유저 테이블에 캐릭터 id 저장
-            update_user_query = """
-            UPDATE user
-            SET character_id = %s
+            # 캐릭터 테이블에서 soft delete
+            delete_query = """
+            UPDATE `character`
+            SET is_deleted = 1
             WHERE id = %s;
             """
-            cur.execute(update_user_query, (characterId, userId))
-            conn.commit()
+            cur.execute(delete_query, (characterId,))
 
-            return characterId
+            # 유저 테이블에서 null로 변경
+            fields_to_update = []
+            if endingType == 'INDEPENDENT': # 졸업한 경우 gold 획득
+                fields_to_update.append("gold = gold + 1000")
+            fields_to_update.append("character_id = null")
+
+            update_query = f"""
+            UPDATE user
+            SET {', '.join(fields_to_update)}
+            WHERE id = %s;
+            """
+            cur.execute(update_query, (userId,))
+        conn.commit()
     except Exception as e:
         raise Exception(f'Error occured on save... {e}')
     finally:
         if conn:
             conn.close()
-            
+
 def lambda_handler(event, context):    
     try:
         json_body = event.get('body').get('body')
-
+        
         if not json_body:
             raise ValueError('Invalid input data')
         obj = json.loads(json_body)    
 
         userId = event.get('context').get('username').replace('github_', '')
-        name = obj.get("name")
-        faceUrl = obj.get("faceUrl")
+        endingType = obj.get("endingType")
         
         if not userId:
             raise ValueError('Missing userId')
-        elif not name or not faceUrl:
-            raise ValueError('Missing required Parameter')
+        elif not endingType:
+            raise ValueError('Missing endingType')
 
-        characterId = save_to_aurora(userId, name, faceUrl)        
+        save_to_aurora(userId, endingType)
         return {
             'statusCode': 200,
-            'body': json.dumps({"characterId": characterId}),
+            'body': json.dumps({'message': 'Character conclude successfully'})
         }
     except NotFoundException as e:
         logging.error(f"NotFoundException: {e}")

@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.net.URI;
@@ -15,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -45,7 +47,12 @@ public class GetMealHandler implements
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request,
         Context context) {
 
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        headers.put("Access-Control-Allow-Origin", "*");
+
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        response.setHeaders(headers);
 
         JSONObject requestObj = new JSONObject(request);
         JSONObject requestContext = requestObj.getJSONObject("requestContext")
@@ -59,14 +66,10 @@ public class GetMealHandler implements
         MealResponseDto mealResponse = getMealRes(entityManager, userId);
         entityManager.close();
 
-        context.getLogger().log("1111111111111111111111111111111111111");
-
         LocalDateTime lastTime = mealResponse.getLastTime();
         String githubUsername = mealResponse.getGithubUsername();
         Integer curMeal = mealResponse.getMeal();
         String githubToken = mealResponse.getGithubToken();
-
-        context.getLogger().log("222222222222222222222222222222222");
 
         // 하루에 밥 짓기 3번 제한
         String redisHost = System.getenv("REDIS_HOST");
@@ -77,6 +80,7 @@ public class GetMealHandler implements
             if (jedis.exists(String.valueOf(userId))) {
                 Integer n = Integer.parseInt(jedis.get(String.valueOf(userId)));
                 if (n >= 3) {
+//                    jedis.set(String.valueOf(userId), "0"); /////
                     JSONObject bodyJson = new JSONObject();
                     bodyJson.put("message", "밥 짓기는 하루에 3번만 가능합니다.");
                     bodyJson.put("value", 0);
@@ -93,11 +97,9 @@ public class GetMealHandler implements
             throw e;
         }
 
-        context.getLogger().log("3333333333333333333");
-
         try {
             // 사용자의 전체 레포 목록 조회
-            String reposUrl = "https://api.github.com/user/repos";
+            String reposUrl = "https://api.github.com/user/repos?per_page=100";
             HttpRequest reposRequest = HttpRequest.newBuilder()
                 .uri(URI.create(reposUrl))
                 .header("Authorization", "Bearer " + githubToken)
@@ -107,8 +109,6 @@ public class GetMealHandler implements
             List<Map<String, Object>> repos = gson.fromJson(reposResponse.body(),
                 new TypeToken<List<Map<String, Object>>>() {
                 }.getType());
-
-            context.getLogger().log("4444444444444444444444444444444");
 
             // 레포별로 사용자 본인이 커밋한 커밋 기록 조회 및 현재 시각과 비교해서 커밋 개수 세기
             int totalCommitsAfterLastMeal = 0;
@@ -124,12 +124,27 @@ public class GetMealHandler implements
                     .uri(url.toURI())
                     .header("Authorization", "Bearer " + githubToken)
                     .build();
-                context.getLogger().log("5555555555555555555555555555");
+
                 HttpResponse<String> commitResponse = httpClient.send(commitRequest,
                     HttpResponse.BodyHandlers.ofString());
-                List<Map<String, Object>> commits = gson.fromJson(commitResponse.body(),
-                    new TypeToken<List<Map<String, Object>>>() {
-                    }.getType());
+
+                JsonElement jsonElement = gson.fromJson(commitResponse.body(), JsonElement.class);
+                List<Map<String, Object>> commits = null;
+
+                if (jsonElement.isJsonArray()) {
+                    // 배열로 처리
+                    context.getLogger().log("commitResponse================: " + commitResponse.body());
+                    context.getLogger().log("jsonElement.isJsonArray() 배열로 처리");
+                    commits = gson.fromJson(commitResponse.body(),
+                        new TypeToken<List<Map<String, Object>>>() {
+                        }.getType());
+                } else if (jsonElement.isJsonObject()) {
+                    // 객체로 처리
+                    // 예외 처리나 다른 로직 구현
+                    context.getLogger().log("commitResponse================: " + commitResponse.body());
+                    context.getLogger().log("jsonElement.isJsonObject() 객체로 처리");
+                }
+
                 if (commits == null || commits.isEmpty()) {
                     context.getLogger().log("No commits or commits is null");
                     continue; // 다음 레포로 넘어간다
@@ -158,9 +173,31 @@ public class GetMealHandler implements
                 }
             }
 
+            Integer alreadyCommit = 0;
+
+            if(jedis.exists(String.valueOf(userId))) {
+                alreadyCommit = Integer.parseInt(jedis.get(String.valueOf(userId)));
+            }
+
             JSONObject bodyJson = new JSONObject();
             bodyJson.put("message", "처리 완료");
-            bodyJson.put("value", totalCommitsAfterLastMeal);
+
+            int totalCommits = alreadyCommit + totalCommitsAfterLastMeal;
+            int newCommits = totalCommits > 3 ? 3 - alreadyCommit : totalCommitsAfterLastMeal;
+
+            if(newCommits > 0) {
+                bodyJson.put("value", newCommits);
+            } else {
+                bodyJson.put("value", 0);
+            }
+
+            /*
+            if(alreadyCommit + totalCommitsAfterLastMeal > 3) {
+                bodyJson.put("value", Math.abs(3 - alreadyCommit));
+            } else {
+                bodyJson.put("value", totalCommitsAfterLastMeal);
+            }
+            */
 
             JSONObject responseJson = new JSONObject();
             responseJson.put("statusCode", 200);
@@ -168,14 +205,29 @@ public class GetMealHandler implements
             response.setBody(responseJson.toString());
 
             context.getLogger().log("totalCommitsAfterLastMeal================: " + totalCommitsAfterLastMeal);
+
+            /*
             if (jedis.exists(String.valueOf(userId))) {
-                Integer count = Integer.parseInt(jedis.get(String.valueOf(userId)));
-                context.getLogger().log("count============================: " + count);
-                if(count < 3){
+                if(alreadyCommit + totalCommitsAfterLastMeal > 3) {
+                    jedis.incrBy(String.valueOf(userId), Math.abs(3 - alreadyCommit));
+                } else {
                     jedis.incrBy(String.valueOf(userId), totalCommitsAfterLastMeal);
                 }
             } else {
                 jedis.setex(String.valueOf(userId), 86400, String.valueOf(totalCommitsAfterLastMeal));
+            }
+            */
+
+            if (jedis.exists(String.valueOf(userId))) {
+//                totalCommits = alreadyCommit + totalCommitsAfterLastMeal;
+//                newCommits = totalCommits > 3 ? 3 - alreadyCommit : totalCommitsAfterLastMeal;
+
+                if(newCommits > 0) {
+                    jedis.incrBy(String.valueOf(userId), newCommits);
+                }
+            } else {
+                int initialCommits = totalCommitsAfterLastMeal > 3 ? 3 : totalCommitsAfterLastMeal;
+                jedis.setex(String.valueOf(userId), 86400, String.valueOf(initialCommits));
             }
 
             jedis.close();

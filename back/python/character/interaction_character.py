@@ -10,14 +10,13 @@ def get_max_value_by_exp(exp):
     return 200
     
 def get_max_intimacy(stat):
-    if stat == 0: return 0
-    if stat < 8: return (stat + 1) * 5
-    if stat == 8: return 50
-    if stat == 9: return 70
-    return 100
+    if stat < 8: return (stat - 1) * 5
+    if stat == 8: return 40
+    if stat == 9: return 50    
+    return 70
 
 def get_fullness_increase(stat):
-    return 15 + 5 * stat if stat < 10 else 70
+    return 15 + 5 * (stat - 1)
 
 def lambda_handler(event, context):    
     try:
@@ -53,7 +52,7 @@ def lambda_handler(event, context):
                 message = "친밀도가 이미 최대입니다."
             else:
                 before = intimacy
-                intimacy = min(maxValue + intimacy_max, intimacy + 10)
+                intimacy = min(intimacy_max, intimacy + 10)
                 exp += 5
                 message = f"산책을 하여 친밀도 {intimacy - before}, 경험치 5 만큼 획득했습니다."
         elif interactType == "CHAT_POSITIVE":
@@ -61,7 +60,7 @@ def lambda_handler(event, context):
                 message = "친밀도가 이미 최대입니다."
             else:
                 before = intimacy
-                intimacy = min(maxValue + intimacy_max, intimacy + 20)
+                intimacy = min(intimacy_max, intimacy + 20)
                 exp += 10
                 message = f"긍정적인 대화로 친밀도 {intimacy - before}, 경험치 10 만큼 획득했습니다."
         elif interactType == "CHAT_NEGATIVE":
