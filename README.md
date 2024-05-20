@@ -1,8 +1,7 @@
 
 # Git Commit으로 캐릭터 키우기 프로젝트 'Gitmagotchi'
 ## AWS 서버리스 아키텍처 기반 GEN-AI Web APP
-
-<!-- 사진 -->
+![gitmagotchi](./assets/gitmagotchi1.png)
 
 # 목차
 
@@ -34,12 +33,21 @@
 
 # ☁ 기획 배경
 
-- 
+- 매일 깃허브에 커밋을 하고자 하는 개발자를 독려하기 위함
 
 # 🏛 서비스 기능 소개
 
--
--
+- Github 소셜로그인
+- 캐릭터 얼굴 이미지 AI 생성
+- 배경화면 이미지 AI 생성
+- 캐릭터 레벨 별 모션 생성
+- 캐릭터 키우기 (밥먹기, 산책, 샤워하기, 채팅하기, 미니게임)
+- 캐릭터 스탯으로 경험치 상승량 증가
+- Github 커밋 기반 밥 짓기
+- 통합 검색 (캐릭터, 사용자)
+- 캐릭터 명예의 전당
+- 나의 캐릭터 도감 (키운 캐릭터, 독립, 사망)
+- 사용자 랭킹 (Best, Worst)
 
 
 # 👨🏻‍💻팀 구성
@@ -48,7 +56,7 @@
 | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | <img src="https://avatars.githubusercontent.com/u/76997543?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/125880884?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/77879519?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/111184269?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/47638660?v=4" width="150" height="150"> | |
 | 팀장, 백엔드                                                                               | 백엔드, 서기                                                                                    | 백엔드, AI                                                                             | 백엔드, PM                                                                                | 프론트엔드                                                                                    |                                                                                    |
-| 1111111                              | 222222      | 3333333                                        | 444444                                    | 5555555                                            |  |
+| 캐릭터 이미지 생성<br/>배경화면 생성<br/>경험치 로직 구현<br/>정보 수정<br/>                            | aws-amplify & Cognito 사용자 인증<br/>Github커밋 기반 밥 짓기      | 레벨별 모션 생성<br/>스탯 로직 구현                                       | 캐릭터 이미지 생성<br/>채팅, 감정분석<br/>캐릭터 도감, 명예의 전당<br/>랭킹, 검색                                    | 전체 프론트엔드<br/>aws-amplify 로그인<br/>api 캐싱/로딩 관리<br/>애니메이션 관리<br/>cloudfront,s3자동 배포    |  |
 
 <br/>
 
@@ -63,6 +71,8 @@
 <img src="https://img.shields.io/badge/tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" width="auto" height="25">
 
 **Back**
+<br/>
+<img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=AmazonAWS&logoColor=white"/>
 <br/>
 
 
@@ -146,3 +156,4 @@ https://www.youtube.com/watch?v=w9rcBkjkh_k
 # 참고
 
 ### 노션
+https://chocolate-mint-5ac.notion.site/e907d66188dc4f538f8a2c04d010f0db?pvs=4
