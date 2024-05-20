@@ -1,0 +1,11 @@
+filepath: gitmagotchi/bvh/rokoko/kick.bvh
+start_frame_idx: 50
+end_frame_idx: 300
+groundplane_joint: LeftFoot
+forward_perp_joint_vectors:
+  - - LeftShoulder
+    - RightShoulder
+  - - LeftUpLeg
+    - RightUpLeg
+scale: 0.025
+up: +y
