@@ -1,14 +1,26 @@
 import tw from "tailwind-styled-components";
-import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
+import BabyImgFrame from "@/assets/images/baby.svg";
 import { FaGithub } from "react-icons/fa";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router";
 import { useSetRecoilState } from "recoil";
 import { messageDataAtom } from "@/store/message";
+import { useEffect, useRef, useState } from "react";
+import Loading from "@/components/common/Loading";
 
 export default function Login() {
   const navigate = useNavigate();
   const setMessageData = useSetRecoilState(messageDataAtom);
+  const faceRef = useRef<HTMLImageElement>(new Image());
+  const [faceLoaded, setFaceLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    faceRef.current.src =
+      "https://gitmagotchi-generated.s3.amazonaws.com/face.png";
+    faceRef.current.onload = () => {
+      setFaceLoaded(true);
+    };
+  }, []);
 
   const signIn = async () => {
     await Auth.federatedSignIn({
@@ -25,9 +37,16 @@ export default function Login() {
     navigate("/", { replace: true });
   };
 
+  if (!faceLoaded) return <Loading />;
+
   return (
     <Wrapper>
-      <img src={SampleStartCharacterImage} className="w-60" />
+      <ImgContainer>
+        <BabyImg src={BabyImgFrame} />
+        <FaceImg
+          src={"https://gitmagotchi-generated.s3.amazonaws.com/face.png"}
+        />
+      </ImgContainer>
       <Content>
         <Title>깃마고치</Title>
         <Description>생성형 AI를 통해</Description>
@@ -52,7 +71,33 @@ justify-center
 items-center
 `;
 
+const ImgContainer = tw.div`
+relative
+w-80
+h-80
+-rotate-[30deg]
+`;
+
+const BabyImg = tw.img`
+h-full
+absolute
+left-1/2
+top-1/2
+-translate-x-1/2
+-translate-y-1/2
+`;
+
+const FaceImg = tw.img`
+h-[10.2rem]
+absolute
+left-40
+top-9
+-translate-x-1/2
+scale-[163%]
+`;
+
 const Content = tw.div`
+pt-4
 flex
 flex-col
 items-center

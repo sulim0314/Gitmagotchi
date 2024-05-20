@@ -2,16 +2,37 @@ import tw from "tailwind-styled-components";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import RankingItem from "@/components/ranking/RankingItem";
 import { useQuery } from "@tanstack/react-query";
-import { getRankingList } from "@/api/ranking";
-import { useState } from "react";
+import { getMyRank, getRankingList } from "@/api/ranking";
+import { useEffect, useState } from "react";
 import { IRanking } from "@/models";
 
 export default function Ranking() {
   const [menu, setMenu] = useState<"BEST" | "WORST">("BEST");
+  const [page, setPage] = useState<number>(1);
+  const [rankList, setRankList] = useState<IRanking[]>([]);
+
   const { data } = useQuery({
-    queryKey: ["ranking", menu],
-    queryFn: () => getRankingList(),
+    queryKey: ["ranking", menu, page],
+    queryFn: () =>
+      getRankingList({
+        type: menu,
+        page,
+        pageSize: 10,
+      }),
   });
+  const { data: myRankData } = useQuery({
+    queryKey: ["myRank", menu],
+    queryFn: () => getMyRank({ type: menu }),
+  });
+
+  useEffect(() => {
+    if (!data?.content) return;
+    setRankList(data.content);
+  }, [data]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [menu]);
 
   const changeMenu = () => {
     if (menu === "BEST") {
@@ -45,11 +66,11 @@ export default function Ranking() {
             <RightIcon onClick={changeMenu} />
           </MobileRankingMenu>
         </MobileHeader>
-        <MyRank>내 등수: 50등</MyRank>
+        <MyRank>{myRankData && `내 등수: ${myRankData?.rank}등`}</MyRank>
         <RankListContainer>
           <RankList>
-            {data?.map((r: IRanking) => (
-              <RankingItem ranking={r} best={menu === "BEST"} />
+            {rankList.map((r: IRanking, i: number) => (
+              <RankingItem rank={i + 1} ranking={r} best={menu === "BEST"} />
             ))}
           </RankList>
         </RankListContainer>

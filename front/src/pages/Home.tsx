@@ -9,8 +9,6 @@ import interactionEatImage from "@/assets/images/eat.svg";
 import interactionRunImage from "@/assets/images/walk.svg";
 import interactionShowerImage from "@/assets/images/shower.svg";
 import interactionGameImage from "@/assets/images/game.svg";
-import sampleSpritesheetImage from "@/assets/images/sampleSpritesheet.png";
-import { VscRefresh } from "react-icons/vsc";
 import { HiPlusCircle, HiHeart } from "react-icons/hi";
 import { IoMdClose, IoIosLock } from "react-icons/io";
 import { LuBatteryFull } from "react-icons/lu";
@@ -24,62 +22,182 @@ import { messageDataAtom } from "@/store/message";
 import FlyingFly from "@/components/home/FlyingFly";
 import BrokenHeart from "@/components/home/BrokenHeart";
 import HungryEffect from "@/components/home/HungryEffect";
-import { expHandler, statusHandler } from "@/util/value";
-import { statDataAtom } from "@/store/stat";
-import { statusDataAtom } from "@/store/status";
+import {
+  expHandler,
+  interactionMessage,
+  statusHandler,
+  validMotionData,
+} from "@/util/value";
 import { useMutation } from "@tanstack/react-query";
-import { getInteractionResult } from "@/api/character";
-import { InteractType } from "@/models";
+import { createAnimation, getInteractionResult } from "@/api/character";
+import { IAnimation, InteractType } from "@/models";
+import BabyImgFrame from "@/assets/images/baby.svg";
+import RefreshImage from "@/assets/images/refresh.svg";
+import { eatMeal, getMeal } from "@/api/user";
+import { motionDataAtom } from "@/store/motion";
+import { AnimatePresence, motion } from "framer-motion";
+import Loading from "@/components/common/Loading";
 
-export default function Home() {
+interface IProps {
+  isWalking: boolean;
+  setIsWalking: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const upKeyframes: Keyframe[] = [
+  { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
+  { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
+  { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
+  { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
+  { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
+  { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
+];
+const upOptions: KeyframeAnimationOptions = {
+  delay: 300,
+  duration: 2000,
+  easing: "ease-in-out",
+};
+
+export default function Home({ isWalking, setIsWalking }: IProps) {
   const navigate = useNavigate();
-  const userData = useRecoilValue(userDataAtom);
+  const [userData, setUserData] = useRecoilState(userDataAtom);
   const [characterData, setCharacterData] = useRecoilState(characterDataAtom);
-  const statData = useRecoilValue(statDataAtom);
-  const [statusData, setStatusData] = useRecoilState(statusDataAtom);
   const [messageData, setMessageData] = useRecoilState(messageDataAtom);
+  const motionData = useRecoilValue(motionDataAtom);
   const spritesheet = useRef<Spritesheet | null>(null);
   const modalBottomRef = useRef<HTMLDivElement>(null);
+
   const levelupRef = useRef<HTMLDivElement>(null);
+  const fullnessupRef = useRef<HTMLDivElement>(null);
+  const intimacyupRef = useRef<HTMLDivElement>(null);
+  const cleannessupRef = useRef<HTMLDivElement>(null);
+  const goldupRef = useRef<HTMLDivElement>(null);
+
+  const messageBarRef = useRef<HTMLDivElement>(null);
   const [msgModal, setMsgModal] = useState<boolean>(false);
   const [animModal, setAnimModal] = useState<boolean>(false);
+
+  const mealRef = useRef<HTMLImageElement>(null);
+  const frameRef = useRef<number>(0);
+  const mealAnimationRef = useRef<Animation>(new Animation());
+
+  const spriteRef = useRef<HTMLImageElement>(new Image());
+  const [spriteLoaded, setSpriteLoaded] = useState<boolean>(false);
+  const [currentSprite, setCurrentSprite] = useState<IAnimation | null>(null);
+
+  const [isEating, setIsEating] = useState<boolean>(false);
+  const [isShowering, setIsShowering] = useState<boolean>(false);
 
   const interactionMution = useMutation({
     mutationFn: getInteractionResult,
     onSuccess: (data) => {
-      if (expHandler(data.exp || 0).level > expHandler(characterData?.exp || 0).level) {
+      if (!characterData) return;
+      if (
+        expHandler(data.exp || 0).level > expHandler(characterData.exp).level
+      ) {
         levelUpEffect(expHandler(data.exp || 0).level);
+        createAnimation({
+          characterId: characterData.characterId,
+          requiredLevel: expHandler(data.exp || 0).level,
+        });
+      } else {
+        upEffect(data.interactType);
       }
-      setMessageData((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toString(),
-          text: "상호작용",
-        },
-      ]);
+      addMessage(
+        interactionMessage(data.interactType, data.exp - characterData.exp)
+      );
+
       setCharacterData((prev) => {
         if (!prev) return null;
         return {
           ...prev,
           exp: data.exp,
-        };
-      });
-      setStatusData((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          cleanness: data.cleanness,
-          fullness: data.fullness,
-          intimacy: data.intimacy,
+          stat: {
+            ...prev.stat,
+            unusedStat:
+              expHandler(data.exp || 0).level >
+              expHandler(characterData.exp).level
+                ? prev.stat.unusedStat + 1
+                : prev.stat.unusedStat,
+          },
+          status: {
+            cleanness: data.cleanness,
+            fullness: data.fullness,
+            intimacy: data.intimacy,
+          },
         };
       });
     },
-    onError: (err) => console.log(err),
+    onError: () => addMessage("캐릭터와 상호작용 하는데에 문제가 생겼습니다."),
+    onSettled: () => {
+      if (!(motionData && validMotionData(motionData))) {
+        setIsEating(false);
+        setIsWalking(false);
+        setIsShowering(false);
+      }
+    },
   });
+
+  const mealMutation = useMutation({
+    mutationFn: getMeal,
+    onSuccess: (data) => {
+      console.log(data.message);
+      addMessage(
+        `${userData?.githubUsername}의 깃허브에서 ${data.value}개의 커밋을 가져와 밥을 지었습니다.`
+      );
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          meal: prev.meal + data.value,
+        };
+      });
+    },
+    onError: () => addMessage("지금은 밥을 지을 수 없습니다."),
+  });
+
+  const eatMutation = useMutation({
+    mutationFn: eatMeal,
+    onSuccess: (data) => {
+      console.log(data);
+      setUserData((prev) => {
+        if (!prev) return prev;
+        return { ...prev, meal: data.meal };
+      });
+      handleInteraction("EAT")();
+    },
+    onError: () => addMessage("밥이 없어 밥을 먹을 수 없습니다."),
+  });
+
+  useEffect(() => {
+    if (motionData) {
+      setCurrentSprite(motionData.hello);
+    }
+  }, [motionData]);
+
+  useEffect(() => {
+    if (!currentSprite || !spriteRef.current) return;
+    spriteRef.current.src = currentSprite?.motion;
+    spriteRef.current.onload = () => {
+      setSpriteLoaded(true);
+    };
+  }, [currentSprite]);
 
   useEffect(() => {
     modalBottomRef.current?.scrollIntoView();
   }, [msgModal, messageData, modalBottomRef]);
+
+  useEffect(() => {
+    const keyframes: Keyframe[] = [
+      { backgroundColor: "rgb(17 24 39 / 0.9)" },
+      { backgroundColor: "rgb(17 24 39 / 0.3)" },
+    ];
+    const options: KeyframeAnimationOptions = {
+      delay: 300,
+      duration: 1000,
+      easing: "ease-in-out",
+    };
+    messageBarRef.current?.animate(keyframes, options);
+  }, [messageData]);
 
   const toggleMsgModal = () => {
     setMsgModal(!msgModal);
@@ -89,57 +207,150 @@ export default function Home() {
     setAnimModal(!animModal);
   };
 
+  const addMessage = (text: string) => {
+    setMessageData((prev) => [
+      ...prev,
+      {
+        timestamp: new Date().toString(),
+        text,
+      },
+    ]);
+  };
+
   const formatTimestamp = (date: string) => {
     const d = new Date(date);
     const hour = d.getHours();
     const minute = d.getMinutes();
-    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}] `;
+    return `[${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0"
+    )}] `;
   };
 
-  const playAnimation = () => {
+  const playAnimation = (i: number) => {
     return () => {
+      if (!motionData) return;
+      setCurrentSprite(motionData.motion[i]);
       setAnimModal(false);
-      if (spritesheet.current) {
-        spritesheet.current.play();
-      }
     };
   };
 
   const handleInteraction = (type: InteractType) => {
     return () => {
-      interactionMution.mutate({
-        body: JSON.stringify({
-          exp: characterData?.exp,
-          interactType: type,
-          status: {
-            fullness: statusData?.fullness,
-            intimacy: statusData?.intimacy,
-            cleanness: statusData?.cleanness,
-          },
-          stat: {
-            fullnessStat: statData?.fullnessStat,
-            intimacyStat: statData?.intimacyStat,
-          },
-        }),
-      });
+      if (!characterData) return;
+      if (type === "EAT") {
+        if (
+          (characterData?.status.fullness || 0) ===
+          statusHandler(characterData).fullnessMax
+        ) {
+          addMessage("배가 불러 더이상 밥을 먹을 수 없습니다.");
+          return;
+        } else {
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsEating(true);
+            if (motionData) {
+              setCurrentSprite(motionData.meal);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "EAT",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
+          }
+        }
+      }
+      if (type === "WALK") {
+        if (
+          (characterData?.status.intimacy || 0) ===
+          statusHandler(characterData).intimacyMax
+        ) {
+          addMessage("이미 친밀도가 최대치라서 산책하고 싶지 않아 합니다.");
+          return;
+        } else {
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsWalking(true);
+            if (motionData) {
+              setCurrentSprite(motionData.walk);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "WALK",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
+          }
+        }
+      }
+      if (type === "SHOWER") {
+        if (
+          (characterData?.status.cleanness || 0) ===
+          statusHandler(characterData).cleannessMax
+        ) {
+          addMessage("이미 깨끗해 샤워하고 싶지 않아 합니다.");
+          return;
+        } else {
+          if (
+            motionData &&
+            validMotionData(motionData) &&
+            expHandler(characterData.exp).level > 1
+          ) {
+            setIsShowering(true);
+            if (motionData) {
+              setCurrentSprite(motionData.shower);
+            }
+          } else {
+            interactionMution.mutate({
+              body: JSON.stringify({
+                exp: characterData?.exp,
+                interactType: "SHOWER",
+                status: {
+                  fullness: characterData?.status.fullness,
+                  intimacy: characterData?.status.intimacy,
+                  cleanness: characterData?.status.cleanness,
+                },
+                stat: {
+                  fullnessStat: characterData?.stat.fullnessStat,
+                  intimacyStat: characterData?.stat.intimacyStat,
+                },
+              }),
+            });
+          }
+        }
+      }
     };
   };
 
   const levelUpEffect = (level: number) => {
-    const keyframes: Keyframe[] = [
-      { opacity: 0, transform: "translate(0, 10px)", scale: 1 },
-      { opacity: 1, transform: "translate(0, 0px)", scale: 1.05 },
-      { opacity: 1, transform: "translate(0, -10px)", scale: 1.1 },
-      { opacity: 1, transform: "translate(0, -20px)", scale: 1.15 },
-      { opacity: 1, transform: "translate(0, -30px)", scale: 1.2 },
-      { opacity: 0, transform: "translate(0, -40px)", scale: 1.25 },
-    ];
-    const options: KeyframeAnimationOptions = {
-      delay: 300,
-      duration: 2000,
-      easing: "ease-in-out",
-    };
-    levelupRef.current?.animate(keyframes, options);
+    levelupRef.current?.animate(upKeyframes, upOptions);
     setMessageData((prev) => [
       ...prev,
       {
@@ -149,26 +360,145 @@ export default function Home() {
     ]);
   };
 
+  const upEffect = (type: InteractType) => {
+    if (type === "EAT") {
+      fullnessupRef.current?.animate(upKeyframes, upOptions);
+    } else if (type === "WALK" || type === "CHAT_POSITIVE") {
+      intimacyupRef.current?.animate(upKeyframes, upOptions);
+    } else if (type === "SHOWER") {
+      cleannessupRef.current?.animate(upKeyframes, upOptions);
+    }
+  };
+
+  useEffect(() => {
+    if (mealMutation.isPending) {
+      const keyframes: Keyframe[] = [
+        { transform: "rotate(0deg)" },
+        { transform: "rotate(90deg)" },
+        { transform: "rotate(180deg)" },
+      ];
+      const options: KeyframeAnimationOptions = {
+        delay: 2000,
+        duration: 820,
+        easing: "ease-in-out",
+        fill: "both",
+        iterations: Infinity,
+      };
+
+      mealAnimationRef.current =
+        mealRef.current?.animate(keyframes, options) || new Animation();
+    } else {
+      mealAnimationRef.current.cancel();
+    }
+  }, [mealMutation.isPending]);
+
+  useEffect(() => {
+    if (currentSprite) {
+      frameRef.current = currentSprite.frames;
+    }
+  }, [currentSprite]);
+
+  const onPauseAnimation = (frame: number, spritesheet: Spritesheet) => {
+    if (frameRef.current !== frame) return;
+    if (!currentSprite || !motionData) return;
+    if (frame === frameRef.current) {
+      if (frame === 357) {
+        setIsEating(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "EAT",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+      if (frame === 324) {
+        setIsShowering(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "SHOWER",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+      if (frame === 400) {
+        setIsWalking(false);
+        interactionMution.mutate({
+          body: JSON.stringify({
+            exp: characterData?.exp,
+            interactType: "WALK",
+            status: {
+              fullness: characterData?.status.fullness,
+              intimacy: characterData?.status.intimacy,
+              cleanness: characterData?.status.cleanness,
+            },
+            stat: {
+              fullnessStat: characterData?.stat.fullnessStat,
+              intimacyStat: characterData?.stat.intimacyStat,
+            },
+          }),
+        });
+      }
+
+      if (Math.random() > 0.2) {
+        if (frameRef.current !== 45) {
+          setCurrentSprite(motionData.default);
+        } else {
+          spritesheet.goToAndPlay(1);
+        }
+      } else {
+        setCurrentSprite(
+          motionData.motion[
+            Math.floor(Math.random() * motionData.motion.length)
+          ]
+        );
+      }
+    }
+  };
+
+  if (!characterData || !userData) return <Loading />;
+
   return (
     <Wrapper>
       <Header>
         <LeftHeader>
-          <InfoContianer>
+          <InfoContianer className="text-border">
             <Link to={"/character"}>
-              <img
-                src={characterData?.faceUrl}
-                className="w-16 h-16 group-hover:scale-110 transition-all"
-              />
+              <FaceContainer>
+                <FaceImg src={characterData.faceUrl} />
+              </FaceContainer>
             </Link>
             <CharacterInfo>
               <Link to={"/character"}>
-                <CharacterLevel>{`LV.${expHandler(characterData?.exp || 0).level}`}</CharacterLevel>
+                <CharacterLevel>{`LV.${
+                  expHandler(characterData.exp).level
+                }`}</CharacterLevel>
               </Link>
               <NameContainer>
                 <Link to={"/character"}>
-                  <CharacterName>{characterData?.name}</CharacterName>
+                  <CharacterName>{characterData.name}</CharacterName>
                 </Link>
-                <Link to={"/character/chat"}>
+                <Link
+                  to={"/character/chat"}
+                  className="bg-[#f2f2f2] rounded-full p-2 border-2 border-slate-800"
+                >
                   <ChatIcon />
                 </Link>
               </NameContainer>
@@ -176,9 +506,13 @@ export default function Home() {
           </InfoContianer>
           <ExpContainer className="text-border">
             <ExpBarContainer>
-              <ExpBar style={{ width: `${expHandler(characterData?.exp || 0).percentage}%` }} />
-              <ExpText>{`${expHandler(characterData?.exp || 0).curExp} / ${
-                expHandler(characterData?.exp || 0).maxExp
+              <ExpBar
+                style={{
+                  width: `${expHandler(characterData.exp).percentage}%`,
+                }}
+              />
+              <ExpText>{`${expHandler(characterData.exp).curExp} / ${
+                expHandler(characterData.exp).maxExp
               }`}</ExpText>
             </ExpBarContainer>
           </ExpContainer>
@@ -190,11 +524,8 @@ export default function Home() {
                   className="bg-red-500"
                   style={{
                     width: `${(
-                      ((statusData?.fullness || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
-                        ).fullnessMax) *
+                      (characterData.status.fullness /
+                        statusHandler(characterData).fullnessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -208,11 +539,8 @@ export default function Home() {
                   className="bg-amber-500"
                   style={{
                     width: `${(
-                      ((statusData?.intimacy || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
-                        ).intimacyMax) *
+                      (characterData.status.intimacy /
+                        statusHandler(characterData).intimacyMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -226,11 +554,8 @@ export default function Home() {
                   className="bg-blue-500"
                   style={{
                     width: `${(
-                      ((statusData?.cleanness || 0) /
-                        statusHandler(
-                          expHandler(characterData?.exp || 0).level,
-                          statData?.intimacyStat || 1
-                        ).cleannessMax) *
+                      (characterData.status.cleanness /
+                        statusHandler(characterData).cleannessMax) *
                       100
                     ).toFixed(2)}%`,
                   }}
@@ -238,92 +563,337 @@ export default function Home() {
               </StatBarContainer>
             </StatRow>
           </StatContainer>
-          <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
+          {!isEating && !isShowering && !isWalking && (
+            <PlayIcon src={PlayImage} onClick={toggleAnimModal} />
+          )}
         </LeftHeader>
         <RightHeader>
-          <PropertyList>
+          <PropertyList className="text-border">
             <PropertyContainer>
               <img src={CoinImage} className="w-8 h-8 bg-center" />
-              <PropertyNumber>{userData?.gold}</PropertyNumber>
+              <PropertyNumber>{userData.gold}</PropertyNumber>
             </PropertyContainer>
-            <PropertyContainer>
-              <img src={MeatImage} className="w-8 h-8 bg-center" />
-              <PropertyNumber>{userData?.meal}</PropertyNumber>
-              <RefreshIcon />
-            </PropertyContainer>
+            <PropertyVertical>
+              <PropertyContainer>
+                <img src={MeatImage} className="w-8 h-8 bg-center" />
+                <PropertyNumber>{userData.meal}</PropertyNumber>
+                {mealMutation.isPending ? (
+                  <RefreshIcon
+                    src={RefreshImage}
+                    className="cursor-default"
+                    ref={mealRef}
+                  />
+                ) : (
+                  <RefreshIcon
+                    src={RefreshImage}
+                    onClick={() => mealMutation.mutate()}
+                  />
+                )}
+              </PropertyContainer>
+              {!mealMutation.isPending && (
+                <MealMsg>
+                  커밋을 가져와
+                  <br />
+                  밥을 지어요.
+                </MealMsg>
+              )}
+            </PropertyVertical>
           </PropertyList>
         </RightHeader>
       </Header>
 
       <MainContainer>
         <CharacterCanvasContainer>
-          <CharacterCanvas
-            image={sampleSpritesheetImage}
-            widthFrame={1000}
-            heightFrame={1000}
-            steps={339}
-            fps={30}
-            autoplay={true}
-            loop={false}
-            direction="forward"
-            backgroundSize={`cover`}
-            backgroundRepeat={`no-repeat`}
-            backgroundPosition={`center center`}
-            isResponsive={true}
-            getInstance={(s) => {
-              spritesheet.current = s;
-            }}
-            onEnterFrame={[
-              {
-                frame: 338,
-                callback: () => {
-                  if (spritesheet.current) {
-                    spritesheet.current.goToAndPause(1);
+          {motionData &&
+          validMotionData(motionData) &&
+          expHandler(characterData.exp).level > 1 ? (
+            <AnimatePresence initial={false}>
+              {motionData &&
+                currentSprite?.frames === motionData.default.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.default.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.default.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.default.frames}
+                      endAt={motionData.default.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.default.frames, s)
+                      }
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.hello.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.hello.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.hello.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.hello.frames}
+                      endAt={motionData.hello.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.hello.frames, s)
+                      }
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.meal.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.meal.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.meal.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.meal.frames}
+                      endAt={motionData.meal.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.meal.frames, s)
+                      }
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.shower.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.shower.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.shower.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.shower.frames}
+                      endAt={motionData.shower.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.shower.frames, s)
+                      }
+                    />
+                  </motion.div>
+                )}
+              {motionData &&
+                currentSprite?.frames === motionData.walk.frames &&
+                spriteLoaded && (
+                  <motion.div
+                    key={motionData.walk.frames}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CharacterCanvas
+                      image={motionData.walk.motion}
+                      widthFrame={500}
+                      heightFrame={500}
+                      steps={motionData.walk.frames}
+                      endAt={motionData.walk.frames}
+                      fps={30}
+                      autoplay={true}
+                      loop={false}
+                      direction="forward"
+                      backgroundSize={`cover`}
+                      backgroundRepeat={`no-repeat`}
+                      backgroundPosition={`center center`}
+                      isResponsive={true}
+                      onPause={(s) =>
+                        onPauseAnimation(motionData.walk.frames, s)
+                      }
+                    />
+                  </motion.div>
+                )}
+
+              {motionData &&
+                currentSprite &&
+                spriteLoaded &&
+                motionData.motion.map((anim) => {
+                  if (anim.frames === currentSprite.frames) {
+                    return (
+                      <motion.div
+                        key={anim.frames}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7 }}
+                        className="absolute w-[500px] h-[500px] lg:w-[700px] lg:h-[700px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                      >
+                        <CharacterCanvas
+                          image={anim.motion}
+                          widthFrame={500}
+                          heightFrame={500}
+                          steps={anim.frames}
+                          endAt={anim.frames}
+                          fps={30}
+                          autoplay={true}
+                          loop={false}
+                          direction="forward"
+                          backgroundSize={`cover`}
+                          backgroundRepeat={`no-repeat`}
+                          backgroundPosition={`center center`}
+                          isResponsive={true}
+                          getInstance={(s) => {
+                            spritesheet.current = s;
+                          }}
+                          onPause={(s) => onPauseAnimation(anim.frames, s)}
+                        />
+                      </motion.div>
+                    );
                   }
-                },
-              },
-            ]}
-          />
-          <EffectContainer>
-            {statusData!.fullness < 50 && (
-              <FlyingFlyContainer>
-                <FlyingFly />
-              </FlyingFlyContainer>
+                })}
+            </AnimatePresence>
+          ) : (
+            <ImgContainer>
+              <BabyImg src={BabyImgFrame} />
+              <BabyFaceImg src={characterData?.faceUrl} />
+            </ImgContainer>
+          )}
+          <EffectContainer className="text-border">
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.cleanness <
+                statusHandler(characterData).cleannessMax / 2 && (
+                <FlyingFlyContainer>
+                  <FlyingFly />
+                </FlyingFlyContainer>
+              )}
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.intimacy <
+                statusHandler(characterData).intimacyMax / 2 && (
+                <BrokenHeartContainer>
+                  <BrokenHeart />
+                </BrokenHeartContainer>
+              )}
+            {characterData &&
+              spriteLoaded &&
+              characterData.status.fullness <
+                statusHandler(characterData).fullnessMax / 2 && (
+                <HungryEffectContainer>
+                  <HungryEffect />
+                </HungryEffectContainer>
+              )}
+            {isEating && (
+              <div className="absolute left-1/2 top-1/2 w-[500px] lg:w-[700px] h-[500px] lg:h-[700px] -translate-x-1/2 -translate-y-1/2">
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 left-8"
+                />
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 rotate-12 left-24"
+                />
+                <img
+                  src={MeatImage}
+                  className="w-28 h-28 bg-center absolute bottom-28 rotate-[160deg] left-96"
+                />
+              </div>
             )}
-            {statusData!.intimacy < 50 && (
-              <BrokenHeartContainer>
-                <BrokenHeart />
-              </BrokenHeartContainer>
-            )}
-            {statusData!.fullness < 50 && (
-              <HungryEffectContainer>
-                <HungryEffect />
-              </HungryEffectContainer>
-            )}
-            <LevelupText ref={levelupRef}>LEVEL UP</LevelupText>
+            <LevelupText ref={levelupRef} className="text-green-600">
+              LEVEL UP
+            </LevelupText>
+            <LevelupText ref={fullnessupRef} className="text-red-600">
+              포만감 UP
+            </LevelupText>
+            <LevelupText ref={cleannessupRef} className="text-blue-600">
+              청결도 UP
+            </LevelupText>
+            <LevelupText ref={intimacyupRef} className="text-orange-600">
+              친밀도 UP
+            </LevelupText>
+            <LevelupText ref={goldupRef} className="text-yellow-600">
+              GOLD UP
+            </LevelupText>
           </EffectContainer>
         </CharacterCanvasContainer>
-        <InteractionContainer>
-          <InteractionButton onClick={handleInteraction("EAT")}>
-            <img src={interactionEatImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={handleInteraction("WALK")}>
-            <img src={interactionRunImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={handleInteraction("SHOWER")}>
-            <img src={interactionShowerImage} className="h-10 bg-cover" />
-          </InteractionButton>
-          <InteractionButton onClick={() => navigate("/character/game")}>
-            <img src={interactionGameImage} className="w-10 bg-cover" />
-          </InteractionButton>
-        </InteractionContainer>
+        {!isEating && !isShowering && !isWalking && (
+          <InteractionContainer>
+            <InteractionButton onClick={() => eatMutation.mutate()}>
+              <img src={interactionEatImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={handleInteraction("WALK")}>
+              <img src={interactionRunImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={handleInteraction("SHOWER")}>
+              <img src={interactionShowerImage} className="h-10 bg-cover" />
+            </InteractionButton>
+            <InteractionButton onClick={() => navigate("/character/game")}>
+              <img src={interactionGameImage} className="w-10 bg-cover" />
+            </InteractionButton>
+          </InteractionContainer>
+        )}
       </MainContainer>
       <ServerMsgContainer>
-        <ServerMsgBox onClick={toggleMsgModal}>
+        <ServerMsgBox ref={messageBarRef} onClick={toggleMsgModal}>
           <ServerMsg>{messageData[messageData.length - 1].text}</ServerMsg>
           <PlusIcon />
         </ServerMsgBox>
       </ServerMsgContainer>
+      {isShowering && (
+        <div className="shower-pole scale-[300%] absolute top-0 left-1/2 translate-x-[27rem]">
+          <div className="water"></div>
+        </div>
+      )}
       <CustomModal
         style={customModalStyles}
         isOpen={msgModal}
@@ -340,8 +910,10 @@ export default function Home() {
         <ModalMsgList>
           {messageData.map((msg, i) => (
             <ModalMsg key={msg.timestamp + i}>
-              <ModalMsgTimestamp>{formatTimestamp(msg.timestamp)}</ModalMsgTimestamp>
-              {msg.text}
+              <ModalMsgTimestamp>
+                {formatTimestamp(msg.timestamp)}
+              </ModalMsgTimestamp>
+              <ModalMsgText>{msg.text}</ModalMsgText>
             </ModalMsg>
           ))}
           <div ref={modalBottomRef} />
@@ -360,14 +932,25 @@ export default function Home() {
           <ModalCloseButton onClick={toggleAnimModal} />
         </ModalTitleContainer>
         <AnimGrid>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-            <AnimContainer key={i}>
-              <AnimButton onClick={playAnimation()}>춤추기</AnimButton>
-              {i !== 1 && (
-                <AnimDisabled>
-                  <LockIcon />
-                </AnimDisabled>
-              )}
+          {[
+            "리듬타기",
+            "걸음마",
+            "발차기",
+            "스트레칭",
+            "파워워킹",
+            "셔플댄스",
+            "댑",
+            "댄스",
+          ].map((name, i) => (
+            <AnimContainer key={name}>
+              <AnimButton onClick={playAnimation(i)}>{name}</AnimButton>
+              {i + 2 > expHandler(characterData.exp).level &&
+                motionData &&
+                i >= motionData.motion.length && (
+                  <AnimDisabled>
+                    <LockIcon />
+                  </AnimDisabled>
+                )}
             </AnimContainer>
           ))}
         </AnimGrid>
@@ -410,6 +993,20 @@ space-x-2
 items-start
 `;
 
+const FaceContainer = tw.div`
+w-16
+h-16
+group-hover:scale-110
+transition-all
+`;
+
+const FaceImg = tw.img`
+w-16
+h-16
+scale-125
+translate-y-1
+`;
+
 const CharacterInfo = tw.div`
 h-full
 w-20
@@ -422,6 +1019,7 @@ flex-grow
 
 const CharacterLevel = tw.h3`
 text-sm
+text-slate-100
 `;
 
 const NameContainer = tw.div`
@@ -444,11 +1042,12 @@ transition-all
 
 const CharacterName = tw.h1`
 text-xl
+text-slate-100
 `;
 
 const ChatIcon = tw(FaRegCommentDots)`
-w-6
-h-6
+w-5
+h-5
 cursor-pointer
 `;
 
@@ -490,7 +1089,8 @@ font-semibold
 `;
 
 const RightHeader = tw.div`
-w-20
+w-24
+lg:w-28
 h-34
 pt-4
 flex
@@ -502,6 +1102,29 @@ const PropertyList = tw.div`
 flex
 flex-col
 space-y-2
+group
+`;
+
+const PropertyVertical = tw.div`
+flex
+flex-col
+space-y-2
+relative
+`;
+
+const MealMsg = tw.div`
+hidden
+group-hover:block
+absolute
+top-10
+right-0
+p-2
+w-32
+text-white
+text-center
+bg-slate-400
+rounded-lg border-2
+border-slate-800
 `;
 
 const PropertyContainer = tw.div`
@@ -514,12 +1137,14 @@ const PropertyNumber = tw.h2`
 font-semibold
 text-base
 lg:text-xl
+text-slate-100
 `;
 
-const RefreshIcon = tw(VscRefresh)`
-w-6
+const RefreshIcon = tw.img`
+w-8
 h-6
-text-slate-500
+lg:w-10
+lg:h-8
 cursor-pointer
 `;
 
@@ -591,11 +1216,17 @@ transition-all
 const ServerMsg = tw.p`
 text-slate-200
 text-sm
+overflow-clip
+overflow-ellipsis
+break-words
+line-clamp-1
 `;
 
 const PlusIcon = tw(HiPlusCircle)`
 w-4
 h-4
+min-w-4
+min-h-4
 text-slate-200
 cursor-pointer
 `;
@@ -660,14 +1291,19 @@ max-w-full
 max-h-full
 absolute
 aspect-square
+translate-y-24
 `;
 
 const EffectContainer = tw.div`
 absolute
-w-full
-h-full
-top-0
-left-0
+w-[500px]
+lg:w-[700px]
+h-[500px]
+lg:h-[700px]
+top-1/2
+left-1/2
+-translate-x-1/2
+-translate-y-1/2
 flex
 justify-center
 `;
@@ -699,10 +1335,14 @@ top-0
 `;
 
 const LevelupText = tw.div`
+absolute
+top-0
 opacity-0
 text-3xl
 font-bold
-text-green-600
+w-80
+flex
+justify-center
 `;
 
 const CharacterCanvas = tw(Spritesheet)`
@@ -750,14 +1390,22 @@ overflow-y-scroll
 p-4
 `;
 
-const ModalMsg = tw.p`
+const ModalMsg = tw.div`
+flex
 p-2
+space-x-2
 `;
 
-const ModalMsgTimestamp = tw.span`
+const ModalMsgTimestamp = tw.p`
+text-sm
+lg:text-base
 font-bold
 text-slate-500
-mr-4
+`;
+
+const ModalMsgText = tw.p`
+text-sm
+lg:text-base
 `;
 
 const ModalCloseButton = tw(IoMdClose)`
@@ -783,7 +1431,6 @@ relative
 `;
 
 const AnimButton = tw.div`
-bg-orange-400
 w-full
 h-full
 flex
@@ -810,6 +1457,34 @@ h-10
 text-slate-400
 `;
 
+const ImgContainer = tw.div`
+relative
+w-80
+h-80
+scale-75
+rotate-[60deg]
+translate-y-1
+translate-x-8
+`;
+
+const BabyImg = tw.img`
+h-full
+absolute
+left-1/2
+top-1/2
+-translate-x-1/2
+-translate-y-1/2
+`;
+
+const BabyFaceImg = tw.img`
+h-[10.2rem]
+absolute
+left-40
+top-9
+-translate-x-1/2
+scale-[163%]
+`;
+
 const customModalStyles: ReactModal.Styles = {
   overlay: {
     backgroundColor: " rgba(0, 0, 0, 0.4)",
@@ -819,5 +1494,10 @@ const customModalStyles: ReactModal.Styles = {
     position: "fixed",
     top: "0",
     left: "0",
+  },
+  content: {
+    border: "3px solid black",
+    overflow: "hidden",
+    outline: "none",
   },
 };

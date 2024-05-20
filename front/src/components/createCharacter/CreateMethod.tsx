@@ -1,6 +1,7 @@
 import tw from "tailwind-styled-components";
-import SampleStartCharacterImage from "@/assets/images/sampleStartCharacter.png";
 import CommonButton from "@/components/common/CommonButton";
+import BabyImgFrame from "@/assets/images/baby.svg";
+import sampleFace2Image from "@/assets/images/sampleFace2.png";
 
 interface IProps {
   setProcess: React.Dispatch<React.SetStateAction<number>>;
@@ -9,7 +10,10 @@ interface IProps {
 export default function CreateMethod({ setProcess }: IProps) {
   return (
     <Wrapper>
-      <img src={SampleStartCharacterImage} className="w-60" />
+      <ImgContainer>
+        <BabyImg src={BabyImgFrame} />
+        <FaceImg src={sampleFace2Image} />
+      </ImgContainer>
       <Content>
         <DesktopTitle>
           <Title>캐릭터 생성</Title>
@@ -36,13 +40,37 @@ justify-center
 items-center
 `;
 
+const ImgContainer = tw.div`
+relative
+w-80
+h-80
+-rotate-[30deg]
+`;
+
+const BabyImg = tw.img`
+h-full
+absolute
+left-1/2
+top-1/2
+-translate-x-1/2
+-translate-y-1/2
+`;
+
+const FaceImg = tw.img`
+h-[10.2rem]
+absolute
+left-40
+top-9
+-translate-x-1/2
+`;
+
 const Content = tw.div`
 flex
 flex-col
 justify-center
 items-center
 space-y-4
-h-80
+lg:h-80
 `;
 
 const DesktopTitle = tw.div`

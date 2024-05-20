@@ -1,3 +1,5 @@
+import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { Auth } from "aws-amplify";
 import axios from "axios";
 
 export const usInstance = axios.create({
@@ -15,35 +17,10 @@ export const seoulInstance = axios.create({
 });
 
 usInstance.interceptors.request.use(
-  (config) => {
-    const recoilValue = localStorage.getItem("recoil-persist");
-
-    if (recoilValue) {
-      const recoilJson = JSON.parse(recoilValue);
-      const accessToken = recoilJson.authData.attributes.sub;
-      // const userId = recoilJson.userData.userId;
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-      // config.headers["userId"] = userId;
-    }
-    return config;
-  },
-  (error) => {
-    console.log(error);
-    return Promise.reject(error);
-  }
-);
-
-usInstance.interceptors.request.use(
-  (config) => {
-    const recoilValue = localStorage.getItem("recoil-persist");
-
-    if (recoilValue) {
-      const recoilJson = JSON.parse(recoilValue);
-      const accessToken = recoilJson.authData.attributes.sub;
-      // const userId = recoilJson.userData.userId;
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-      // config.headers["userId"] = userId;
-    }
+  async (config) => {
+    const session: CognitoUserSession = await Auth.currentSession();
+    const idToken = session.getIdToken();
+    config.headers["Authorization"] = idToken.getJwtToken();
     return config;
   },
   (error) => {
@@ -55,6 +32,7 @@ usInstance.interceptors.request.use(
 usInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
+    if (!data.body) return null;
     const body = JSON.parse(data.body);
     if (data.statusCode === 200) {
       return body;
@@ -67,16 +45,10 @@ usInstance.interceptors.response.use(
 );
 
 seoulInstance.interceptors.request.use(
-  (config) => {
-    const recoilValue = localStorage.getItem("recoil-persist");
-
-    if (recoilValue) {
-      const recoilJson = JSON.parse(recoilValue);
-      const accessToken = recoilJson.authData.attributes.sub;
-      // const userId = recoilJson.userData.userId;
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-      // config.headers["userId"] = userId;
-    }
+  async (config) => {
+    const session: CognitoUserSession = await Auth.currentSession();
+    const idToken = session.getIdToken();
+    config.headers["Authorization"] = idToken.getJwtToken();
     return config;
   },
   (error) => {
@@ -88,6 +60,7 @@ seoulInstance.interceptors.request.use(
 seoulInstance.interceptors.response.use(
   (response) => {
     const data = response.data;
+    if (!data.body) return null;
     const body = JSON.parse(data.body);
     if (data.statusCode === 200) {
       return body;

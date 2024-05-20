@@ -1,5 +1,18 @@
-export interface ICharacter {
-  id: number;
+import { IBaseEntity } from "@/models";
+
+export interface ICharacter extends IBaseEntity {
+  characterId: number;
+  userId: number;
+  name: string;
+  exp: number;
+  faceUrl: string;
+  characterUrl: string;
+  status: ICharacterStatus;
+  stat: ICharacterStat;
+}
+
+export interface ISimpleCharacter {
+  characterId: number;
   userId: number;
   name: string;
   exp: number;
@@ -8,19 +21,12 @@ export interface ICharacter {
 }
 
 export interface ICharacterStatus {
-  characterId: number;
-  userId: number;
   fullness: number;
   intimacy: number;
   cleanness: number;
-  lastUpdatedFullness: string;
-  lastUpdatedIntimacy: string;
-  lastUpdatedCleanness: string;
 }
 
 export interface ICharacterStat {
-  characterId: number;
-  userId: number;
   fullnessStat: number;
   intimacyStat: number;
   cleannessStat: number;

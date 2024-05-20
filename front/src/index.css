@@ -33,5 +33,63 @@ div::-webkit-scrollbar-track {
 }
 
 .text-border {
-  text-shadow: 1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px black;
+  text-shadow: 1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black,
+    -1px 1px black;
+}
+
+.shower-pole {
+  position: absolute;
+  right: 10px;
+  width: 30px;
+  height: 150px;
+  border: 15px solid gray;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50% 50% 0 0 / 40% 20% 0 0;
+}
+
+.water {
+  position: absolute;
+  width: 200px;
+  height: 360px;
+  top: 0px;
+  right: 22px;
+  transform: rotate(20deg);
+  clip-path: polygon(40% 0%, 60% 0%, 100% 100%, 0% 100%);
+}
+
+.water::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 1080px;
+  background: repeating-linear-gradient(
+    rgba(255, 255, 255, 0.8),
+    rgba(255, 255, 255, 0.8) 16px,
+    rgba(255, 255, 255, 0.3) 72px,
+    rgba(255, 255, 255, 0.8) 144px
+  );
+  animation: waterFall 2s infinite linear;
+}
+
+@keyframes waterFall {
+  0% {
+    transform: translateY(-720px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Shower head */
+.shower-pole::after {
+  content: "";
+  position: absolute;
+  transform: rotate(30deg);
+  right: 20px;
+  width: 80px;
+  height: 30px;
+  background: gray;
+  clip-path: polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%);
 }

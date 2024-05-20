@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CommonMenuItem from "./CommonMenuItem";
 import { useRecoilValue } from "recoil";
 import { userDataAtom } from "@/store/user";
+import DefaultUserImage from "@/assets/images/defaultUser.svg";
 
 interface IProps {
   pageTitle?: string;
@@ -30,7 +31,7 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
     { id: 1, text: "캐릭터 도감", url: "/collection" },
     { id: 2, text: "명예의 전당", url: "/award" },
     { id: 3, text: "사용자 랭킹", url: "/ranking" },
-    { id: 4, text: "배경화면", url: "/changebg" },
+    { id: 4, text: "배경화면", url: "/background" },
     { id: 5, text: "통합검색", url: "/search" },
   ];
 
@@ -53,7 +54,7 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
           </DesktopMenuItem>
         ))}
         <DesktopUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={userData?.profileImg || ""} />
+          <UserImg src={userData?.profileImg || DefaultUserImage} />
           <UserNickname>{userData?.nickname}</UserNickname>
         </DesktopUserContainer>
       </DesktopMenu>
@@ -61,9 +62,11 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
         {open ? <CloseIcon /> : <MenuIcon />}
       </MobileMenuButton>
       <MobileMenu $open={open}>
-        <MobileMenuTitle onClick={onClickLink("/")}>{pageTitle || "GITMAGOTCHI"}</MobileMenuTitle>
+        <MobileMenuTitle onClick={onClickLink("/")}>
+          {pageTitle || "GITMAGOTCHI"}
+        </MobileMenuTitle>
         <MobileUserContainer onClick={onClickLink("/mypage")}>
-          <UserImg src={userData?.profileImg || ""} />
+          <UserImg src={userData?.profileImg || DefaultUserImage} />
           <UserInfo>
             <GithubUsername>{userData?.githubUsername}</GithubUsername>
             <UserNickname>{userData?.nickname}</UserNickname>
@@ -71,7 +74,11 @@ export default function Navbar({ pageTitle, canGoBack }: IProps) {
         </MobileUserContainer>
         <MobileMenuList>
           {navItems.map((item) => (
-            <CommonMenuItem key={item.id} text={item.text} onClick={onClickLink(item.url)} />
+            <CommonMenuItem
+              key={item.id}
+              text={item.text}
+              onClick={onClickLink(item.url)}
+            />
           ))}
         </MobileMenuList>
       </MobileMenu>
