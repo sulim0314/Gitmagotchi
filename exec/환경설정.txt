@@ -1,0 +1,24 @@
+[ AWS 계정 ]
+--------
+Admin 계정
+992382698264
+Administrator
+ssafy_S205
+--------
+루트 계정
+heeyeon807@gmail.com
+ssafy_S205
+--------
+고수림 IM 계정
+계정ID :992382698264
+사용자 이름: sulim
+PWD: fO88$|&k
+
+IM계정 로그인 URL
+https://992382698264.signin.aws.amazon.com/console
+--------
+Python 3.12 | 3.8
+Java 17
+Node.js 18.x
+Amazon Linux 2
+Ubuntu 20.04
