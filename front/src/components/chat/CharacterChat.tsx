@@ -11,9 +11,9 @@ export default function CharacterChat({ imgSrc, level, name, text }: IProps) {
   return (
     <Wrapper>
       <InfoRow>
-        <ImgContainer>
-          <img src={imgSrc} className="w-16" />
-        </ImgContainer>
+        <FaceContainer>
+          <FaceImg src={imgSrc} />
+        </FaceContainer>
         <Info>
           <Level>{`LV. ${level}`}</Level>
           <Name>{name}</Name>
@@ -44,12 +44,17 @@ space-x-2
 items-center
 `;
 
-const ImgContainer = tw.div`
+const FaceContainer = tw.div`
 w-16
 h-16
-flex
-justify-center
-items-center
+transition-all
+`;
+
+const FaceImg = tw.img`
+w-16
+h-16
+scale-125
+translate-y-1
 `;
 
 const Info = tw.div`

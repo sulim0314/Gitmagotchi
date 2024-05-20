@@ -326,7 +326,7 @@ class CharacterConfig():
 
         # validate mask and texture files
         try:
-            self.mask_p: Path = character_cfg_p.parent / 'mask.png'
+            self.mask_p: Path = Path(usr_assets_dir) / 'mask.png'
             self.txtr_p: Path = Path(usr_assets_dir) / 'texture.png'
             assert self.mask_p.exists(), f'cannot find character mask: {self.mask_p}'
             assert self.txtr_p.exists(), f'cannot find character texture: {self.txtr_p}'

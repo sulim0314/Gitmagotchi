@@ -1,21 +1,31 @@
 import pymysql
 import boto3
 import json
+import logging
 from pymysql.err import OperationalError
 
 # AWS Systems Manager (SSM) 클라이언트 생성
 ssm = boto3.client('ssm', region_name='ap-northeast-2')
 
+class NotFoundException(Exception):
+    """요청한 리소스를 찾을 수 없을 때 발생하는 예외"""
+    def __init__(self, message="Requested resource not found"):
+        self.message = message
+        super().__init__(self.message)
+
+class DatabaseConnectionError(Exception):
+    """데이터베이스 연결 실패 시 발생하는 예외"""
+    def __init__(self, message="Database connection failed"):
+        self.message = message
+        super().__init__(self.message)
+
 def get_parameter(name):
     """Parameter Store로부터 파라미터 값을 가져오는 함수"""
-    try:
-        response = ssm.get_parameter(
-            Name=name,
-            WithDecryption=True
-        )
-        return response['Parameter']['Value']
-    except ssm.exceptions.ParameterNotFound:
-        raise ValueError(f"Parameter {name} not found")
+    response = ssm.get_parameter(
+        Name=name,
+        WithDecryption=True
+    )
+    return response['Parameter']['Value']
 
 def init_db():    
     try:
@@ -28,17 +38,14 @@ def init_db():
         # 데이터베이스에 연결
         return pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
     except OperationalError as e:
-        print(f"Database connection failed: {e}")
-        raise ValueError("Failed to connect to the database")
-    except ValueError as e:
-        raise e
+        logging.error(f"Database connection failed: {e}")
+        raise DatabaseConnectionError("Failed to connect to the database")
 
-def create_character(userId, name, faceUrl):
-    if not name or not faceUrl:
-        raise ValueError("Name and faceUrl are required")
-    conn = init_db()    
-    with conn.cursor() as cur:
-        try:
+def save_to_aurora(userId, name, faceUrl):
+    conn = None
+    try:
+        conn = init_db()    
+        with conn.cursor() as cur:        
             # 캐릭터 생성            
             insert_character_query = """
             INSERT INTO `character` (user_id, name, face_url)
@@ -50,35 +57,67 @@ def create_character(userId, name, faceUrl):
 
             # 상태 생성
             insert_status_query = """
-            INSERT INTO `status` (character_id, user_id, fullness, intimacy, cleanness)
-            VALUES (%s, %s, %s, %s, %s);
+            INSERT INTO `status` (character_id, user_id)
+            VALUES (%s, %s);
             """
-            cur.execute(insert_status_query, (characterId, userId, 100, 100, 100))
+            cur.execute(insert_status_query, (characterId, userId))
 
             # 능력치 생성
             insert_stat_query = """
-            INSERT INTO `stat` (character_id, user_id, fullness_stat, intimacy_stat, cleanness_stat, unused_stat)
-            VALUES (%s, %s, %s, %s, %s, %s);
+            INSERT INTO `stat` (character_id, user_id)
+            VALUES (%s, %s);
             """
-            cur.execute(insert_stat_query, (characterId, userId, 0, 0, 0, 0))
+            cur.execute(insert_stat_query, (characterId, userId))
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-    conn.commit()
+            # 유저 테이블에 캐릭터 id 저장
+            update_user_query = """
+            UPDATE user
+            SET character_id = %s
+            WHERE id = %s;
+            """
+            cur.execute(update_user_query, (characterId, userId))
+            conn.commit()
 
+            return characterId
+    except Exception as e:
+        raise Exception(f'Error occured on save... {e}')
+    finally:
+        if conn:
+            conn.close()
+            
 def lambda_handler(event, context):    
     try:
-        json_body = event.get('body')
-        # event로부터 사용자 정보를 추출합니다.
-        obj = json.loads(json_body)
+        json_body = event.get('body').get('body')
 
-        userId = obj.get("userId")
+        if not json_body:
+            raise ValueError('Invalid input data')
+        obj = json.loads(json_body)    
+
+        userId = event.get('context').get('username').replace('github_', '')
         name = obj.get("name")
         faceUrl = obj.get("faceUrl")
-        create_character(userId, name, faceUrl)
+        
+        if not userId:
+            raise ValueError('Missing userId')
+        elif not name or not faceUrl:
+            raise ValueError('Missing required Parameter')
+
+        characterId = save_to_aurora(userId, name, faceUrl)        
         return {
             'statusCode': 200,
-            'body': json.dumps({'message': 'Character created successfully'})
+            'body': json.dumps({"characterId": characterId}),
+        }
+    except NotFoundException as e:
+        logging.error(f"NotFoundException: {e}")
+        return {
+            'statusCode': 404,
+            'body': json.dumps({'error': str(e)})
+        }
+    except DatabaseConnectionError as e:
+        logging.error(f"DatabaseConnectionError: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Database connection error'})
         }
     except ValueError as e:
         return {

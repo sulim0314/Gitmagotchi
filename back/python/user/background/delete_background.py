@@ -4,6 +4,7 @@ import boto3
 import pymysql
 
 from botocore.exceptions import ClientError
+from pymysql.err import OperationalError
 
 # 필요한 설정 값을 설정하세요
 S3_BUCKET = 'gitmagotchi-generated'  # S3 버킷 이름
@@ -13,6 +14,12 @@ AWS_REGION_SEOUL = 'ap-northeast-2'  # 리전 정보
 s3_client = boto3.client('s3', region_name=AWS_REGION_VIRGINIA)
 ssm_client = boto3.client('ssm', region_name=AWS_REGION_SEOUL)
 
+class DatabaseConnectionError(Exception):
+    """데이터베이스 연결 실패 시 발생하는 예외"""
+    def __init__(self, message="Database connection failed"):
+        self.message = message
+        super().__init__(self.message)
+
 def get_parameter(name):
     """Parameter Store로부터 파라미터 값을 가져오는 함수"""
     response = ssm_client.get_parameter(
@@ -21,18 +28,37 @@ def get_parameter(name):
     )
     return response['Parameter']['Value']
 
-def save_to_aurora(userId, backgroundId):
-    # 환경 변수로부터 파라미터 이름을 읽어옵니다.
-    db_host = get_parameter('mysql-host')
-    db_user = get_parameter('mysql-username')
-    db_password = get_parameter('mysql-password')
-    db_name = "gitmagotchi"  # 데이터베이스 이름을 설정합니다.
-
-    # 데이터베이스에 연결
-    conn = pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
-    
+def init_db():    
     try:
+        # 환경 변수로부터 파라미터 이름을 읽어옵니다.
+        db_host = get_parameter('mysql-host')
+        db_user = get_parameter('mysql-username')
+        db_password = get_parameter('mysql-password')
+        db_name = "gitmagotchi"
+        
+        # 데이터베이스에 연결
+        return pymysql.connect(host=db_host, user=db_user, passwd=db_password, db=db_name)
+    except OperationalError as e:
+        logging.error(f"Database connection failed: {e}")
+        raise DatabaseConnectionError("Failed to connect to the database")
+
+def save_to_aurora(userId, backgroundId):
+    conn = None    
+    try:
+        conn = init_db()
         with conn.cursor() as cur:
+            # 현재 배경화면을 삭제하면 첫번째 배경화면으로 변경
+            select_query = """
+            SELECT background_id FROM user WHERE id=%s;
+            """
+            cur.execute(select_query, (userId,))
+            result = cur.fetchone()[0]
+            if int(result) == int(backgroundId):
+                update_query ="""
+                UPDATE user SET background_id=%s where id=%s;
+                """
+                cur.execute(update_query, (1,userId))
+
             # user_background 테이블에 데이터 삭제
             delete_user_background_query = """
             DELETE FROM user_background
@@ -41,41 +67,42 @@ def save_to_aurora(userId, backgroundId):
             cur.execute(delete_user_background_query, (userId, backgroundId))
         conn.commit()
     except Exception as e:
-        # 예외가 발생한 경우, 에러 메시지를 반환합니다.
-        return {
-            'statusCode': 400,
-            'body': json.dumps(f"An error occurred: {str(e)}")
-        }
+        raise Exception(f'Error occured on save... {e}')
     finally:
-        # 데이터베이스 연결을 안전하게 종료합니다.
-        conn.close()
+        if conn:
+            conn.close()
 
 def lambda_handler(event, context):
-    json_body = event.get('body')
-    
-    print("Request:", event)
-    print("Received body:", json_body)
-    
-    if not json_body:
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Invalid input data')
-        }
-        
-    obj = json.loads(json_body)
-    userId = obj.get("userId")
-    backgroundId = obj.get("backgroundId")
-    
     try:
+        backgroundId = event.get('queryStringParameters', {}).get('backgroundId')        
+        userId = event.get('context').get('username').replace('github_', '')
+        
+        if not userId:
+            raise ValueError('Missing userId')
+        elif not backgroundId:
+            raise ValueError('Missing backgroundId')
+    
         save_to_aurora(userId, backgroundId)
         return {
             'statusCode': 200,
-            'body': 'Query executed successfully!'
+            'body': json.dumps({'message':'Query executed successfully!'})
         }
-
-    except (ClientError) as err:
-        logging.error("Error deleting background image: %s", err)
+    
+    except DatabaseConnectionError as e:
+        logging.error(f"DatabaseConnectionError: {e}")
         return {
             'statusCode': 500,
-            'body': json.dumps({"error": str(err)})
+            'body': json.dumps({'error': 'Database connection error'})
         }
+    except ValueError as e:
+        logging.error(f"ValueError: {e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': str(e)})
+        }
+    except Exception as e:
+        logging.error(f"Internal server error: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Internal server error', 'detail': str(e)})
+        }  

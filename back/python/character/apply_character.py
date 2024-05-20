@@ -68,13 +68,20 @@ def apply_status(characterId, status, conn):
         except Exception as e:
             print(f"An error occurred applying status: {e}")
 
-def apply_character(characterId, exp, stat, status):    
+def apply_character(userId, exp, stat, status):    
     conn = init_db()    
     with conn.cursor() as cur:
-        try:           
+        try:
+            # 캐릭터 Id 찾기
+            select_query = """
+            SELECT character_id FROM user WHERE id = %s;
+            """
+            cur.execute(select_query, (userId,))            
+            characterId = cur.fetchone()
+            
             update_query = """
             UPDATE `character`
-            SET exp = %s
+            SET exp = %s, last_online = NOW()
             WHERE id = %s;
             """            
             cur.execute(update_query, (exp, characterId))
@@ -86,18 +93,16 @@ def apply_character(characterId, exp, stat, status):
 
 def lambda_handler(event, context):    
     try:
-        json_body = event.get('body')
+        json_body = event.get('body').get('body')
         # event로부터 사용자 정보를 추출합니다.
         obj = json.loads(json_body)
 
-        characterId = obj.get("characterId")
+        userId = event.get('context').get('username').replace('github_', '')
         exp = obj.get("exp")
-
         status = obj.get("status")
-
         stat = obj.get("stat")
 
-        apply_character(characterId, exp, stat, status)
+        apply_character(userId, exp, stat, status)
 
         return {
             'statusCode': 200,

@@ -4,7 +4,7 @@ import { seoulInstance } from ".";
 export const searchCollection = async (params: {
   isCollection: boolean;
   isIndependent: boolean | null;
-  orderBy: "LATEST" | "OLDEST";
+  orderBy?: "LATEST" | "OLDEST";
   page?: number;
   pageSize?: number;
 }): Promise<Pageable<ICollection>> => {

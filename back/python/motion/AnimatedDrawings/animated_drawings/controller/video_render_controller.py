@@ -184,7 +184,7 @@ class PNGWriter(VideoWriter):
         OUTPUT_SIZE = (frame.shape[0],frame.shape[1])
         logging.info(f"Size: {OUTPUT_SIZE}")
         logging.info(f"Frames: {len(self.frames)}")
-
+        
         output = Image.new("RGBA", (OUTPUT_SIZE[0] * len(self.frames), OUTPUT_SIZE[1]))
         for i, a_frame in tqdm(enumerate(self.frames)):
             frame = Image.fromarray(a_frame)
@@ -192,7 +192,8 @@ class PNGWriter(VideoWriter):
             position = (OUTPUT_SIZE[0]*i, 0)
             output.paste(extracted_frame, position)
 
-        output.save(self.output_p)
+        output.save(self.output_p, quality=70, optimize=True)
+        # output.save(self.output_p, optimize=True)
 
 
 class GIFWriter(VideoWriter):

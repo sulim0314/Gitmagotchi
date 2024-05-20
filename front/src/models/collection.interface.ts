@@ -1,4 +1,6 @@
-export interface ICollection {
+import { IBaseEntity } from "@/models";
+
+export interface ICollection extends IBaseEntity {
   id: number;
   characterName: string;
   userId: number;
@@ -7,4 +9,5 @@ export interface ICollection {
   intimacyStat: number;
   cleannessStat: number;
   characterUrl: string;
+  backgroundUrl: string;
 }

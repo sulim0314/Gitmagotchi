@@ -1,4 +1,4 @@
-import { InteractType } from "@/models";
+import { ICharacter, IMotion, InteractType } from "@/models";
 
 export const expHandler = (exp: number) => {
   const LEVEL_EXP = [0, 10, 25, 45, 65, 90, 120, 150, 190, 230];
@@ -48,10 +48,19 @@ export const expHandler = (exp: number) => {
     curExp = 200;
   }
 
-  return { level, curExp, maxExp, percentage: ((100 * curExp) / maxExp).toFixed(2) };
+  return {
+    level,
+    curExp,
+    maxExp,
+    percentage: ((100 * curExp) / maxExp).toFixed(2),
+  };
 };
 
-export const statusHandler = (level: number, intimacyLevel: number) => {
+export const statusHandler = (characterData: ICharacter | null) => {
+  if (!characterData)
+    return { fullnessMax: 0, intimacyMax: 0, cleannessMax: 0 };
+  const level = expHandler(characterData.exp).level;
+  const intimacyLevel = characterData.stat.intimacyStat;
   let fullnessMax = 0;
   let intimacyMax = 0;
   let cleannessMax = 0;
@@ -99,25 +108,25 @@ export const statusHandler = (level: number, intimacyLevel: number) => {
   }
 
   if (intimacyLevel === 1) {
-    intimacyMax += 10;
+    intimacyMax += 0;
   } else if (intimacyLevel === 2) {
-    intimacyMax += 15;
+    intimacyMax += 5;
   } else if (intimacyLevel === 3) {
-    intimacyMax += 20;
+    intimacyMax += 10;
   } else if (intimacyLevel === 4) {
-    intimacyMax += 25;
+    intimacyMax += 15;
   } else if (intimacyLevel === 5) {
-    intimacyMax += 30;
+    intimacyMax += 20;
   } else if (intimacyLevel === 6) {
-    intimacyMax += 35;
+    intimacyMax += 25;
   } else if (intimacyLevel === 7) {
-    intimacyMax += 40;
+    intimacyMax += 30;
   } else if (intimacyLevel === 8) {
-    intimacyMax += 50;
+    intimacyMax += 40;
   } else if (intimacyLevel === 9) {
-    intimacyMax += 70;
+    intimacyMax += 50;
   } else if (intimacyLevel === 10) {
-    intimacyMax += 100;
+    intimacyMax += 70;
   }
   return { fullnessMax, intimacyMax, cleannessMax };
 };
@@ -133,5 +142,22 @@ export const interactionMessage = (type: InteractType, exp: number) => {
     return `대화을 통해 기분이 좋아져 친밀도가 상승했습니다. (EXP +${exp})`;
   } else if (type === "CHAT_NEGATIVE") {
     return `대화을 통해 기분이 안좋아져 친밀도가 하락했습니다`;
+  }
+  return "";
+};
+
+export const validMotionData = (motionData: IMotion) => {
+  if (!motionData) return false;
+  if (
+    motionData.motion.length > 0 &&
+    motionData.default &&
+    motionData.hello &&
+    motionData.meal &&
+    motionData.walk &&
+    motionData.shower
+  ) {
+    return true;
+  } else {
+    return false;
   }
 };

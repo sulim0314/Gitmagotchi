@@ -1,20 +1,28 @@
-export interface IUser {
+import { IBaseEntity } from "@/models";
+
+export interface IUser extends IBaseEntity {
   id: number;
-  profileImg: string;
-  nickname: string;
+  githubToken: string;
   githubUsername: string;
   gold: number;
-  meal: number;
   lastTime: string;
-  backgroundId?: number;
-  characterId?: number;
-  githubToken?: string;
+  meal: number;
+  nickname: string;
+  profileImg: string;
+  characterId: number | null;
+  backgroundUrl: string;
 }
 
 export interface IRanking {
-  rank: number;
-  profileImg: string;
-  username: string;
+  id: number;
+  githubToken: string;
+  githubUsername: string;
+  gold: number;
+  lastTime: string;
+  meal: number;
   nickname: string;
-  amount: number;
+  profileImg: string;
+  characterId: number | null;
+  backgroundUrl: string;
+  collectionCount: number;
 }

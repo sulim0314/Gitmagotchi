@@ -2,3 +2,5 @@
 *.gif
 .DS_Store
 __pycache__
+
+motion/character_assets/
