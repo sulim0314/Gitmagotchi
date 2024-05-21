@@ -100,7 +100,9 @@ export default function Search() {
             }를 찾아보세요.`}
             onChange={onChangeKeyword}
           />
-          <SearchIcon />
+          <button className="absolute w-6 h-6 right-10 top-1/2 -translate-y-1/2">
+            <SearchIcon />
+          </button>
         </InputContainer>
         <Content>
           <ScrollContent>
@@ -268,12 +270,8 @@ focus:outline-none
 `;
 
 const SearchIcon = tw(HiOutlineSearch)`
-absolute
 w-6
 h-6
-right-10
-top-1/2
--translate-y-1/2
 `;
 
 const Content = tw.div`

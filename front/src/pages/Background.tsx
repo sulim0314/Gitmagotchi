@@ -66,7 +66,7 @@ export default function Background() {
         });
       }
       setBackgroundList((prev) => prev.filter((bg) => bg.id !== selected.id));
-      navigate("/");
+      // navigate("/");
     },
     onError: (err) => console.log(err),
   });
